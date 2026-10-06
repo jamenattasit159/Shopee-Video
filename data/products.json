@@ -1,0 +1,256 @@
+[
+  {
+    "id": "prod_1791276033175",
+    "name": "มือตบกล่อมนอน สำหรับเด็ก",
+    "price": "ลด 30%",
+    "highlights": "มือตบกล่อมนอนเด็กเล็ก มีแบตในตัวพร้อมสายชาร์จ ถอดซักได้",
+    "tone": "minimal",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง",
+    "images": [
+      "/uploads/1791276033176_0_IMG_9204.jpg",
+      "/uploads/1791276033177_1_IMG_9203.jpg",
+      "/uploads/1791276033180_2_IMG_9202.jpg"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "ตัวช่วยคุณแม่! มือตบกล่อมนอนเด็ก",
+        "subheadline": "ลูกหลับง่าย สบายตัว ไม่งอแง",
+        "badgeText": "👶 ไอเทมเด็ดแม่และเด็ก",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "จำลองสัมผัสมือแม่อบอุ่น",
+          "highlightDesc": "ช่วยกล่อมลูกน้อยหลับปุ๋ย หลับลึกขึ้น",
+          "stickerText": "💤 หลับสบาย",
+          "imageIndex": 0,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "มีแบตในตัว พร้อมสายชาร์จ",
+          "highlightDesc": "พกพาสะดวก ไม่ต้องเปลี่ยนถ่านบ่อย",
+          "stickerText": "⚡ แบตอึด",
+          "imageIndex": 1,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "ปลอกผ้าถอดซักได้",
+          "highlightDesc": "เนื้อผ้านุ่ม อ่อนโยน ปลอดภัยต่อผิวเด็ก",
+          "stickerText": "✨ ซักทำความสะอาดง่าย",
+          "imageIndex": 2,
+          "durationSec": 4
+        }
+      ],
+      "cta": {
+        "ctaTitle": "จิ้มตะกร้าส้มซ้ายล่างได้เลย",
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + มีโปรลดพิเศษ 30%",
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#EE4D2D",
+        "accentColor": "#FFBA00",
+        "bgColor": "#0F172A",
+        "textColor": "#FFFFFF",
+        "styleName": "Warm Parenting Energy"
+      },
+      "audioSuggestion": {
+        "mood": "อบอุ่น อ่อนโยน เป็นมิตร น่ารัก",
+        "musicGenre": "Chill Lo-fi / Upbeat Pop",
+        "soundEffectTips": "เสียง Whoosh นุ่มนวล และเสียง Ding ตอนบอกโปรโมชั่น"
+      },
+      "narrationScript": "แม่ๆ บ้านไหนลูกหลับยากต้องมีตัวนี้เลย! มือตบกล่อมนอนเด็ก จำลองสัมผัสเหมือนมือแม่ตบก้น ช่วยให้ลูกหลับปุ๋ยไม่สะดุ้งตื่น มีแบตในตัวพร้อมสายชาร์จ แถมปลอกผ้าถอดซักได้ด้วยนะ ตอนนี้มีโปรลดพิเศษถึง 30% พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า"
+    },
+    "createdAt": "2026-10-06T08:40:33.994Z",
+    "renderedVideoUrl": "/renders/shopee_prod_1791276033175_clean.mp4",
+    "voiceoverUrl": "/uploads/voice_prod_1791276033175.mp3"
+  },
+  {
+    "id": "prod_1791261293929",
+    "name": "น้ำหอม Madame Fin Sun ขนาด 100 ml.",
+    "price": "544",
+    "highlights": "กลิ่นหอม สดชื่น เซ็กซี่ ฟิลหนุ่มอารมณ์ดี ละมุนขี้เล่น",
+    "tone": "minimal",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791261293931_0_IMG_9192.jpg",
+      "/uploads/1791261293933_1_IMG_9191.jpg"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "หอมสดชื่น...เซ็กซี่เกินต้าน!",
+        "subheadline": "อยากเป็นหนุ่มอารมณ์ดีมีเสน่ห์ไหม?",
+        "badgeText": "✨ หอมจนต้องเหลียวหลัง",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "กลิ่นหอมสดชื่น",
+          "highlightDesc": "ปลุกความสดใส ฟิลหนุ่มอารมณ์ดี",
+          "stickerText": "☀️ หอมละมุนไม่ฉุน",
+          "imageIndex": 0,
+          "durationSec": 4.5
+        },
+        {
+          "highlightTitle": "เสน่ห์เย้ายวนใจ",
+          "highlightDesc": "ดึงดูดน่าค้นหา เซ็กซี่ขี้เล่น",
+          "stickerText": "💖 สะกดทุกสายตา",
+          "imageIndex": 1,
+          "durationSec": 4.5
+        }
+      ],
+      "cta": {
+        "ctaTitle": "หอมก่อนใคร! รีบกดเลย",
+        "ctaSubtitle": "โค้ดส่วนลดและส่งฟรีเพียบ!",
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#EE4D2D",
+        "accentColor": "#FFBA00",
+        "bgColor": "#0F172A",
+        "textColor": "#FFFFFF",
+        "styleName": "Shopee Sunset Elegance"
+      },
+      "audioSuggestion": {
+        "mood": "Calm, inviting, sophisticated, warm",
+        "musicGenre": "Chill & Lo-fi Jazz",
+        "soundEffectTips": "Gentle chime, subtle whoosh for transitions, soft sparkle"
+      },
+      "narrationScript": "ทุกคนนน ใครอยากตัวหอมมีเสน่ห์ต้องขวดนี้เลย! น้ำหอม Madame Fin Sun ขนาด 100 มิลลิลิตร กลิ่นหอมสดชื่น ปลุกความสดใส ฟิลหนุ่มอารมณ์ดี เซ็กซี่ขี้เล่น ละมุนไม่ฉุน ตอนนี้ราคาพิเศษเพียง 544 บาทเท่านั้นนะ พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลย รีบกดก่อนของหมดน้า"
+    },
+    "createdAt": "2026-10-06T04:35:02.084Z",
+    "renderedVideoUrl": "/renders/shopee_prod_1791261293929_clean.mp4",
+    "voiceoverUrl": "/uploads/voice_prod_1791261293929.mp3"
+  },
+  {
+    "id": "prod_1791260925196",
+    "name": "Test Product",
+    "price": "฿99",
+    "highlights": "Test Highlights",
+    "tone": "exciting",
+    "cta": "พิกัดตะกร้าส้ม",
+    "images": [
+      "/samples/tumbler-1.svg",
+      "/samples/tumbler-2.svg",
+      "/samples/tumbler-3.svg"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "เจอแล้ว! ของดีราคาช็อก!",
+        "subheadline": "อยากรู้ว่าคืออะไร? ต้องดู!",
+        "badgeText": "🔥 ป้ายยาไอเทมเด็ด!",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "ว้าว! คุณภาพเกินราคา",
+          "highlightDesc": "วัสดุพรีเมียม ทนทานสุดๆ ใช้ได้นาน",
+          "stickerText": "✨ คุ้มค่ามาก!",
+          "imageIndex": 0,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "ดีไซน์ล้ำ ไม่ซ้ำใคร",
+          "highlightDesc": "สวยทันสมัย ใช้แล้วดูดี มีสไตล์",
+          "stickerText": "💖 สวยจริงไม่จกตา",
+          "imageIndex": 1,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "ฟังก์ชันครบ จบทุกปัญหา",
+          "highlightDesc": "ใช้งานง่าย ตอบโจทย์ชีวิตประจำวันสุดๆ",
+          "stickerText": "💡 ไอเทมจำเป็น!",
+          "imageIndex": 2,
+          "durationSec": 3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "ช็อก! แค่ ฿99 เท่านั้น!",
+        "ctaSubtitle": "รีบกดเลย! ของดีมีจำกัด ส่งฟรี!",
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#EE4D2D",
+        "accentColor": "#FFBA00",
+        "bgColor": "#0F172A",
+        "textColor": "#FFFFFF",
+        "styleName": "Shopee Hype Pop"
+      },
+      "audioSuggestion": {
+        "mood": "ตื่นเต้น, สนุกสนาน, เร้าใจ, มีพลัง",
+        "musicGenre": "Upbeat TikTok Pop, K-Pop Dance, J-Pop",
+        "soundEffectTips": "Whoosh transition, Pop-up sound, Cash Register Ding (for price reveal), Sparkle sound for highlights."
+      }
+    },
+    "createdAt": "2026-10-06T04:28:54.375Z"
+  },
+  {
+    "id": "prod_demo_01",
+    "name": "แก้วเก็บความเย็น Tyeso สแตนเลส 304",
+    "price": "฿259 (จากปกติ ฿590)",
+    "highlights": "เก็บความเย็นได้นาน 24 ชั่วโมง น้ำแข็งไม่ละลาย ไอน้ำไม่เกาะแก้ว สแตนเลส Food Grade เกรด 304 แท้ มีหูหิ้วพกพาสะดวก",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดลดหมด!",
+    "images": [
+      "/samples/tumbler-1.svg",
+      "/samples/tumbler-2.svg",
+      "/samples/tumbler-3.svg"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "แก้วเก็บความเย็นที่ทุกคนตามหา!",
+        "subheadline": "น้ำแข็งอยู่ข้ามวัน ไม่ละลายจริงมั้ย?!",
+        "badgeText": "🔥 ป้ายยาไอเทมเด็ด",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "เก็บเย็นสะใจ 24 ชั่วโมง!",
+          "highlightDesc": "สแตนเลส 304 แท้ ไอน้ำไม่เกาะโต๊ะ",
+          "stickerText": "❄️ เย็นเจี๊ยบ",
+          "imageIndex": 0,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "ดีไซน์มินิมอล มีหูหิ้ว",
+          "highlightDesc": "พกไปทำงาน ไปยิม คุมโทนสุดๆ",
+          "stickerText": "✨ สวยตรงปก",
+          "imageIndex": 1,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "โปรพิเศษลดเกิน 50%",
+          "highlightDesc": "เหลือเพียง ฿259 เท่านั้น ส่งฟรีทั่วไทย",
+          "stickerText": "🏷️ ลดโหดมาก",
+          "imageIndex": 2,
+          "durationSec": 4
+        }
+      ],
+      "cta": {
+        "ctaTitle": "จิ้มตะกร้าส้มซ้ายล่างเลย!",
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่ม",
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#EE4D2D",
+        "accentColor": "#FFBA00",
+        "bgColor": "#0F172A",
+        "textColor": "#FFFFFF",
+        "styleName": "Shopee Orange Energy"
+      },
+      "audioSuggestion": {
+        "mood": "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat & Trendy Pop)",
+        "musicGenre": "TikTok / Shopee Viral Beat",
+        "soundEffectTips": "เสียง Whoosh สลับเสียง Ding กระดิ่งตอนขึ้นราคาพิเศษ"
+      }
+    },
+    "createdAt": "2026-10-06T11:00:00.000Z"
+  }
+]

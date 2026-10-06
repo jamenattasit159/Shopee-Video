@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" width="800" height="1200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="cup" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#7DD3FC" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="shopeeBadge" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF5722" />
+      <stop offset="100%" stop-color="#EE4D2D" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1200" fill="url(#bg)" />
+  <circle cx="400" cy="550" r="300" fill="#38BDF8" opacity="0.15" filter="blur(60px)" />
+  
+  <!-- Tumbler Body -->
+  <path d="M 280 320 L 520 320 L 480 880 C 480 910, 320 910, 320 880 Z" fill="url(#cup)" stroke="#E0F2FE" stroke-width="4" />
+  
+  <!-- Lid & Handle -->
+  <rect x="260" y="270" width="280" height="50" rx="15" fill="#334155" stroke="#94A3B8" stroke-width="4" />
+  <rect x="340" y="220" width="120" height="50" rx="10" fill="#475569" stroke="#94A3B8" stroke-width="4" />
+  <path d="M 400 220 C 370 170, 430 170, 400 220" fill="none" stroke="#F8FAFC" stroke-width="12" stroke-linecap="round" />
+
+  <!-- Straw / Cold smoke -->
+  <circle cx="400" cy="180" r="10" fill="#38BDF8" opacity="0.8" />
+  <circle cx="430" cy="140" r="15" fill="#38BDF8" opacity="0.5" />
+  <circle cx="380" cy="110" r="20" fill="#38BDF8" opacity="0.3" />
+
+  <!-- Text / Specs Badge -->
+  <rect x="230" y="960" width="340" height="80" rx="40" fill="url(#shopeeBadge)" />
+  <text x="400" y="1010" font-family="system-ui, sans-serif" font-size="34" font-weight="900" fill="#FFFFFF" text-anchor="middle">❄️ เก็บเย็นยาวนาน 24 ชม.</text>
+</svg>

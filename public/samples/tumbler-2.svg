@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" width="800" height="1200">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="cup2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F43F5E" />
+      <stop offset="50%" stop-color="#FB7185" />
+      <stop offset="100%" stop-color="#E11D48" />
+    </linearGradient>
+    <linearGradient id="shopeeBadge2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFBA00" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1200" fill="url(#bg2)" />
+  <circle cx="400" cy="550" r="300" fill="#FB7185" opacity="0.15" filter="blur(60px)" />
+  
+  <!-- Tumbler Body (Pink Edition) -->
+  <path d="M 280 320 L 520 320 L 480 880 C 480 910, 320 910, 320 880 Z" fill="url(#cup2)" stroke="#FFE4E6" stroke-width="4" />
+  
+  <!-- Lid & Handle -->
+  <rect x="260" y="270" width="280" height="50" rx="15" fill="#475569" stroke="#94A3B8" stroke-width="4" />
+  <rect x="340" y="220" width="120" height="50" rx="10" fill="#64748B" stroke="#94A3B8" stroke-width="4" />
+  
+  <!-- Feature Callout Tag -->
+  <rect x="210" y="960" width="380" height="80" rx="40" fill="url(#shopeeBadge2)" />
+  <text x="400" y="1010" font-family="system-ui, sans-serif" font-size="34" font-weight="900" fill="#000000" text-anchor="middle">✨ ดีไซน์มินิมอล มีหูหิ้ว</text>
+</svg>
