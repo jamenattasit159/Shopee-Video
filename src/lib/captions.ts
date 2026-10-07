@@ -10,7 +10,8 @@ export function generatePostCaptions(
   productName: string,
   price: string,
   highlights: string,
-  ctaText?: string
+  ctaText?: string,
+  originalUrl?: string
 ): CaptionPackage[] {
   const cleanHighlights = highlights
     .split(/[,.\n]+/)
@@ -19,6 +20,7 @@ export function generatePostCaptions(
     .slice(0, 3);
 
   const bulletPoints = cleanHighlights.map((h) => `✅ ${h}`).join("\n");
+  const linkSuffix = originalUrl ? `\n🔗 สั่งซื้อได้ที่นี่: ${originalUrl}` : "";
 
   const commonHashtags = [
     "#Shopeeป้ายยา",
@@ -36,6 +38,7 @@ export function generatePostCaptions(
 ลดเหลือเพียง ${price} เท่านั้น บอกเลยว่าคุ้มเกินราคามากก 😱
 
 ${bulletPoints}
+${linkSuffix}
 
 🛒 พิกัด: จิ้มที่ตะกร้าส้มมุมซ้ายล่างในคลิปได้เลยจ้า มีโค้ดส่งฟรีแจกด้วยน้า! 👇`;
 
@@ -44,6 +47,7 @@ ${bulletPoints}
 ดีไซน์สวย ตรงปก ไม่จกตา ในงบเบาๆ แค่ ${price} เท่านั้น
 
 ${bulletPoints}
+${linkSuffix}
 
 👉 พิกัดช้อป: กดที่ตะกร้าสีส้มด้านล่างซ้ายมือได้เลย แนะนำรีบเก็บโค้ดก่อนหมดน้า 📦`;
 
@@ -52,6 +56,7 @@ ${bulletPoints}
 ลดเดือดเหลือ ${price} (ปกติแพงกว่านี้เยอะมากก) ด่วนก่อนของจะหมดสต็อก! 🚨
 
 ${bulletPoints}
+${linkSuffix}
 
 🎟️ โค้ดส่วนลด + ส่งฟรีมีจำนวนจำกัด!
 🛒 รีบจิ้มตะกร้าส้มซ้ายล่างแล้วกดสั่งซื้อด่วนเลย 👇`;

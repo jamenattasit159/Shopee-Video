@@ -2,7 +2,7 @@ import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
 import fs from "fs/promises";
 import path from "path";
-import sharp from "sharp";
+import sharp, { OverlayOptions } from "sharp";
 import {
   ALL_PACK_IDS,
   countDnaDifferences,
@@ -118,7 +118,7 @@ async function runVarietyTest() {
   const sheetWidth = cols * thumbWidth;
   const sheetHeight = rows * thumbHeight;
 
-  const compositeInputs: sharp.OverlayOptions[] = [];
+  const compositeInputs: OverlayOptions[] = [];
 
   for (let r = 0; r < rows; r++) {
     const { product, dna } = assignedDnas[r];

@@ -55,6 +55,13 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
         </div>
       </div>
 
+      {props.imageWarning && (
+        <div className="w-full mb-4 bg-amber-950/60 border border-amber-600/50 rounded-xl p-2.5 text-xs text-amber-300 flex items-center gap-2">
+          <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>ข้อควรระวัง: {props.imageWarning}</span>
+        </div>
+      )}
+
       {/* Red Zone Toggle Control Bar */}
       <div className="w-full mb-4 bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2">

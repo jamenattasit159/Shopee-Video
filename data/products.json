@@ -1,5 +1,121 @@
 [
   {
+    "id": "prod_1791360975084",
+    "name": "MamyPoko มามี่โพโคเทป ซุปเปอร์ พรีเมี่ยม ออร์แกนิค รุ่น หมีเนย ไซส์ NB-S จำนวน 3 แพ็ค",
+    "price": "ลด 200 จากโค้ด 'MAMYEOT26",
+    "highlights": "นวัตกรรมล่าสุด! Organic Speed Sheet ​แผ่นซึมซับที่บางเบาเพียง 0.4 cm แต่ยังคงซึมซับปัสสาวะได้อย่างรวดเร็ว มีส่วนผสมของ “ออร์แกนิค คอตตอน” และ “เส้นใยธรรมชาติ” ผสานคุณค่าพิเศษจากโจโจ้บาออยล์ เพิ่มความชุ่มชื่นให้กับผิว มอบสัมผัสนุ่มอ่อนโยน ปกป้องผิวจากการระคายเคือง** ​ลูกน้อยแรกเกิดมีสุขภาพผิวดี อารมณ์ดีตลอดวัน​",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791360975084_0_th-11134201-7rasj-mar9qaw49ovq3a.webp",
+      "/uploads/1791360975086_1_th-11134201-7rasj-mar9qapgje6o85.webp",
+      "/uploads/1791360975087_2_th-11134207-81ztm-mqzv47rxajuq41.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "เปิดวาร์ปไอเทมเด็ดช้อปปี้",
+        "subheadline": "ของดีตรงปก บอกเลยว่าห้ามพลาด",
+        "badgeText": "✏️ จดลิสต์ด่วน",
+        "highlightWord": "ตัวดัง",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "นวัตกรรมล่าสุด! Organic ",
+          "highlightDesc": "ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ",
+          "stickerText": "✨ ไฮไลท์เด็ด",
+          "highlightWord": "ผิวอิ่มฟู",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "4 cm แต่ยังคงซึมซับปัสสา",
+          "highlightDesc": "เนื้อบางเบา สบายผิว ไม่ระคายเคือง",
+          "stickerText": "👍 สวยตรงปก",
+          "highlightWord": "ซึมไว",
+          "layout": "polaroid-stack",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "เห็นผลจริง ลูกค้าซื้อซ้ำ",
+          "highlightDesc": "รีวิวแน่น ใช้ต่อเนื่องผิวยิ่งกระจ่า",
+          "stickerText": "🏷️ คุ้มค่าที่สุด",
+          "highlightWord": "เห็นผลจริง",
+          "layout": "callout-circle",
+          "paperTheme": "kraft",
+          "imageIndex": 2,
+          "durationSec": 3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดมีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f3a916",
+        "bgColor": "#d6e8eb",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (notebook-doodle)"
+      },
+      "audioSuggestion": {
+        "mood": "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
+        "musicGenre": "Viral Shopee Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! MamyPoko มามี่โพโคเทป ซุปเปอร์ พรีเมี่ยม ออร์แกนิค รุ่น หมีเนย ไซส์ NB-S จำนวน 3 แพ็ค ตัวนี้คือดีงามมาก นวัตกรรมล่าสุด! Organic  ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ แถมยัง4 cm แต่ยังคงซึมซับปัสสา เนื้อบางเบา สบายผิว ไม่ระคายเคือง ที่สำคัญคือเห็นผลจริง ลูกค้าซื้อซ้ำ ตอนนี้จัดโปรพิเศษเหลือแค่ ลด 200 จากโค้ด 'MAMYEOT26 เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!",
+      "styleDNA": {
+        "seed": 1383406045,
+        "pack": "notebook-doodle",
+        "palette": "notebook-doodle-complementary-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f3a916",
+        "bgColor": "#d6e8eb",
+        "fontPair": "mali-playful",
+        "structure": "problem-solution",
+        "hookFormula": "secret",
+        "layouts": [
+          "hero-center",
+          "polaroid-stack",
+          "callout-circle"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "slap-strip"
+        ],
+        "tempo": "hyper",
+        "stickerShape": "wavy-circle",
+        "sfxKit": "playful-cartoon"
+      }
+    },
+    "createdAt": "2026-10-07T08:16:15.641Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/-%E0%B8%A5%E0%B8%94200%E0%B9%82%E0%B8%84%E0%B9%89%E0%B8%94MAMYEOT26-MamyPoko-%E0%B8%A1%E0%B8%B2%E0%B8%A1%E0%B8%B5%E0%B9%88%E0%B9%82%E0%B8%9E%E0%B9%82%E0%B8%84%E0%B9%80%E0%B8%97%E0%B8%9B-%E0%B8%8B%E0%B8%B8%E0%B8%9B%E0%B9%80%E0%B8%9B%E0%B8%AD%E0%B8%A3%E0%B9%8C-%E0%B8%9E%E0%B8%A3%E0%B8%B5%E0%B9%80%E0%B8%A1%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A1-%E0%B8%AD%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%81%E0%B8%81%E0%B8%99%E0%B8%B4%E0%B8%84-%E0%B8%A3%E0%B8%B8%E0%B9%88%E0%B8%99-%E0%B8%AB%E0%B8%A1%E0%B8%B5%E0%B9%80%E0%B8%99%E0%B8%A2-%E0%B9%84%E0%B8%8B%E0%B8%AA%E0%B9%8C-NB-S-x3-%E0%B9%81%E0%B8%9E%E0%B9%87%E0%B8%84-i.12674685.1587916849?extraParams=%7B%22display_model_id%22%3A2413334246%2C%22model_selection_logic%22%3A3%7D",
+      "shopId": "12674685",
+      "itemId": "1587916849",
+      "fetchedAt": "2026-10-07T08:08:22.570Z",
+      "confirmedAt": "2026-10-07T08:16:15.048Z"
+    },
+    "category": "baby",
+    "promoTag": "ลด200โค้ดMAMYEOT26",
+    "facts": {
+      "claimsInTitle": [
+        "ออร์แกนิค"
+      ]
+    }
+  },
+  {
     "id": "prod_1791354748290",
     "name": "น้ำหอม Madame Fin กลิ่น Sun",
     "price": "ลด 30%",

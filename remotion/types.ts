@@ -154,4 +154,20 @@ export interface ProductRecord {
   createdAt: string;
   renderedVideoUrl?: string;
   voiceoverUrl?: string;
+  import?: {
+    originalUrl: string;
+    shopId?: string | null;
+    itemId?: string | null;
+    fetchedAt: string;
+    confirmedAt?: string;
+  };
+  category?: string;
+  promoTag?: string;
+  facts?: {
+    brand?: string;
+    productType?: string;
+    count?: string;
+    pack?: string;
+    claimsInTitle?: string[];
+  };
 }

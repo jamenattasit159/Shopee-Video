@@ -28,6 +28,28 @@ export async function POST(req: NextRequest) {
     const highlights = (formData.get("highlights") as string) || "";
     const tone = (formData.get("tone") as string) || "exciting";
     const cta = (formData.get("cta") as string) || "พิกัดในตะกร้าส้มซ้ายล่าง";
+    const category = (formData.get("category") as string) || undefined;
+    const promoTag = (formData.get("promoTag") as string) || undefined;
+
+    let facts;
+    const rawFacts = formData.get("facts") as string;
+    if (rawFacts) {
+      try {
+        facts = JSON.parse(rawFacts);
+      } catch {
+        // ignore
+      }
+    }
+
+    let importMeta;
+    const rawImport = formData.get("importMeta") as string;
+    if (rawImport) {
+      try {
+        importMeta = JSON.parse(rawImport);
+      } catch {
+        // ignore
+      }
+    }
 
     const savedImagePaths: string[] = [];
 
@@ -97,6 +119,9 @@ export async function POST(req: NextRequest) {
         tone,
         imageCount: savedImagePaths.length,
         ctaText: cta,
+        category,
+        promoTag,
+        facts,
       });
     }
 
@@ -110,6 +135,10 @@ export async function POST(req: NextRequest) {
       images: savedImagePaths,
       storyboard,
       createdAt: new Date().toISOString(),
+      import: importMeta,
+      category,
+      promoTag,
+      facts,
     };
 
     await saveProduct(productRecord);

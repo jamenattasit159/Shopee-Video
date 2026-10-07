@@ -36,6 +36,7 @@ next-env.d.ts
 
 # temp & renders
 .tmp/
+data/import-cache.json
 *.mp4
 public/renders/*.mp4
 !public/renders/.gitkeep

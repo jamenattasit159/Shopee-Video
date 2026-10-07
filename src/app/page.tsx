@@ -159,6 +159,8 @@ export default function DashboardPage() {
         styleDNA: activeProduct.storyboard.styleDNA,
         voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
         bgmUrl: "/audio/bgm-upbeat.mp3",
+        imageWarning: (activeProduct as any).imageWarning || undefined,
+        originalUrl: activeProduct.import?.originalUrl,
       }
     : {
         ...defaultShopeeVideoProps,

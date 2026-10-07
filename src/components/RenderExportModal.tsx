@@ -121,7 +121,8 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     videoProps.productName || productName,
     videoProps.price || price,
     highlights || videoProps.hook?.headline || "",
-    videoProps.cta?.ctaTitle
+    videoProps.cta?.ctaTitle,
+    (videoProps as any).originalUrl
   );
 
   const copyCaption = (text: string, index: number) => {

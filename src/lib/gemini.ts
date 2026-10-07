@@ -23,6 +23,9 @@ export interface ScriptGenerationParams {
   styleDNA?: StyleDNA;
   recentHeadlines?: string[];
   dominantColors?: string[];
+  category?: string;
+  promoTag?: string;
+  facts?: any;
 }
 
 export async function generateShopeeScript(
@@ -102,8 +105,11 @@ ${recentHeadlines.map((h, i) => `   - [${i + 1}] "${h}"`).join("\n")}
    - Scene headline: Under 24 Thai characters.
    - Headline and Subtitle MUST be strictly distinct within the same scene (Headline ≠ Subtitle).
    - Price placement: Mention the price ONLY in the CTA scene. Do not repeat price in previous scenes!
-3. COMPLIANCE:
-   - DO NOT make prohibited medical or false claims.
+3. COMPLIANCE & FACT GROUNDING:
+   - Use ONLY facts explicitly provided in Verified Facts or Product Name. DO NOT invent false ingredients, functions, or results.
+   - For baby, health, beauty products: STRICTLY PROHIBIT medical claims and 100% guarantees (e.g. NEVER say "ปลอดภัย 100%", "ไม่ระคายเคืองแน่นอน", "รักษา/ป้องกันโรค", "ดีกว่ายี่ห้ออื่น").
+   - Claims like "ออร์แกนิค" may only be used if they appear directly in the product title or verified facts.
+   - If a Promo Tag is present (e.g. "${params.promoTag || ''}"), it may be used as badge text or sticker text.
 
 Return ONLY a valid JSON object matching this schema:
 {
@@ -145,6 +151,7 @@ Highlights / Key Selling Points: ${params.highlights}
 Desired Tone: ${selectedTone.desc}
 User CTA preference: ${params.ctaText || "พิกัดตะกร้าส้มซ้ายล่าง"}
 Number of uploaded images: ${params.imageCount}
+${params.category ? `Product Category: ${params.category}\n` : ""}${params.promoTag ? `Promo Tag: ${params.promoTag}\n` : ""}${params.facts ? `Verified Facts: ${JSON.stringify(params.facts)}\n` : ""}
 `;
 
       const response = await ai.models.generateContent({
