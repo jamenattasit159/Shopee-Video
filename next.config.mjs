@@ -2,7 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverComponentsExternalPackages: ["@remotion/renderer", "@remotion/bundler"],
+    serverComponentsExternalPackages: [
+      "@remotion/renderer",
+      "@remotion/bundler",
+      "@imgly/background-removal-node",
+      "onnxruntime-node",
+    ],
   },
   webpack: (config, { isServer }) => {
     // Allows loading video and font assets cleanly

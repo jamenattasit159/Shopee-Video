@@ -1,5 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
-import { StoryboardPlan } from "../../remotion/types";
+import {
+  CTAData,
+  HookData,
+  PaperTheme,
+  SceneData,
+  SceneLayout,
+  StoryboardPlan,
+  StyleDNA,
+} from "../../remotion/types";
+import { loadStyleHistory, pickStyleDNA } from "./styleDirector";
+import { buildNaturalNarrationText } from "./narrationHelper";
+
+export { buildNaturalNarrationText };
 
 export interface ScriptGenerationParams {
   productName: string;
@@ -8,6 +20,9 @@ export interface ScriptGenerationParams {
   tone: string;
   imageCount: number;
   ctaText?: string;
+  styleDNA?: StyleDNA;
+  recentHeadlines?: string[];
+  dominantColors?: string[];
 }
 
 export async function generateShopeeScript(
@@ -15,75 +30,119 @@ export async function generateShopeeScript(
 ): Promise<StoryboardPlan> {
   const apiKey = process.env.GEMINI_API_KEY;
 
+  // Ensure styleDNA is prepared
+  const styleDNA =
+    params.styleDNA ||
+    pickStyleDNA({
+      productId: params.productName,
+      dominantColors: params.dominantColors,
+    });
+
+  const recentHistory = loadStyleHistory();
+  const recentHeadlines =
+    params.recentHeadlines ||
+    recentHistory
+      .slice(-5)
+      .map((h) => h.dna.hookFormula)
+      .filter(Boolean);
+
   if (apiKey && apiKey.trim() !== "" && !apiKey.includes("your_gemini_api_key")) {
     try {
       const ai = new GoogleGenAI({ apiKey });
 
-      const toneDescriptions: Record<string, string> = {
-        exciting: "สายป้ายยา ตื่นเต้น เร้าใจ ภาษาวัยรุ่น มีเอเนอร์จี้ ชวนว้าว",
-        minimal: "มินิมอล คลีนๆ อบอุ่น ฟังสบาย น่าเชื่อถือ เรียบหรู",
-        problem_solving: "เน้นชี้ Pain Point แก้ปัญหาในชีวิตประจำวัน รีวิวแบบจริงใจ",
-        promo: "เน้นโปรโมชั่น Flash Sale เร่งด่วน คุ้มสุดๆ ด่วนก่อนหมดเวลา",
+      const toneDescriptions: Record<string, { desc: string; defaultTheme: PaperTheme }> = {
+        exciting: {
+          desc: "สายป้ายยา ตื่นเต้น เร้าใจ ภาษาวัยรุ่น มีเอเนอร์จี้ ชวนว้าว",
+          defaultTheme: "halftone-orange",
+        },
+        minimal: {
+          desc: "มินิมอล คลีนๆ อบอุ่น ฟังสบาย น่าเชื่อถือ เรียบหรู",
+          defaultTheme: "cream-grid",
+        },
+        problem_solving: {
+          desc: "เน้นชี้ Pain Point แก้ปัญหาในชีวิตประจำวัน รีวิวแบบจริงใจ",
+          defaultTheme: "pastel-mint",
+        },
+        promo: {
+          desc: "เน้นโปรโมชั่น Flash Sale เร่งด่วน คุ้มสุดๆ ด่วนก่อนหมดเวลา",
+          defaultTheme: "halftone-orange",
+        },
       };
 
-      const selectedToneDesc = toneDescriptions[params.tone] || params.tone;
+      const selectedTone = toneDescriptions[params.tone] || {
+        desc: params.tone,
+        defaultTheme: "kraft",
+      };
 
-      const systemPrompt = `You are a top-tier viral Shopee & TikTok Affiliate Video Director and Creator.
-Your task is to write a high-converting, professional short-form video storyboard and a natural, human-like voiceover narration in THAI.
+      const systemPrompt = `You are a top-tier viral Shopee & TikTok Affiliate Video Director, Motion Designer, and Copywriter.
+Your task is to write a high-converting, professional short-form video storyboard formatted for a Paper Collage & Stop-Motion aesthetic in THAI.
 
-CRITICAL VOICE & SCRIPTING RULES:
-1. NO ROBOTIC REPETITIONS: DO NOT repeat the price or discount percentage in every single scene. Mention the price or discount naturally ONLY ONCE near the call-to-action or climax!
-2. NO ROBOTIC ENUMERATIONS: NEVER say phrases like "จุดเด่นที่ 1", "จุดเด่นที่ 2", "จุดเด่นที่ 3" in spoken voiceover. Real human creators use conversational connectors like "ทุกคนนน เจอไอเทมเด็ด...", "ตัวนี้บอกเลยว่า...", "แถมยัง...", "ที่ชอบมากคือ...".
-3. NARRATION SCRIPT: Must be fluent, engaging modern Thai that sounds like an authentic friendly creator talking directly to the camera (duration ~13-15 seconds when spoken at normal pace, around 35-50 words).
+CREATIVE DIRECTION LOCK (STYLE DNA):
+- STYLE PACK: ${styleDNA.pack}
+- HOOK FORMULA: ${styleDNA.hookFormula}
+- STORY STRUCTURE: ${styleDNA.structure}
+- TEMPO: ${styleDNA.tempo}
 
-Return ONLY a valid JSON object strictly following this structure:
+COPYWRITING FLAVOR FOR PACK "${styleDNA.pack}":
+- If comic-popart: use energetic sound effects like "💥 ปังมาก!", "POW!", "ว้าวสุดๆ"
+- If zine-newspaper: short punchy breaking-news headlines like "📰 พาดหัวด่วน!", "เปิดพิกัดลับ"
+- If supermarket-flyer: high-urgency bargain discount phrases like "🔥 ลดแรง!", "ดีลเดือด!", "คุ้มตาแตก"
+- If soft-kawaii: sweet cute review tones like "✨ ละมุนใจมาก", "น่ารักนุบนิบ", "ใจฟู"
+- If notebook-doodle: relatable personal notebook tone like "✏️ จดลิสต์ด่วน", "เทคนิคเด็กหอ"
+- If pinboard-corkboard: investigation / curated find tone like "📌 ปักหมุดไอเทมเด็ด", "ของแท้ตรงปก"
+- If sticker-bomb: electric street-style hype phrases like "⚡ ไม่ซื้อคือพลาด", "ตะโกนว่าดี"
+- If kraft-scrapbook: warm creator journal review like "🏷️ ของดีบอกต่อ", "ใช้จริงไม่อวย"
+
+CRITICAL ANTI-REPETITION RULES:
+1. PREVIOUS HEADLINES TO AVOID:
+${recentHeadlines.map((h, i) => `   - [${i + 1}] "${h}"`).join("\n")}
+   DO NOT reuse phrases or sentence structures from these recent headlines!
+2. READABILITY:
+   - Hook headline: Under 24 Thai characters, punchy and clear.
+   - Scene headline: Under 24 Thai characters.
+   - Headline and Subtitle MUST be strictly distinct within the same scene (Headline ≠ Subtitle).
+   - Price placement: Mention the price ONLY in the CTA scene. Do not repeat price in previous scenes!
+3. COMPLIANCE:
+   - DO NOT make prohibited medical or false claims.
+
+Return ONLY a valid JSON object matching this schema:
 {
   "hook": {
-    "headline": "Short punchy Thai headline (under 8 words)",
-    "subheadline": "Catchy intrigue or subtext (under 10 words)",
-    "badgeText": "Short badge with emoji (e.g. 🔥 ป้ายยาไอเทมเด็ด)",
+    "headline": "Punchy Thai hook headline (max 24 chars)",
+    "subheadline": "Catchy intrigue subtitle (max 28 chars)",
+    "badgeText": "Badge tag with emoji",
+    "highlightWord": "Word to highlight with marker",
+    "paperTheme": "kraft",
     "durationSec": 3
   },
   "scenes": [
     {
-      "highlightTitle": "Key feature title (Thai, max 6 words)",
-      "highlightDesc": "Distinct benefit without repeating price (Thai, max 10 words)",
-      "stickerText": "Fun sticker tag with emoji (e.g. ✨ สวยตรงปก)",
+      "highlightTitle": "Key feature title (max 24 chars)",
+      "highlightDesc": "Distinct benefit without repeating price (max 28 chars)",
+      "stickerText": "Sticker tag with emoji",
+      "highlightWord": "Word to highlight",
+      "layout": "hero-center",
+      "paperTheme": "cream-grid",
       "imageIndex": 0,
-      "durationSec": 3
+      "durationSec": 4
     }
   ],
   "cta": {
     "ctaTitle": "Call to action headline (e.g. จิ้มตะกร้าส้มซ้ายล่างเลย!)",
     "ctaSubtitle": "Incentive like free shipping or coupon",
     "buttonText": "ช้อปเลยที่ Shopee",
+    "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
     "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+    "paperTheme": "halftone-orange",
     "durationSec": 3
   },
-  "theme": {
-    "primaryColor": "#EE4D2D",
-    "accentColor": "#FFBA00",
-    "bgColor": "#0F172A",
-    "textColor": "#FFFFFF",
-    "styleName": "Color theme name"
-  },
-  "audioSuggestion": {
-    "mood": "Tone and emotional feel of the background music",
-    "musicGenre": "Suggested audio genre (e.g. Upbeat TikTok Pop)",
-    "soundEffectTips": "Specific sound effect cues (e.g. Whoosh, Cash Register Ding)"
-  },
-  "narrationScript": "Full spoken voiceover in continuous, natural Thai without robotic enumerations and without repeating the price over and over."
-}
-
-Requirements:
-- Total duration is 15 seconds.
-- Number of scenes: 2 to 3 scenes. Total images available: ${Math.max(1, Math.min(params.imageCount, 5))}.
-`;
+  "narrationScript": "Full spoken voiceover in continuous, natural Thai."
+}`;
 
       const userContent = `Product Name: ${params.productName}
 Price / Promotion: ${params.price}
 Highlights / Key Selling Points: ${params.highlights}
-Desired Tone: ${selectedToneDesc}
+Desired Tone: ${selectedTone.desc}
 User CTA preference: ${params.ctaText || "พิกัดตะกร้าส้มซ้ายล่าง"}
 Number of uploaded images: ${params.imageCount}
 `;
@@ -93,7 +152,7 @@ Number of uploaded images: ${params.imageCount}
         contents: `${systemPrompt}\n\n${userContent}`,
         config: {
           responseMimeType: "application/json",
-          temperature: 0.7,
+          temperature: 0.95, // Higher temperature for rich diversity
         },
       });
 
@@ -101,7 +160,8 @@ Number of uploaded images: ${params.imageCount}
       if (responseText) {
         const cleaned = responseText.replace(/^```json\s*/, "").replace(/\s*```$/, "");
         const parsed = JSON.parse(cleaned);
-        return validateAndNormalizeStoryboard(parsed, params);
+        const validated = validateAndNormalizeStoryboard(parsed, params, styleDNA);
+        return validated;
       }
     } catch (error) {
       console.warn("Gemini API call failed, falling back to intelligent template:", error);
@@ -109,65 +169,212 @@ Number of uploaded images: ${params.imageCount}
   }
 
   // Fallback template generator when API key is not yet set or API failed
-  return generateFallbackStoryboard(params);
+  return generateFallbackStoryboard(params, styleDNA);
+}
+
+function deriveIntelligentBenefits(
+  productName: string,
+  highlights: string,
+  index: number
+): { title: string; desc: string; word: string } {
+  const combined = `${productName} ${highlights}`.toLowerCase();
+
+  if (
+    combined.includes("หอม") ||
+    combined.includes("น้ำหอม") ||
+    combined.includes("perfume") ||
+    combined.includes("เซ็กซี่")
+  ) {
+    const list = [
+      { title: "หอมติดทน เซ็กซี่ดึงดูด", desc: "กลิ่นหอมมีเสน่ห์ เพิ่มความมั่นใจตลอดวัน", word: "หอมติดทน" },
+      { title: "กลิ่นเอกลักษณ์ ไม่ฉุน", desc: "ละมุนมีระดับ ใครได้กลิ่นก็ต้องทัก", word: "ไม่ฉุน" },
+      { title: "ของแท้ การันตีตรงปก", desc: "กลิ่นฟุ้งกระจาย ฉีดได้ทุกวัน", word: "ตรงปก" },
+    ];
+    return list[index % list.length];
+  }
+
+  if (
+    combined.includes("ผิว") ||
+    combined.includes("ครีม") ||
+    combined.includes("เซรั่ม") ||
+    combined.includes("หน้าใส") ||
+    combined.includes("สิว") ||
+    combined.includes("บำรุง") ||
+    combined.includes("กันแดด")
+  ) {
+    const list = [
+      { title: "บำรุงล้ำลึก ผิวดูอิ่มฟู", desc: "ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเป็นธรรมชาติ", word: "ผิวอิ่มฟู" },
+      { title: "อ่อนโยน ซึมไว ไม่เหนอะ", desc: "เนื้อบางเบา สบายผิว ไม่ระคายเคือง", word: "ซึมไว" },
+      { title: "เห็นผลจริง ลูกค้าซื้อซ้ำ", desc: "รีวิวแน่น ใช้ต่อเนื่องผิวยิ่งกระจ่างใส", word: "เห็นผลจริง" },
+    ];
+    return list[index % list.length];
+  }
+
+  if (
+    combined.includes("ผ้า") ||
+    combined.includes("เสื้อ") ||
+    combined.includes("กางเกง") ||
+    combined.includes("รองเท้า") ||
+    combined.includes("กระเป๋า") ||
+    combined.includes("แฟชั่น")
+  ) {
+    const list = [
+      { title: "ผ้านุ่ม ใส่สบาย ระบายอากาศ", desc: "คัตติ้งเนี้ยบ ทรงสวย แมตช์ง่ายทุกลุค", word: "นุ่มสบาย" },
+      { title: "ดีไซน์ทันสมัย ดูดีมีสไตล์", desc: "ใส่ได้ทุกโอกาส มั่นใจทุกการเคลื่อนไหว", word: "ทรงสวย" },
+      { title: "งานเย็บประณีต ทนทาน", desc: "ของจริงตรงปก คุณภาพเกินราคา", word: "ตรงปก" },
+    ];
+    return list[index % list.length];
+  }
+
+  if (
+    combined.includes("หูฟัง") ||
+    combined.includes("บลูทูธ") ||
+    combined.includes("แบต") ||
+    combined.includes("เสียง") ||
+    combined.includes("สายชาร์จ") ||
+    combined.includes("gadget") ||
+    combined.includes("ไอที")
+  ) {
+    const list = [
+      { title: "เสียงคมชัด เบสแน่นสะใจ", desc: "ตัดเสียงรบกวนรอบข้าง ฟังเพลงเพลินไม่มีสะดุด", word: "เสียงคมชัด" },
+      { title: "แบตเตอรี่อึด ใช้งานได้ยาวนาน", desc: "ชาร์จเร็ว พกพาสะดวก พร้อมลุยทุกที่", word: "แบตอึด" },
+      { title: "เชื่อมต่อง่าย เสถียร ไม่ดีเลย์", desc: "รองรับทุกอุปกรณ์ ตอบโจทย์ทุกไลฟ์สไตล์", word: "เชื่อมต่อง่าย" },
+    ];
+    return list[index % list.length];
+  }
+
+  if (
+    combined.includes("แก้ว") ||
+    combined.includes("กระติก") ||
+    combined.includes("น้ำแข็ง") ||
+    combined.includes("สแตนเลส") ||
+    combined.includes("tyeso")
+  ) {
+    const list = [
+      { title: "เก็บอุณหภูมิยาวนาน 24 ชม.", desc: "สแตนเลสคุณภาพสูง ไอน้ำไม่เกาะโต๊ะ", word: "เก็บอุณหภูมิ" },
+      { title: "พกพาสะดวก ฝาปิดแน่น", desc: "ไม่หกเลอะเทอะ ใช้งานง่ายได้ทุกวัน", word: "ไม่หกเลอะ" },
+      { title: "ดีไซน์มินิมอล สวยตรงปก", desc: "ทำความสะอาดง่าย แข็งแรงทนทาน", word: "ตรงปก" },
+    ];
+    return list[index % list.length];
+  }
+
+  if (
+    combined.includes("อาหาร") ||
+    combined.includes("ขนม") ||
+    combined.includes("อร่อย") ||
+    combined.includes("ชา") ||
+    combined.includes("กาแฟ") ||
+    combined.includes("กิน")
+  ) {
+    const list = [
+      { title: "รสชาติเข้มข้น อร่อยกลมกล่อม", desc: "คัดสรรวัตถุดิบชั้นดี สะอาด สดใหม่ทุกคำ", word: "รสชาติเข้มข้น" },
+      { title: "ทานเพลิน หยุดไม่อยู่", desc: "พกพาสะดวก อิ่มอร่อยได้ทุกที่ทุกเวลา", word: "อร่อยเพลิน" },
+      { title: "สูตรเด็ด ยอดขายการันตี", desc: "ของแท้ส่งตรง คุณภาพมาตรฐาน", word: "สูตรเด็ด" },
+    ];
+    return list[index % list.length];
+  }
+
+  const defaultList = [
+    { title: "ฟังก์ชันครบ คุ้มค่าเกินราคา", desc: "ตอบโจทย์การใช้งานจริงในชีวิตประจำวัน", word: "คุ้มค่า" },
+    { title: "ดีไซน์สวย ตรงปกไม่จกตา", desc: "วัสดุคุณภาพดี พกพาสะดวก ใช้งานง่าย", word: "ตรงปก" },
+    { title: "ของแท้ การันตีความประทับใจ", desc: "รีวิวแน่น ผู้ใช้จริงบอกต่อ ช้อปได้มั่นใจ", word: "ของแท้" },
+  ];
+  return defaultList[index % defaultList.length];
 }
 
 function validateAndNormalizeStoryboard(
   data: any,
-  params: ScriptGenerationParams
+  params: ScriptGenerationParams,
+  styleDNA: StyleDNA
 ): StoryboardPlan {
-  const hook = {
-    headline: data.hook?.headline || `${params.productName} ไอเทมที่ต้องมี!`,
+  const layouts: SceneLayout[] = styleDNA.layouts || [
+    "hero-center",
+    "polaroid-stack",
+    "callout-circle",
+  ];
+  const themes: PaperTheme[] = ["cream-grid", "pastel-mint", "kraft"];
+
+  const hook: HookData = {
+    headline: (data.hook?.headline || `${params.productName} ไอเทมที่ต้องมี!`).slice(0, 32),
     subheadline: data.hook?.subheadline || `ป้ายยาวันนี้ ราคาดีเกินต้าน`,
     badgeText: data.hook?.badgeText || "🔥 ของมันต้องมี",
+    highlightWord: data.hook?.highlightWord,
+    paperTheme: data.hook?.paperTheme || "kraft",
     durationSec: Number(data.hook?.durationSec) || 3,
   };
 
   const rawScenes = Array.isArray(data.scenes) && data.scenes.length > 0 ? data.scenes : [];
-  const scenes = rawScenes.map((s: any, idx: number) => {
-    // Prevent price from being repeated in highlightDesc if it leaked
+  let prevLayout: SceneLayout = "callout-circle";
+
+  const scenes: SceneData[] = rawScenes.map((s: any, idx: number) => {
+    const smart = deriveIntelligentBenefits(params.productName, params.highlights, idx);
     let desc = s.highlightDesc || "";
     if (!desc || desc.includes(params.price)) {
-      desc = idx === 0
-        ? "วัสดุพรีเมียม ทนทาน ใช้งานได้ยาวนาน"
-        : idx === 1
-        ? "ดีไซน์สวย ตรงปก พกพาสะดวก"
-        : "ตอบโจทย์การใช้งานจริง คุ้มค่าที่สุด";
+      desc = smart.desc;
     }
 
+    // Ensure alternating layouts so no adjacent scenes duplicate layout
+    let layout: SceneLayout = s.layout || layouts[idx % layouts.length];
+    if (layout === prevLayout) {
+      layout = layouts[(layouts.indexOf(layout) + 1) % layouts.length];
+    }
+    prevLayout = layout;
+
+    const paperTheme: PaperTheme = s.paperTheme || themes[idx % themes.length];
+
     return {
-      highlightTitle: s.highlightTitle || `จุดเด่น #${idx + 1}`,
-      highlightDesc: desc,
-      stickerText: s.stickerText || (idx === 0 ? "✨ ไฮไลท์เด็ด" : idx === 1 ? "👍 คุณภาพพรีเมียม" : "🏷️ คุ้มค่าที่สุด"),
+      highlightTitle: (s.highlightTitle || `จุดเด่นที่น่าสนใจ`).slice(0, 30),
+      highlightDesc: desc.slice(0, 35),
+      stickerText:
+        s.stickerText ||
+        (idx === 0 ? "✨ ไฮไลท์เด็ด" : idx === 1 ? "👍 คุณภาพพรีเมียม" : "🏷️ คุ้มค่าที่สุด"),
+      highlightWord: s.highlightWord,
+      layout,
+      paperTheme,
       imageIndex: typeof s.imageIndex === "number" ? s.imageIndex : idx,
-      durationSec: Number(s.durationSec) || 3,
+      durationSec: Number(s.durationSec) || (rawScenes.length === 2 ? 4.5 : 3),
     };
   });
 
   if (scenes.length === 0) {
-    scenes.push({
-      highlightTitle: "คุณภาพพรีเมียมเกินราคา",
-      highlightDesc: "วัสดุเกรดดี แข็งแรงทนทาน ใช้งานได้ยาวนาน",
-      stickerText: "✨ คุ้มค่าที่สุด",
-      imageIndex: 0,
-      durationSec: 4,
-    });
+    scenes.push(
+      {
+        highlightTitle: "คุณภาพพรีเมียมเกินราคา",
+        highlightDesc: "วัสดุเกรดดี แข็งแรงทนทาน",
+        stickerText: "✨ คุ้มค่าที่สุด",
+        layout: "hero-center",
+        paperTheme: "cream-grid",
+        imageIndex: 0,
+        durationSec: 4.5,
+      },
+      {
+        highlightTitle: "ดีไซน์สวย ตรงปกไม่จกตา",
+        highlightDesc: "พกพาง่าย คุมโทนทุกมุม",
+        stickerText: "👍 สวยตรงปก",
+        layout: "polaroid-stack",
+        paperTheme: "pastel-mint",
+        imageIndex: 1,
+        durationSec: 4.5,
+      }
+    );
   }
 
-  const cta = {
+  const cta: CTAData = {
     ctaTitle: data.cta?.ctaTitle || "จิ้มตะกร้าส้มซ้ายล่างด่วน!",
     ctaSubtitle: data.cta?.ctaSubtitle || "เก็บโค้ดส่งฟรี + คูปองลดเพิ่มทันที",
     buttonText: data.cta?.buttonText || "ช้อปเลยที่ Shopee",
+    badgeText: data.cta?.badgeText || "⚡ สิทธิ์มีจำนวนจำกัด",
     basketNote: data.cta?.basketNote || "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+    paperTheme: data.cta?.paperTheme || "halftone-orange",
     durationSec: Number(data.cta?.durationSec) || 3,
   };
 
   const theme = {
-    primaryColor: data.theme?.primaryColor || "#EE4D2D",
-    accentColor: data.theme?.accentColor || "#FFBA00",
-    bgColor: data.theme?.bgColor || "#0F172A",
-    textColor: data.theme?.textColor || "#FFFFFF",
-    styleName: data.theme?.styleName || "Shopee Orange Energy",
+    primaryColor: styleDNA.primaryColor || "#EE4D2D",
+    accentColor: styleDNA.accentColor || "#FFD23F",
+    bgColor: styleDNA.bgColor || "#FFF4E0",
+    textColor: "#1B1B1B",
+    styleName: `Paper Collage (${styleDNA.pack})`,
   };
 
   const audioSuggestion = {
@@ -175,122 +382,166 @@ function validateAndNormalizeStoryboard(
     musicGenre: data.audioSuggestion?.musicGenre || "TikTok Upbeat Affiliate Beat",
     soundEffectTips:
       data.audioSuggestion?.soundEffectTips ||
-      "เสียง Whoosh ตอนเปลี่ยนรูป และเสียง Ding กระดิ่งตอนขึ้นราคา",
+      "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา",
   };
 
-  // Build or sanitize natural narration script
   let narrationScript = data.narrationScript?.trim();
   if (!narrationScript) {
     narrationScript = buildNaturalNarrationText(params.productName, params.price, scenes, cta);
   }
 
-  return { hook, scenes, cta, theme, audioSuggestion, narrationScript };
+  return { hook, scenes, cta, theme, audioSuggestion, narrationScript, styleDNA };
 }
 
-export function buildNaturalNarrationText(
-  productName: string,
-  price: string,
-  scenes: Array<{ highlightTitle: string; highlightDesc: string }>,
-  cta: { ctaTitle: string; basketNote?: string }
-): string {
-  // Fluent, conversational Thai creator flow without repeating the price in every sentence
-  const scene1 = scenes[0] ? `${scenes[0].highlightTitle} ${scenes[0].highlightDesc}` : "";
-  const scene2 = scenes[1] ? `แถมยัง${scenes[1].highlightTitle} ${scenes[1].highlightDesc}` : "";
-  const scene3 = scenes[2] ? `ที่สำคัญคือ${scenes[2].highlightTitle}` : "";
 
-  const featuresText = [scene1, scene2, scene3].filter(Boolean).join(" ");
 
-  return `ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! ${productName} ตัวนี้คือดีงามมาก ${featuresText} ตอนนี้จัดโปรพิเศษเหลือแค่ ${price} เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!`;
-}
+function generateFallbackStoryboard(
+  params: ScriptGenerationParams,
+  styleDNA: StyleDNA
+): StoryboardPlan {
+  // Rich pack & hook formula phrase bank (>= 5 options per formula)
+  const hookPhrases: Record<string, string[]> = {
+    question: [
+      `ใครยังใช้แบบเดิมอยู่? ต้องลอง ${params.productName}`,
+      `ทำไมเพิ่งมาเจอสิ่งนี้? ${params.productName}`,
+      `กำลังหาตัวช่วยอยู่มั้ย? ชิ้นนี้ตอบโจทย์!`,
+      `คุ้มจริงมั้ย? มาดู ${params.productName} กัน`,
+      `มีใครเคยเห็นสิ่งนี้ยัง? โคตรดี!`,
+    ],
+    pov: [
+      `POV: เมื่อได้ลอง ${params.productName} ครั้งแรก`,
+      `POV: ชีวิตง่ายขึ้นเยอะตั้งแต่มีชิ้นนี้`,
+      `POV: ของดีบอกต่อ ชิ้นเดียวจบ`,
+      `POV: ป้ายยาตามรีวิว ไม่คิดว่าจะดีขนาดนี้`,
+      `POV: สั่งมาใช้เองแล้วชอบมากกก`,
+    ],
+    "price-shock": [
+      `ราคาแค่นี้จริงดิ?! ${params.productName}`,
+      `ตกใจราคาวันนี้ ลดแรงแซงทุกดีล!`,
+      `กำแบงก์ร้อยมีทอน คุ้มเกินคาด`,
+      `ราคาหลักร้อย คุณภาพหลักพัน`,
+      `โปรช็อกโลกวันเดียวเท่านั้น!`,
+    ],
+    "listicle-number": [
+      `3 เหตุผลที่ต้องมี ${params.productName}`,
+      `รวมจุดเด่น ทำไมใครๆ ก็ใช้ตัวนี้`,
+      `3 ข้อดีที่ทำให้ต้องรีบกดสั่ง`,
+      `เปิดกรุ 3 ฟังก์ชันเด็ดห้ามพลาด`,
+      `3 เหตุผลที่รีวิวแน่นตลอดกาล`,
+    ],
+    secret: [
+      `ไอเทมลับที่คนถามเยอะมาก!`,
+      `ของดีที่ไม่มีใครยอมบอก!`,
+      `เปิดวาร์ปไอเทมเด็ดช้อปปี้`,
+      `ความลับของคนชอบความคุ้มค่า`,
+      `เจอของดีในช้อปปี้ ต้องรีบเซฟ!`,
+    ],
+    "relatable-pain": [
+      `หยุดปัญหาเดิมๆ ด้วย ${params.productName}`,
+      `หมดปัญหาซ้ำซาก ชิ้นนี้ช่วยได้จริง`,
+      `เบื่อมั้ยกับของเดิมๆ? เปลี่ยนมาใช้ตัวนี้`,
+      `ตัวช่วยกู้ชีวิต ใช้งานง่ายสุดๆ`,
+      `ปัญหาหมดไป แค่มีชิ้นนี้ติดไว้`,
+    ],
+    seasonal: [
+      `ไอเทมประจำซีซั่นนี้ที่ต้องมี!`,
+      `เปิดเทอมนี้ต้องจัด ${params.productName}`,
+      `ของมันต้องมีในฤดูนี้ ดีงามมาก`,
+      `รับลมร้อน/ฝน ด้วยไอเทมสุดฮิต`,
+      `เทรนด์ฮิตตอนนี้ ตัวนี้มาแรงสุด`,
+    ],
+    reaction: [
+      `ไม่คิดว่าจะดีขนาดนี้! ${params.productName}`,
+      `เกินคาดมากกก ตรงปกสุดๆ`,
+      `กรี๊ดมาก ได้มาแล้วชอบเลย`,
+      `ว้าวเลย ลองแล้วรักมาก`,
+      `สมคำร่ำลือ ตัวดังในตำนาน!`,
+    ],
+  };
 
-function generateFallbackStoryboard(params: ScriptGenerationParams): StoryboardPlan {
-  const isMinimal = params.tone === "minimal";
-  const isPromo = params.tone === "promo";
-  const isProblem = params.tone === "problem_solving";
+  const packBadges: Record<string, string> = {
+    "comic-popart": "💥 BAM! ปังมาก",
+    "zine-newspaper": "📰 ข่าวด่วนวันนี้",
+    "supermarket-flyer": "🔥 ด่วนลดพิเศษ",
+    "soft-kawaii": "✨ คิ้วท์มากใจฟู",
+    "notebook-doodle": "✏️ จดลิสต์ด่วน",
+    "pinboard-corkboard": "📌 ปักหมุดไอเทมเด็ด",
+    "sticker-bomb": "⚡ ไม่ซื้อคือพลาด",
+    "kraft-scrapbook": "🏷️ ของดีบอกต่อ",
+  };
 
-  const primaryColor = isMinimal ? "#334155" : isPromo ? "#DC2626" : "#EE4D2D";
-  const accentColor = isMinimal ? "#94A3B8" : isPromo ? "#F59E0B" : "#FFBA00";
-
-  const hookBadge = isProblem
-    ? "⚠️ ใครเจอปัญหานี้บ้าง?"
-    : isPromo
-    ? "⚡ FLASH SALE วันนี้วันเดียว!"
-    : isMinimal
-    ? "🌿 สไตล์มินิมอลคุมโทน"
-    : "🔥 ป้ายยาไอเทมเด็ดช้อปปี้";
-
-  const hookTitle = isProblem
-    ? `หยุดปัญหาเดิมๆ ด้วย ${params.productName}!`
-    : isPromo
-    ? `ลดแรงแซงทุกดีล! ${params.productName}`
-    : `เจอแล้ว! ${params.productName} ตัวดัง`;
-
-  const hookSub = "ของดีตรงปก บอกเลยว่าห้ามพลาด";
+  const hookList = hookPhrases[styleDNA.hookFormula] || hookPhrases.question;
+  const hookTitle = hookList[Math.floor(Math.random() * hookList.length)];
+  const hookBadge = packBadges[styleDNA.pack] || "🔥 ป้ายยาไอเทมเด็ด";
 
   const count = Math.max(2, Math.min(params.imageCount || 3, 3));
-  const scenes = [];
+  const scenes: SceneData[] = [];
 
   const splitHighlights = params.highlights
     .split(/[,.\n;]+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const defaultBenefits = [
-    "วัสดุพรีเมียม แข็งแรงทนทาน ใช้งานได้ยาวนาน",
-    "ดีไซน์สวย ตรงปกไม่จกตา พกพาสะดวก",
-    "ตอบโจทย์การใช้งานจริง ฟังก์ชันครบจบในตัวเดียว",
-  ];
+  const layouts = styleDNA.layouts || ["hero-center", "polaroid-stack", "callout-circle"];
+  const themes: PaperTheme[] = ["cream-grid", "pastel-mint", "kraft"];
 
   for (let i = 0; i < count; i++) {
-    const rawTitle = splitHighlights[i] || (i === 0 ? "ฟังก์ชันครบ จบในชิ้นเดียว" : i === 1 ? "ดีไซน์สวย ตรงปกไม่จกตา" : "การันตีความคุ้มค่า");
-    const cleanTitle = rawTitle.length > 25 ? rawTitle.substring(0, 25) + "..." : rawTitle;
-
-    // DO NOT repeat params.price in each scene description!
-    const cleanDesc = defaultBenefits[i % defaultBenefits.length];
+    const smart = deriveIntelligentBenefits(params.productName, params.highlights, i);
+    const rawTitle =
+      splitHighlights[i] ||
+      smart.title;
+    const cleanTitle = rawTitle.length > 24 ? rawTitle.substring(0, 24) : rawTitle;
+    const cleanDesc = smart.desc.length > 35 ? smart.desc.substring(0, 35) : smart.desc;
 
     scenes.push({
       highlightTitle: cleanTitle,
       highlightDesc: cleanDesc,
-      stickerText: i === 0 ? "✨ ไฮไลท์เด็ด" : i === 1 ? "👍 คุณภาพพรีเมียม" : "🏷️ คุ้มค่าที่สุด",
+      stickerText:
+        i === 0 ? "✨ ไฮไลท์เด็ด" : i === 1 ? "👍 สวยตรงปก" : "🏷️ คุ้มค่าที่สุด",
+      highlightWord: smart.word || (i === 0 ? "ครบจบ" : i === 1 ? "ตรงปก" : "คุ้มค่า"),
+      layout: layouts[i % layouts.length],
+      paperTheme: themes[i % themes.length],
       imageIndex: i,
-      durationSec: 3,
+      durationSec: count === 2 ? 4.5 : 3,
     });
   }
 
-  const cta = {
+  const cta: CTAData = {
     ctaTitle: params.ctaText || "จิ้มตะกร้าส้มซ้ายล่างด่วน!",
     ctaSubtitle: "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
     buttonText: "ช้อปเลยที่ Shopee",
+    badgeText: "⚡ โค้ดมีจำนวนจำกัด",
     basketNote: "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+    paperTheme: "halftone-orange",
     durationSec: 3,
   };
 
-  // Generate continuous, natural creator narration script
   const narrationScript = buildNaturalNarrationText(params.productName, params.price, scenes, cta);
 
   return {
     hook: {
-      headline: hookTitle,
-      subheadline: hookSub,
+      headline: hookTitle.slice(0, 30),
+      subheadline: "ของดีตรงปก บอกเลยว่าห้ามพลาด",
       badgeText: hookBadge,
+      highlightWord: "ตัวดัง",
+      paperTheme: "kraft",
       durationSec: 3,
     },
     scenes,
     cta,
     theme: {
-      primaryColor,
-      accentColor,
-      bgColor: "#0F172A",
-      textColor: "#FFFFFF",
-      styleName: isMinimal ? "Clean Minimalist" : "Shopee Vibrant Affiliate",
+      primaryColor: styleDNA.primaryColor || "#EE4D2D",
+      accentColor: styleDNA.accentColor || "#FFD23F",
+      bgColor: styleDNA.bgColor || "#FFF4E0",
+      textColor: "#1B1B1B",
+      styleName: `Paper Collage (${styleDNA.pack})`,
     },
     audioSuggestion: {
-      mood: isMinimal
-        ? "อบอุ่น ผ่อนคลาย เรียบง่าย (Lofi / Chill Pop)"
-        : "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
-      musicGenre: isMinimal ? "Acoustic / Lo-fi" : "Viral Shopee Beat",
-      soundEffectTips: "เสียง Pop ตอนเปิดตัว และ Ding ตอนโชว์ราคาพิเศษ",
+      mood: "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
+      musicGenre: "Viral Shopee Beat",
+      soundEffectTips: "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ",
     },
     narrationScript,
+    styleDNA,
   };
 }

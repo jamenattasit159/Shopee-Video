@@ -11,7 +11,8 @@ import {
   Wand2,
 } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { ProductRecord } from "../../remotion/types";
+import { PackId, ProductRecord } from "../../remotion/types";
+import { ALL_PACK_IDS, PACK_INFO, rerollClientStyleDNA } from "../lib/styleConstants";
 
 interface ProductFormProps {
   onProductCreated: (product: ProductRecord) => void;
@@ -32,6 +33,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [highlights, setHighlights] = useState("");
   const [tone, setTone] = useState("exciting");
   const [cta, setCta] = useState("พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!");
+  const [styleMode, setStyleMode] = useState<"auto" | "custom">("auto");
+  const [chosenPack, setChosenPack] = useState<PackId>("kraft-scrapbook");
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -297,6 +300,78 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <option value="promo">⚡ จัดโปรโมชั่น Flash Sale ลดกระหน่ำ (Urgent Deal)</option>
             </select>
           </div>
+        </div>
+
+        {/* Video Style Selection (Anti-Repetition / Style Pack) */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-semibold text-slate-200">
+              สไตล์วิดีโอ (Video Style Pack)
+            </label>
+            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+              <button
+                type="button"
+                onClick={() => setStyleMode("auto")}
+                className={`px-3 py-1 rounded-lg transition font-medium ${
+                  styleMode === "auto"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                🎲 สุ่มให้ (แนะนำ)
+              </button>
+              <button
+                type="button"
+                onClick={() => setStyleMode("custom")}
+                className={`px-3 py-1 rounded-lg transition font-medium ${
+                  styleMode === "custom"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                🎨 เลือกเอง
+              </button>
+            </div>
+          </div>
+
+          {styleMode === "auto" ? (
+            <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 text-xs text-slate-400 flex items-center gap-3">
+              <div className="text-xl">✨</div>
+              <div>
+                <strong className="text-slate-200">ระบบคัดสรรสไตล์อัตโนมัติ (Anti-Repetition Engine):</strong>
+                <p className="mt-0.5 text-slate-400">
+                  ระบบจะสลับแพ็กและพาเลตสีให้ไม่ซ้ำกับ 10 คลิปล่าสุด เพื่อให้คลิปมีความหลากหลายสูงและไม่ซ้ำซาก
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+              {ALL_PACK_IDS.map((pId) => {
+                const info = PACK_INFO[pId];
+                const isSelected = chosenPack === pId;
+                return (
+                  <button
+                    key={pId}
+                    type="button"
+                    onClick={() => setChosenPack(pId)}
+                    className={`text-left p-2.5 rounded-xl border transition text-xs flex flex-col gap-1 ${
+                      isSelected
+                        ? "bg-indigo-950/90 border-indigo-500 text-white ring-1 ring-indigo-500"
+                        : "bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <span className="text-base">{info.emoji}</span>
+                      <span className="truncate">{info.name}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 line-clamp-2 leading-tight">
+                      {info.desc}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Key Selling Points / Highlights */}

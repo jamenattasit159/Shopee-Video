@@ -1,5 +1,190 @@
 [
   {
+    "id": "prod_1791354748290",
+    "name": "น้ำหอม Madame Fin กลิ่น Sun",
+    "price": "ลด 30%",
+    "highlights": "หอมติดทน กลิ่นเซ็กซี่ ฉีดแล้วสาวๆมอง",
+    "tone": "exciting",
+    "cta": "พิกัดลบในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791354748290_0_IMG_9192.jpg",
+      "/uploads/1791354748292_1_IMG_9191.jpg"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "ของมันต้องมีในฤดูนี้ ดีงามมาก",
+        "subheadline": "ของดีตรงปก บอกเลยว่าห้ามพลาด",
+        "badgeText": "🏷️ ของดีบอกต่อ",
+        "highlightWord": "ตัวดัง",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "หอมติดทน กลิ่นเซ็กซี่ ฉี",
+          "highlightDesc": "กลิ่นหอมมีเสน่ห์ เพิ่มความมั่นใจตลอ",
+          "stickerText": "✨ ไฮไลท์เด็ด",
+          "highlightWord": "หอมติดทน",
+          "layout": "polaroid-stack",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 4.5
+        },
+        {
+          "highlightTitle": "กลิ่นเอกลักษณ์ ไม่ฉุน",
+          "highlightDesc": "ละมุนมีระดับ ใครได้กลิ่นก็ต้องทัก",
+          "stickerText": "👍 สวยตรงปก",
+          "highlightWord": "ไม่ฉุน",
+          "layout": "hero-center",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 4.5
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดลบในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดมีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f3a916",
+        "bgColor": "#d6e8eb",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (kraft-scrapbook)"
+      },
+      "audioSuggestion": {
+        "mood": "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
+        "musicGenre": "Viral Shopee Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! น้ำหอม Madame Fin กลิ่น Sun ตัวนี้คือดีงามมาก หอมติดทน กลิ่นเซ็กซี่ ฉี กลิ่นหอมมีเสน่ห์ เพิ่มความมั่นใจตลอ แถมยังกลิ่นเอกลักษณ์ ไม่ฉุน ละมุนมีระดับ ใครได้กลิ่นก็ต้องทัก ตอนนี้จัดโปรพิเศษเหลือแค่ ลด 30% เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!",
+      "styleDNA": {
+        "seed": 28342174,
+        "pack": "kraft-scrapbook",
+        "palette": "kraft-scrapbook-complementary-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f3a916",
+        "bgColor": "#d6e8eb",
+        "fontPair": "kanit-punch",
+        "structure": "problem-solution",
+        "hookFormula": "seasonal",
+        "layouts": [
+          "polaroid-stack",
+          "hero-center",
+          "hero-center"
+        ],
+        "transitions": [
+          "slap-strip",
+          "page-shuffle"
+        ],
+        "tempo": "hyper",
+        "stickerShape": "wavy-circle",
+        "sfxKit": "playful-cartoon"
+      }
+    },
+    "createdAt": "2026-10-07T06:32:29.016Z",
+    "renderedVideoUrl": "/renders/shopee_prod_1791354748290_1791354824720.mp4"
+  },
+  {
+    "id": "prod_1791349284234",
+    "name": "Madame Fin Sun",
+    "price": "ลด 30%",
+    "highlights": "หอม ติดทน เซ็กซี่ ดึงดูดสาวๆ",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791349284234_0_IMG_9192.jpg",
+      "/uploads/1791349284235_1_IMG_9191.jpg"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "คุ้มจริงมั้ย? มาดู Madame Fin ",
+        "subheadline": "ของดีตรงปก บอกเลยว่าห้ามพลาด",
+        "badgeText": "📌 ปักหมุดไอเทมเด็ด",
+        "highlightWord": "ตัวดัง",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "หอม ติดทน เซ็กซี่ ดึงดูด",
+          "highlightDesc": "กลิ่นหอมมีเสน่ห์ เพิ่มความมั่นใจตลอดวัน",
+          "stickerText": "✨ ไฮไลท์เด็ด",
+          "highlightWord": "เซ็กซี่",
+          "layout": "polaroid-stack",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 4.5
+        },
+        {
+          "highlightTitle": "กลิ่นเอกลักษณ์ ไม่ฉุน",
+          "highlightDesc": "ละมุนมีระดับ ใครได้กลิ่นก็ต้องทัก",
+          "stickerText": "👍 ของแท้ตรงปก",
+          "highlightWord": "ตรงปก",
+          "layout": "hero-center",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 4.5
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดมีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (pinboard-corkboard)"
+      },
+      "audioSuggestion": {
+        "mood": "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
+        "musicGenre": "Viral Shopee Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนเจอไอเทมเด็ดอีกแล้ว มาดามฟิน ตัวนี้คือดีงามมาก หอม ติดทน เซ็กซี่ ดึงดูด กลิ่นหอมมีเสน่ห์ เพิ่มความมั่นใจตลอดวัน แถมยังกลิ่นเอกลักษณ์ ไม่ฉุน ละมุนมีระดับ ใครได้กลิ่นก็ต้องทัก ตอนนี้จัดโปรพิเศษลดราคาพิเศษ พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า",
+      "styleDNA": {
+        "seed": 733945658,
+        "pack": "pinboard-corkboard",
+        "palette": "pinboard-corkboard-analogous-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "fontPair": "prompt-clean",
+        "structure": "unboxing-vibe",
+        "hookFormula": "question",
+        "layouts": [
+          "polaroid-stack",
+          "hero-center",
+          "hero-center"
+        ],
+        "transitions": [
+          "page-shuffle",
+          "slap-strip"
+        ],
+        "tempo": "snappy",
+        "stickerShape": "wavy-circle",
+        "sfxKit": "tactile-pop"
+      }
+    },
+    "createdAt": "2026-10-07T05:01:24.897Z",
+    "voiceoverUrl": "/uploads/voice_prod_1791349284234.mp3",
+    "renderedVideoUrl": "/renders/shopee_prod_1791349284234_1791349296446.mp4"
+  },
+  {
     "id": "prod_1791276033175",
     "name": "มือตบกล่อมนอน สำหรับเด็ก",
     "price": "ลด 30%",
@@ -122,7 +307,7 @@
       "narrationScript": "ทุกคนนน ใครอยากตัวหอมมีเสน่ห์ต้องขวดนี้เลย! น้ำหอม Madame Fin Sun ขนาด 100 มิลลิลิตร กลิ่นหอมสดชื่น ปลุกความสดใส ฟิลหนุ่มอารมณ์ดี เซ็กซี่ขี้เล่น ละมุนไม่ฉุน ตอนนี้ราคาพิเศษเพียง 544 บาทเท่านั้นนะ พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลย รีบกดก่อนของหมดน้า"
     },
     "createdAt": "2026-10-06T04:35:02.084Z",
-    "renderedVideoUrl": "/renders/shopee_prod_1791261293929_clean.mp4",
+    "renderedVideoUrl": "/renders/shopee_prod_1791261293929_1791349089008.mp4",
     "voiceoverUrl": "/uploads/voice_prod_1791261293929.mp3"
   },
   {

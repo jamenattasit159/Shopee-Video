@@ -72,9 +72,37 @@ export default function DashboardPage() {
   const handleProductCreated = (newProduct: ProductRecord) => {
     setProducts((prev) => [newProduct, ...prev.filter((p) => p.id !== newProduct.id)]);
     setActiveProduct(newProduct);
-    setVoiceoverUrl(undefined);
+    setVoiceoverUrl(newProduct.voiceoverUrl || undefined);
     setActiveTab("storyboard");
-    showNotification("🎉 สร้าง AI Storyboard สำเร็จแล้ว! คุณสามารถสร้างเสียงพากย์ AI ต่อได้ทันที");
+    showNotification("🎉 สร้าง AI Storyboard สำเร็จแล้ว! กำลังเตรียมเสียงพากย์ AI...");
+
+    // Auto-synthesize voiceover in background so video is never silent
+    const script = newProduct.storyboard?.narrationScript;
+    if (script && script.trim() && !newProduct.voiceoverUrl) {
+      fetch("/api/synthesize-voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productName: newProduct.name,
+          price: newProduct.price,
+          customText: script,
+          voiceType: "female",
+        }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success && data.audioUrl) {
+            setVoiceoverUrl(data.audioUrl);
+            const updated = { ...newProduct, voiceoverUrl: data.audioUrl };
+            setActiveProduct(updated);
+            setProducts((prev) =>
+              prev.map((p) => (p.id === updated.id ? updated : p))
+            );
+            showNotification("🎙️ เสียงพากย์ AI สร้างเสร็จสมบูรณ์และเชื่อมกับคลิปแล้ว!");
+          }
+        })
+        .catch((err) => console.error("Auto voiceover synthesis error:", err));
+    }
   };
 
   const handleUpdateStoryboard = (updatedStoryboard: StoryboardPlan) => {
@@ -128,7 +156,8 @@ export default function DashboardPage() {
         scenes: activeProduct.storyboard.scenes,
         cta: activeProduct.storyboard.cta,
         theme: activeProduct.storyboard.theme,
-        voiceoverUrl: voiceoverUrl,
+        styleDNA: activeProduct.storyboard.styleDNA,
+        voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
         bgmUrl: "/audio/bgm-upbeat.mp3",
       }
     : {
@@ -136,11 +165,11 @@ export default function DashboardPage() {
       };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#0C101A] text-slate-200 flex flex-col font-sans">
       {/* Top Notification Toast */}
       {notification && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-orange-600 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 animate-bounce">
-          <Sparkles className="w-4 h-4" />
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg shadow-orange-950/40 backdrop-blur-md flex items-center gap-2 transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2">
+          <Sparkles className="w-4 h-4 text-amber-200" />
           <span>{notification}</span>
         </div>
       )}

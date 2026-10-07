@@ -43,16 +43,45 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [copiedCaptionIndex, setCopiedCaptionIndex] = useState<number | null>(null);
 
-  // Sync if initialVideoUrl changes
+  const [renderTimestamp, setRenderTimestamp] = useState<number>(Date.now());
+
+  // Sync if initialVideoUrl changes or product changes
   React.useEffect(() => {
-    if (initialVideoUrl) {
-      setRenderedUrl(initialVideoUrl);
-    }
-  }, [initialVideoUrl]);
+    setRenderedUrl(initialVideoUrl || null);
+    setRenderTimestamp(Date.now());
+  }, [initialVideoUrl, productId]);
 
   const handleRender = async () => {
     setIsRendering(true);
     setError(null);
+
+    let activeVoiceUrl = videoProps.voiceoverUrl;
+    if (!activeVoiceUrl && videoProps.hook) {
+      setRenderMessage("กำลังบันทึกเสียงพากย์ AI อัตโนมัติ (Edge TTS)...");
+      try {
+        const voiceRes = await fetch("/api/synthesize-voice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productName: videoProps.productName || productName,
+            price: videoProps.price || price,
+            storyboard: {
+              hook: videoProps.hook,
+              scenes: videoProps.scenes,
+              cta: videoProps.cta,
+            },
+            voiceType: "female",
+          }),
+        });
+        const voiceData = await voiceRes.json();
+        if (voiceData.success && voiceData.audioUrl) {
+          activeVoiceUrl = voiceData.audioUrl;
+        }
+      } catch (voiceErr) {
+        console.warn("Auto-synthesizing voice failed, continuing with BGM only:", voiceErr);
+      }
+    }
+
     setRenderMessage("กำลังส่งข้อมูลไปยัง Remotion Rendering Engine...");
 
     try {
@@ -62,13 +91,17 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: productId || `prod_${Date.now()}`,
-          props: videoProps,
+          props: {
+            ...videoProps,
+            voiceoverUrl: activeVoiceUrl,
+          },
         }),
       });
 
       const data = await res.json();
       if (data.success && data.videoUrl) {
         setRenderedUrl(data.videoUrl);
+        setRenderTimestamp(Date.now());
         setRenderMessage("เรนเดอร์วิดีโอสำเร็จ!");
         if (onVideoRendered) {
           onVideoRendered(data.videoUrl);
@@ -186,7 +219,8 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="w-48 aspect-[9/16] bg-black rounded-xl overflow-hidden border border-slate-700 shadow-md">
               <video
-                src={renderedUrl}
+                key={`${renderedUrl}_${renderTimestamp}`}
+                src={`${renderedUrl}?t=${renderTimestamp}`}
                 controls
                 autoPlay
                 loop

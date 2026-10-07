@@ -1,13 +1,21 @@
 import React from "react";
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { FONTS, PALETTE } from "../lib/palette";
+import { CartCTA } from "../paper/CartCTA";
+import { CutoutImage } from "../paper/CutoutImage";
+import { Doodle } from "../paper/Doodle";
+import { PaperBackground } from "../paper/PaperBackground";
+import { PriceBurst } from "../paper/PriceBurst";
+import { StickerText } from "../paper/StickerText";
+import { TornStrip } from "../paper/TornStrip";
+import { WashiTape } from "../paper/WashiTape";
 import { CTAData } from "../types";
-import { AbsoluteFill } from "./AbsoluteFill";
-import { KenBurnsImage } from "./KenBurnsImage";
 
 interface CTASceneProps {
   cta: CTAData;
   imageSrc: string;
   price: string;
+  productName?: string;
   primaryColor?: string;
   accentColor?: string;
 }
@@ -16,179 +24,145 @@ export const CTAScene: React.FC<CTASceneProps> = ({
   cta,
   imageSrc,
   price,
-  primaryColor = "#EE4D2D",
-  accentColor = "#FFBA00",
+  productName,
+  primaryColor = PALETTE.shopeeOrange,
+  accentColor = PALETTE.sunnyYellow,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const durationInFrames = Math.max(1, Math.round(cta.durationSec * fps));
+  const { durationInFrames } = useVideoConfig();
 
-  // Transition Flash
-  const flashOpacity = interpolate(frame, [0, 2, 5], [0.85, 0.4, 0], {
-    extrapolateRight: "clamp",
-  });
-
-  const arrowBounce = Math.sin((frame % 14) / 14 * Math.PI * 2) * 12;
-
-  const titleSpring = spring({
-    frame,
-    fps,
-    config: { damping: 9, stiffness: 120 },
-  });
+  // Rule: Last 6 frames hold static for comfortable reading by the user
+  const isLastHold = frame >= durationInFrames - 6;
 
   return (
-    <AbsoluteFill>
-      {/* Background with slight zoom */}
-      <KenBurnsImage
-        src={imageSrc}
-        durationInFrames={durationInFrames}
-        direction="zoom-in"
-      />
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      {/* 🟠 1. Shopee Orange Halftone Paper Background */}
+      <PaperBackground theme="halftone-orange" overlayOpacity={0.16} />
 
-      {/* Dark gradient focus backdrop */}
-      <div
+      {/* Main Safe Zone Layout */}
+      <AbsoluteFill
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.88) 100%)",
-        }}
-      />
-
-      {/* Main CTA Center Box inside SAFE ZONE */}
-      <div
-        style={{
-          position: "absolute",
-          top: "210px",
-          left: "50px",
-          right: "170px", // SAFE ZONE: Clears right buttons
+          paddingTop: "200px",
+          paddingBottom: "380px",
+          paddingLeft: "70px",
+          paddingRight: "140px",
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
-          zIndex: 40,
-          transform: `scale(${interpolate(titleSpring, [0, 1], [0.85, 1])})`,
-          opacity: interpolate(titleSpring, [0, 1], [0, 1]),
+          alignItems: "center",
         }}
       >
-        {/* Flash Sale Tag */}
-        <div
-          style={{
-            background: accentColor,
-            color: "#0F172A",
-            fontWeight: 900,
-            fontSize: "24px",
-            padding: "8px 22px",
-            borderRadius: "50px",
-            marginBottom: "14px",
-            boxShadow: "0 8px 25px rgba(255, 186, 0, 0.45)",
-            border: "2px solid #FFFFFF",
-          }}
-        >
-          ⚡ ด่วน! โค้ดส่วนลดมีจำนวนจำกัด
-        </div>
-
-        {/* CTA Headline Card */}
-        <div
-          style={{
-            background: "rgba(10, 15, 30, 0.95)",
-            border: `4px solid ${primaryColor}`,
-            borderRadius: "26px",
-            padding: "20px 26px",
-            width: "100%",
-            boxShadow: `0 16px 40px rgba(0,0,0,0.7), 0 0 35px ${primaryColor}55`,
-          }}
-        >
+        {/* 🏷️ Top Urgent Badge: "⚡ จำนวนจำกัด" with Washi Tape */}
+        <div style={{ position: "relative", marginBottom: "16px" }}>
+          <WashiTape
+            id="cta-urgent-tape"
+            x={-15}
+            y={-12}
+            rotate={-4}
+            width={110}
+            height={32}
+            color="rgba(255, 255, 255, 0.9)"
+          />
           <div
             style={{
-              color: "#FFFFFF",
-              fontSize: "42px",
-              fontWeight: 900,
-              lineHeight: 1.25,
-            }}
-          >
-            {cta.ctaTitle}
-          </div>
-
-          {cta.ctaSubtitle && (
-            <div
-              style={{
-                marginTop: "10px",
-                color: "#E2E8F0",
-                fontSize: "24px",
-                fontWeight: 600,
-              }}
-            >
-              {cta.ctaSubtitle}
-            </div>
-          )}
-
-          {/* Price Callout */}
-          <div
-            style={{
-              marginTop: "16px",
-              background: `linear-gradient(135deg, ${primaryColor} 0%, #FF6533 100%)`,
-              padding: "12px 24px",
-              borderRadius: "18px",
-              display: "inline-block",
-              color: "#FFFFFF",
-              fontSize: "30px",
-              fontWeight: 900,
-              boxShadow: "0 8px 20px rgba(238, 77, 45, 0.4)",
-            }}
-          >
-            🔥 พิเศษเพียง {price}
-          </div>
-        </div>
-
-        {/* Pulsing Pointer Arrow pointing to bottom-left basket */}
-        <div
-          style={{
-            marginTop: "30px",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            transform: `translateY(${arrowBounce}px)`,
-          }}
-        >
-          <div
-            style={{
-              background: "rgba(0, 0, 0, 0.88)",
-              border: `2.5px solid ${accentColor}`,
-              color: "#FFFFFF",
-              fontSize: "22px",
+              backgroundColor: PALETTE.ink,
+              color: PALETTE.sunnyYellow,
+              fontFamily: FONTS.heading,
               fontWeight: 800,
-              padding: "10px 22px",
-              borderRadius: "30px",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.5)",
+              fontSize: "30px", // Badge >= 30-40px
+              padding: "8px 24px",
+              borderRadius: "10px",
+              transform: "rotate(-2deg)",
+              boxShadow: "4px 6px 0px rgba(0,0,0,0.4)",
+              border: `2px solid ${PALETTE.white}`,
             }}
           >
-            {cta.basketNote || "👇 พิกัดในตะกร้าส้มซ้ายล่าง"}
-          </div>
-
-          <div
-            style={{
-              fontSize: "48px",
-              filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.6))",
-            }}
-          >
-            👇
+            {cta.badgeText || "⚡ สิทธิ์มีจำนวนจำกัด"}
           </div>
         </div>
-      </div>
 
-      {/* Transition Flash */}
-      {flashOpacity > 0 && (
-        <AbsoluteFill
-          style={{
-            backgroundColor: "#FFFFFF",
-            opacity: flashOpacity,
-            pointerEvents: "none",
-            zIndex: 100,
-          }}
+        {/* 💥 Main Headline: "กดตะกร้าส้มซ้ายล่างเลย!" on Slap Torn Strip (Rule A2: >= 88px) */}
+        <TornStrip
+          id="cta-main-title"
+          text={cta.ctaTitle || "จิ้มตะกร้าส้มซ้ายล่างเลย!"}
+          bg={accentColor}
+          textColor={PALETTE.ink}
+          fontSize={88} // Rule A2: >= 88px
+          rotate={-1}
+          delay={2}
+          padding="16px 36px"
+          style={{ maxWidth: "900px" }}
         />
-      )}
+
+        {/* 🎁 Subtitle incentive (Rule A2: >= 56px with solid backing) */}
+        {cta.ctaSubtitle && (
+          <div style={{ marginTop: "18px" }}>
+            <StickerText
+              id="cta-subtitle-sticker"
+              text={cta.ctaSubtitle}
+              fontSize={56} // Rule A2: >= 56px
+              color={PALETTE.white}
+              strokeColor={PALETTE.ink}
+              withSolidBacking={true}
+              delay={6}
+              rotate={1}
+            />
+          </div>
+        )}
+
+        {/* 🖼️ Product Cutout (Scale 1.4x) positioned behind the price burst */}
+        <CutoutImage
+          id="cta-product-cutout"
+          src={imageSrc}
+          delay={4}
+          baseRotate={-3}
+          width={840} // Scaled up 1.4x
+          x={60}
+          y={40}
+          showTape={true}
+        />
+
+        {/* 💥 Starburst Price Burst Badge (HERO PRICE >= 120px, size 500px) */}
+        <PriceBurst
+          id="cta-price-burst"
+          price={price}
+          badge="🏷️ ราคาพิเศษวันนี้"
+          size={500}
+          x={40}
+          y={780}
+          rotate={-5}
+          delay={6}
+        />
+
+        {/* 🛒 Integrated CartCTA pointing directly to the orange basket (Safe Zone bottom-left) */}
+        <CartCTA
+          productName={productName}
+          price={price}
+          buttonText={cta.buttonText || "ช้อปเลยที่ Shopee"}
+          delay={8}
+        />
+
+        {/* Hand-drawn Sparkles and Doodles around CTA */}
+        <Doodle
+          id="cta-sparkle-1"
+          type="sparkle"
+          color={PALETTE.sunnyYellow}
+          width={120}
+          height={120}
+          x={720}
+          y={660}
+          delay={8}
+        />
+        <Doodle
+          id="cta-star-1"
+          type="star"
+          color={PALETTE.white}
+          width={90}
+          height={90}
+          x={90}
+          y={620}
+          delay={10}
+        />
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

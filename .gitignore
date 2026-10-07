@@ -42,3 +42,15 @@ public/renders/*.mp4
 renders/*.mp4
 !renders/.gitkeep
 
+# binaries
+*.exe
+
+# assistant / IDE local configs
+.claude/
+.cursor/
+.gemini/
+.codex/
+.agent/skills/
+.agents/skills/
+
+

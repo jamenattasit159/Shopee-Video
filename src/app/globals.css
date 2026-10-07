@@ -3,42 +3,46 @@
 @tailwind utilities;
 
 :root {
-  --shopee-primary: #EE4D2D;
-  --shopee-dark: #D03E1F;
+  color-scheme: dark;
 }
 
 body {
-  color: #F8FAFC;
-  background-color: #0B0F19;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  @apply bg-base-100 text-base-content antialiased;
 }
 
-/* Custom scrollbar */
+/* Eye-friendly text selection */
+::selection {
+  background-color: rgba(234, 88, 12, 0.35);
+  color: #FFFFFF;
+}
+
+/* Custom scrollbar - subtle and ergonomic */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #111827;
+  background: #0F141C;
 }
 ::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 4px;
+  background: #2D3748;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #EE4D2D;
+  background: #EA580C;
 }
 
+/* Soft, ambient glow without blinding halos */
 .shopee-glow {
-  box-shadow: 0 0 25px rgba(238, 77, 45, 0.35);
+  box-shadow: 0 4px 20px rgba(234, 88, 12, 0.16);
 }
 
 .shopee-gradient-btn {
-  background: linear-gradient(135deg, #EE4D2D 0%, #FF6533 100%);
-  transition: all 0.2s ease-in-out;
+  background: linear-gradient(135deg, #EA580C 0%, #F97316 100%);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .shopee-gradient-btn:hover {
-  background: linear-gradient(135deg, #D03E1F 0%, #EE4D2D 100%);
+  background: linear-gradient(135deg, #C2410C 0%, #EA580C 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(238, 77, 45, 0.4);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.22);
 }

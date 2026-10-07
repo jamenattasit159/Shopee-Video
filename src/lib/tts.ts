@@ -57,6 +57,26 @@ export function buildNarrationScript(
   return `ทุกคนนน เจอของเด็ดอีกแล้ว! ${hook} ตัวนี้คือดีงามมาก ${featuresBlock} ${ctaOffer}`;
 }
 
+export function sanitizeForEdgeTTS(text: string): string {
+  return text
+    // Replace % with 'เปอร์เซ็น'
+    .replace(/(\d+)\s*%/g, "$1 เปอร์เซ็น")
+    .replace(/%/g, " เปอร์เซ็น")
+    // Replace currency signs
+    .replace(/฿\s*(\d+)/g, "$1 บาท")
+    .replace(/฿/g, " บาท")
+    // Replace loanword spellings that cause Azure Edge TTS NoAudioReceived
+    .replace(/ช้อป/g, "สั่งซื้อ")
+    .replace(/เปอร์เซ็นต์/g, "เปอร์เซ็น")
+    // Strip emojis and surrogate pairs
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, " ")
+    .replace(/[!！?？~@#$^&*()_+={}\[\]:;"'<>,/|\\]/g, " ")
+    // Normalize repeated emphatic consonants like ทุกคนนน -> ทุกคน, ดีงามมากกก -> ดีงามมาก
+    .replace(/(.)\1{2,}/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /**
  * Synthesizes Thai voiceover MP3 using edge-tts.
  */
@@ -76,26 +96,43 @@ export async function generateThaiVoiceover(
   const filename = `${filenamePrefix}_${Date.now()}.mp3`;
   const outputPath = path.join(audioDir, filename);
 
-  // Sanitize text for CLI execution
-  const sanitizedText = text
-    .replace(/["\r\n\t]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  // Create temporary script text file to avoid Windows command line escaping issues
+  const cleanText = sanitizeForEdgeTTS(text);
   const tempDir = path.join(process.cwd(), ".tmp");
   await fs.mkdir(tempDir, { recursive: true });
   const tempTextFile = path.join(tempDir, `tts_${Date.now()}.txt`);
-  await fs.writeFile(tempTextFile, sanitizedText, "utf-8");
+  await fs.writeFile(tempTextFile, cleanText, "utf-8");
+
+  const runTts = async (filePath: string) => {
+    const cmd = `python -X utf8 -m edge_tts --voice "${voiceName}" --file "${filePath}" --write-media "${outputPath}"`;
+    await execAsync(cmd, {
+      env: {
+        ...process.env,
+        PYTHONIOENCODING: "utf-8",
+        PYTHONUTF8: "1",
+      },
+    });
+  };
 
   try {
-    const cmd = `python -m edge_tts --voice "${voiceName}" --file "${tempTextFile}" --write-media "${outputPath}"`;
-    await execAsync(cmd);
+    await runTts(tempTextFile);
     await fs.unlink(tempTextFile).catch(() => {});
     return `/uploads/${filename}`;
-  } catch (error) {
-    console.error("Failed to generate voiceover via edge-tts:", error);
-    await fs.unlink(tempTextFile).catch(() => {});
-    return null;
+  } catch (firstErr) {
+    console.warn("First TTS attempt failed, trying fallback sanitized text:", firstErr);
+    try {
+      // Fallback: If English words caused the issue, replace English letters with a generic Thai noun
+      const fallbackClean = cleanText
+        .replace(/[a-zA-Z]+/g, "ตัวนี้")
+        .replace(/\s+/g, " ")
+        .trim();
+      await fs.writeFile(tempTextFile, fallbackClean, "utf-8");
+      await runTts(tempTextFile);
+      await fs.unlink(tempTextFile).catch(() => {});
+      return `/uploads/${filename}`;
+    } catch (secondErr) {
+      console.error("Failed to generate voiceover via edge-tts fallback:", secondErr);
+      await fs.unlink(tempTextFile).catch(() => {});
+      return null;
+    }
   }
 }

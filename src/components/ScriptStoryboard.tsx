@@ -14,9 +14,10 @@ import {
   Wand2,
 } from "lucide-react";
 import React, { useState } from "react";
-import { StoryboardPlan } from "../../remotion/types";
+import { PackId, StoryboardPlan } from "../../remotion/types";
 import { CaptionPackage, generatePostCaptions } from "../lib/captions";
-import { buildNaturalNarrationText } from "../lib/gemini";
+import { buildNaturalNarrationText } from "../lib/narrationHelper";
+import { ALL_PACK_IDS, PACK_INFO, rerollClientStyleDNA } from "../lib/styleConstants";
 
 interface ScriptStoryboardProps {
   productName: string;
@@ -163,6 +164,23 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
 
   const captions = generatePostCaptions(productName, price, highlights, data.cta.ctaTitle);
 
+  const handleRerollStyle = (forcedPack?: PackId) => {
+    const newDna = rerollClientStyleDNA(data.styleDNA, forcedPack);
+    const updated: StoryboardPlan = {
+      ...data,
+      styleDNA: newDna,
+      theme: {
+        ...data.theme,
+        primaryColor: newDna.primaryColor,
+        accentColor: newDna.accentColor,
+        bgColor: newDna.bgColor,
+        styleName: `Paper Collage (${newDna.pack})`,
+      },
+    };
+    setData(updated);
+    onUpdateStoryboard(updated);
+  };
+
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
@@ -195,6 +213,94 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             />
             <span>{isRegenerating ? "กำลังเจนใหม่..." : "ให้ Gemini เจนสคริปต์ใหม่"}</span>
           </button>
+        </div>
+      </div>
+
+      {/* 🎲 Style DNA & Visual Pack Bar */}
+      <div className="bg-slate-950 border border-indigo-900/60 rounded-xl p-5 space-y-4 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-950 border border-indigo-700/60 flex items-center justify-center">
+              <Palette className="w-4 h-4 text-indigo-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>สไตล์วิดีโอ (Style DNA & Visual Pack)</span>
+                <span className="text-[10px] bg-indigo-950 text-indigo-400 border border-indigo-800 px-2 py-0.5 rounded-full font-semibold">
+                  {PACK_INFO[data.styleDNA?.pack || "kraft-scrapbook"]?.name || "Kraft Scrapbook"}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {PACK_INFO[data.styleDNA?.pack || "kraft-scrapbook"]?.desc || "กระดาษคราฟต์ โพลารอยด์ เทปกาว โทนอุ่น"}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleRerollStyle()}
+            className="text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-md shadow-amber-500/10 active:scale-95"
+            title="สุ่มชุดธีม ดีไซน์ สีสัน และแอนิเมชันใหม่โดยไม่ต้องพิมพ์เนื้อหาใหม่"
+          >
+            <span>🎲 สุ่มสไตล์ใหม่</span>
+          </button>
+        </div>
+
+        {/* Style Chips */}
+        <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-900 text-xs">
+          <span className="text-slate-500 text-[11px] font-semibold uppercase tracking-wider">Style Chips:</span>
+          
+          <div className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-slate-200 flex items-center gap-1.5 font-medium">
+            <span>{PACK_INFO[data.styleDNA?.pack || "kraft-scrapbook"]?.emoji}</span>
+            <span>แพ็ก: <strong className="text-white">{PACK_INFO[data.styleDNA?.pack || "kraft-scrapbook"]?.name}</strong></span>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-slate-200 flex items-center gap-1.5 font-medium">
+            <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: data.styleDNA?.primaryColor || "#EE4D2D" }} />
+            <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: data.styleDNA?.accentColor || "#FFE14D" }} />
+            <span>พาเลต: <strong className="text-white">{data.styleDNA?.palette?.split("-")[1] || "adaptive"}</strong></span>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-slate-200 flex items-center gap-1.5 font-medium">
+            <span>📐 โครงเรื่อง: <strong className="text-amber-300">{data.styleDNA?.structure || "listicle"}</strong></span>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-slate-200 flex items-center gap-1.5 font-medium">
+            <span>🎣 Hook: <strong className="text-sky-300">{data.styleDNA?.hookFormula || "question"}</strong></span>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-slate-200 flex items-center gap-1.5 font-medium">
+            <span>⏱️ จังหวะ: <strong className="text-emerald-300">{data.styleDNA?.tempo || "snappy"}</strong></span>
+          </div>
+        </div>
+
+        {/* 8-Pack Quick Selector */}
+        <div className="pt-1">
+          <div className="text-[11px] text-slate-400 mb-2 font-medium">หรือคลิกเลือกแพ็กโดยตรง:</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {ALL_PACK_IDS.map((pId) => {
+              const pInfo = PACK_INFO[pId];
+              const isSelected = (data.styleDNA?.pack || "kraft-scrapbook") === pId;
+              return (
+                <button
+                  key={pId}
+                  type="button"
+                  onClick={() => handleRerollStyle(pId)}
+                  className={`text-left p-2 rounded-lg border text-xs transition flex items-center gap-2 ${
+                    isSelected
+                      ? "bg-indigo-950/80 border-indigo-500 text-white shadow-sm ring-1 ring-indigo-500/50"
+                      : "bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
+                  }`}
+                >
+                  <span className="text-base">{pInfo.emoji}</span>
+                  <div className="truncate">
+                    <div className="font-semibold truncate">{pInfo.name}</div>
+                    <div className="text-[10px] text-slate-400">{pInfo.tempo}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
