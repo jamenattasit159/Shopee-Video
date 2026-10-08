@@ -7,6 +7,22 @@ import { StoryboardPlan } from "../../remotion/types";
 const execAsync = util.promisify(exec);
 
 export type VoiceOption = "female" | "male" | "none";
+export type TTSEngine = "free" | "gemini";
+
+export interface VoiceoverRequestParams {
+  text: string;
+  engine?: TTSEngine;
+  voiceType?: VoiceOption;
+  rate?: string;
+  geminiVoice?: string;
+  geminiStyle?: string;
+}
+
+export interface VoiceoverResult {
+  audioUrl: string | null;
+  engineUsed: TTSEngine;
+  fallbackNotice?: string;
+}
 
 const VOICE_MAP: Record<string, string> = {
   female: "th-TH-PremwadeeNeural", // Female Thai energetic voice
@@ -89,12 +105,13 @@ export function sanitizeForEdgeTTS(text: string): string {
 }
 
 /**
- * Synthesizes Thai voiceover MP3 using edge-tts with resilient multi-tier fallback.
+ * Synthesizes Thai voiceover MP3 using edge-tts with resilient multi-tier fallback and speed control.
  */
 export async function generateThaiVoiceover(
   text: string,
   voiceType: VoiceOption = "female",
-  filenamePrefix: string = "voice"
+  filenamePrefix: string = "voice",
+  rate: string = "+0%"
 ): Promise<string | null> {
   if (voiceType === "none" || !text.trim()) {
     return null;
@@ -116,6 +133,9 @@ export async function generateThaiVoiceover(
   const tempDir = path.join(process.cwd(), ".tmp");
   await fs.mkdir(tempDir, { recursive: true });
 
+  const cleanRate = rate && rate.trim() ? rate.trim() : "+0%";
+  const rateArg = `--rate=${cleanRate}`;
+
   const runTts = async (content: string, voice: string) => {
     const tempTextFile = path.join(
       tempDir,
@@ -123,7 +143,7 @@ export async function generateThaiVoiceover(
     );
     await fs.writeFile(tempTextFile, content, "utf-8");
     try {
-      const cmd = `python -X utf8 -m edge_tts --voice "${voice}" --file "${tempTextFile}" --write-media "${outputPath}"`;
+      const cmd = `python -X utf8 -m edge_tts --voice "${voice}" --file "${tempTextFile}" ${rateArg} --write-media "${outputPath}"`;
       await execAsync(cmd, {
         env: {
           ...process.env,
@@ -172,4 +192,127 @@ export async function generateThaiVoiceover(
   }
 
   return null;
+}
+
+/**
+ * Synthesizes high-quality speech using Google Gemini 3.8 Flash TTS.
+ * Converts base64 audio/wav payload and saves to /public/uploads/.
+ */
+export async function synthesizeGeminiVoiceover(
+  text: string,
+  voiceName: string = "Puck",
+  style: string = "cheerful and friendly influencer review"
+): Promise<string | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey.trim() === "" || apiKey.includes("your_gemini_api_key")) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/interactions?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "gemini-3.8-flash-tts",
+      input: [
+        {
+          type: "user_input",
+          content: [
+            {
+              type: "text",
+              text: text.trim(),
+              annotations: [
+                {
+                  type: "speech_metadata",
+                  style: style,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      response_format: {
+        type: "audio",
+        mime_type: "audio/wav",
+      },
+      generation_config: {
+        speech_config: [
+          { voice: voiceName },
+        ],
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Gemini TTS API error (${response.status}): ${errText}`);
+  }
+
+  const data = await response.json();
+  const base64Data = data.output_audio?.data;
+  if (!base64Data) {
+    throw new Error("No output_audio received from Gemini TTS");
+  }
+
+  const audioDir = path.join(process.cwd(), "public", "uploads");
+  await fs.mkdir(audioDir, { recursive: true });
+  const filename = `gemini_${Date.now()}.wav`;
+  const outputPath = path.join(audioDir, filename);
+
+  const audioBuffer = Buffer.from(base64Data, "base64");
+  await fs.writeFile(outputPath, audioBuffer);
+
+  return `/uploads/${filename}`;
+}
+
+/**
+ * Smart voiceover router:
+ * - If 'gemini' is requested, attempts Gemini 3.8 Flash TTS.
+ *   If Gemini fails (e.g. 402 quota depleted, network issue), gracefully falls back to free Edge-TTS.
+ * - If 'free' is requested, uses Microsoft Edge-TTS with user-selected speed rate.
+ */
+export async function generateSmartVoiceover(
+  params: VoiceoverRequestParams
+): Promise<VoiceoverResult> {
+  const engine = params.engine || "free";
+
+  if (engine === "gemini") {
+    try {
+      const audioUrl = await synthesizeGeminiVoiceover(
+        params.text,
+        params.geminiVoice || "Puck",
+        params.geminiStyle || "cheerful and friendly"
+      );
+      if (audioUrl) {
+        return { audioUrl, engineUsed: "gemini" };
+      }
+    } catch (err: any) {
+      console.warn(
+        `[TTS] Gemini 3.8 Flash TTS unavailable (${err?.message?.split("\n")[0] || err}). Automatically falling back to Free Edge-TTS...`
+      );
+      const fallbackUrl = await generateThaiVoiceover(
+        params.text,
+        params.voiceType || "female",
+        "voice_fallback",
+        params.rate || "+0%"
+      );
+      return {
+        audioUrl: fallbackUrl,
+        engineUsed: "free",
+        fallbackNotice: "สลับมาใช้เสียงฟรีอัตโนมัติ เนื่องจากโควตา Gemini API หมดหรือเครดิตไม่เพียงพอ",
+      };
+    }
+  }
+
+  // Free Edge-TTS with adjustable speed rate
+  const audioUrl = await generateThaiVoiceover(
+    params.text,
+    params.voiceType || "female",
+    "voice_free",
+    params.rate || "+0%"
+  );
+  return {
+    audioUrl,
+    engineUsed: "free",
+  };
 }

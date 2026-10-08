@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildNarrationScript, generateThaiVoiceover, VoiceOption } from "../../../lib/tts";
+import {
+  buildNarrationScript,
+  generateSmartVoiceover,
+  TTSEngine,
+  VoiceOption,
+} from "../../../lib/tts";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { productName, price, storyboard, voiceType, customText } = body;
+    const {
+      productName,
+      price,
+      storyboard,
+      voiceType,
+      customText,
+      ttsEngine = "free",
+      rate = "+0%",
+      geminiVoice = "Puck",
+    } = body;
 
     const scriptText =
       customText ||
@@ -18,13 +32,15 @@ export async function POST(req: NextRequest) {
     }
 
     const selectedVoice: VoiceOption = voiceType || "female";
-    const audioUrl = await generateThaiVoiceover(
-      scriptText,
-      selectedVoice,
-      `voice_${Date.now()}`
-    );
+    const result = await generateSmartVoiceover({
+      text: scriptText,
+      engine: (ttsEngine as TTSEngine) || "free",
+      voiceType: selectedVoice,
+      rate: rate || "+0%",
+      geminiVoice: geminiVoice || "Puck",
+    });
 
-    if (!audioUrl) {
+    if (!result.audioUrl) {
       return NextResponse.json(
         { success: false, error: "Failed to synthesize voiceover" },
         { status: 500 }
@@ -33,8 +49,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      audioUrl,
+      audioUrl: result.audioUrl,
       scriptText,
+      engineUsed: result.engineUsed,
+      fallbackNotice: result.fallbackNotice,
     });
   } catch (error: any) {
     console.error("Synthesize voice error:", error);

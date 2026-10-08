@@ -4,6 +4,8 @@ import {
   Check,
   Copy,
   Edit3,
+  Gauge,
+  Info,
   Mic,
   Music,
   Palette,
@@ -12,6 +14,7 @@ import {
   Sparkles,
   Volume2,
   Wand2,
+  Zap,
 } from "lucide-react";
 import React, { useState } from "react";
 import { PackId, StoryboardPlan } from "../../remotion/types";
@@ -43,7 +46,11 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
   onVoiceoverGenerated,
 }) => {
   const [data, setData] = useState<StoryboardPlan>(storyboard);
+  const [ttsEngine, setTtsEngine] = useState<"free" | "gemini">("free");
   const [voiceType, setVoiceType] = useState<"female" | "male">("female");
+  const [speechRate, setSpeechRate] = useState<string>("+0%");
+  const [geminiVoice, setGeminiVoice] = useState<string>("Puck");
+  const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [currentVoiceUrl, setCurrentVoiceUrl] = useState<string | null>(
     voiceoverUrl || null
@@ -134,6 +141,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
     }
 
     setIsGeneratingVoice(true);
+    setFallbackNotice(null);
     try {
       const res = await fetch("/api/synthesize-voice", {
         method: "POST",
@@ -142,12 +150,18 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
           productName,
           price,
           customText: narrationText,
+          ttsEngine,
           voiceType,
+          rate: speechRate,
+          geminiVoice,
         }),
       });
       const resData = await res.json();
       if (resData.success && resData.audioUrl) {
         setCurrentVoiceUrl(resData.audioUrl);
+        if (resData.fallbackNotice) {
+          setFallbackNotice(resData.fallbackNotice);
+        }
         if (onVoiceoverGenerated) {
           onVoiceoverGenerated(resData.audioUrl);
         }
@@ -306,6 +320,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
 
       {/* 🎙️ Professional AI Voiceover (TTS) Generator Bar */}
       <div className="bg-orange-50/50 border border-orange-200/70 rounded-xl p-5 space-y-4 shadow-2xs">
+        {/* Header Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-white border border-orange-200 flex items-center justify-center shadow-2xs">
@@ -313,47 +328,171 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                <span>บทพากย์เสียง AI แบบมืออาชีพ (Natural Voiceover)</span>
+                <span>บทพากย์เสียง AI (Voiceover & TTS)</span>
                 <span className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full font-semibold">
                   ภาษาไทยธรรมชาติ
                 </span>
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
-                พูดลื่นไหลเหมือนครีเอเตอร์จริง ไม่พูดวน ไม่พูดคำว่าจุดเด่นซ้ำซาก
+                เลือกได้ระหว่างเสียงฟรี (ปรับสปีดได้) หรือ Gemini 3.8 Flash TTS
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <select
-              value={voiceType}
-              onChange={(e) => setVoiceType(e.target.value as any)}
-              className="bg-white border border-stone-300 text-xs text-stone-800 rounded-lg px-3 py-2 shadow-2xs focus:outline-none focus:border-orange-500"
-            >
-              <option value="female">👩 เสียงผู้หญิง (พรีมวดี - สดใส/ป้ายยา)</option>
-              <option value="male">👨 เสียงผู้ชาย (นิวัฒน์ - เป็นมิตร/น่าเชื่อถือ)</option>
-            </select>
-
-            <button
-              type="button"
-              onClick={handleGenerateVoice}
-              disabled={isGeneratingVoice}
-              className="shopee-gradient-btn text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
-            >
-              {isGeneratingVoice ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>กำลังอัดเสียง...</span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>{currentVoiceUrl ? "อัดเสียงใหม่" : "บันทึกเสียงพากย์"}</span>
-                </>
-              )}
-            </button>
-          </div>
+          {/* Action Trigger Button */}
+          <button
+            type="button"
+            onClick={handleGenerateVoice}
+            disabled={isGeneratingVoice}
+            className="shopee-gradient-btn text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition disabled:opacity-50 active:scale-95 shrink-0"
+          >
+            {isGeneratingVoice ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>กำลังอัดเสียง...</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-3.5 h-3.5" />
+                <span>{currentVoiceUrl ? "อัดเสียงใหม่" : "บันทึกเสียงพากย์"}</span>
+              </>
+            )}
+          </button>
         </div>
+
+        {/* 🎛️ Engine Switch: Free vs Gemini 3.8 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-stone-100/90 p-1 rounded-xl border border-stone-200">
+          <button
+            type="button"
+            onClick={() => setTtsEngine("free")}
+            className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 ${
+              ttsEngine === "free"
+                ? "bg-white text-stone-900 shadow-2xs border border-stone-300/80 ring-1 ring-amber-500/30"
+                : "text-stone-600 hover:text-stone-900 hover:bg-white/50"
+            }`}
+          >
+            <Zap className={`w-3.5 h-3.5 ${ttsEngine === "free" ? "text-amber-500" : "text-stone-400"}`} />
+            <span>⚡ ของฟรี (Edge-TTS)</span>
+            <span className="text-[10px] bg-stone-200/80 text-stone-700 px-1.5 py-0.5 rounded font-normal">
+              ปรับเร่ง/ช้าได้
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTtsEngine("gemini")}
+            className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 ${
+              ttsEngine === "gemini"
+                ? "bg-white text-stone-900 shadow-2xs border border-stone-300/80 ring-1 ring-orange-500/30"
+                : "text-stone-600 hover:text-stone-900 hover:bg-white/50"
+            }`}
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${ttsEngine === "gemini" ? "text-orange-500" : "text-stone-400"}`} />
+            <span>✨ Gemini 3.8 Flash TTS</span>
+            <span className="text-[10px] bg-orange-100 text-orange-800 border border-orange-300 px-1.5 py-0.5 rounded font-semibold">
+              AI พรีเมียม
+            </span>
+          </button>
+        </div>
+
+        {/* Engine-specific settings */}
+        {ttsEngine === "free" ? (
+          <div className="bg-white/90 border border-amber-200/80 rounded-xl p-3.5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Voice Actor Selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-stone-700 whitespace-nowrap">ผู้พากย์:</span>
+                <select
+                  value={voiceType}
+                  onChange={(e) => setVoiceType(e.target.value as any)}
+                  className="bg-white border border-stone-300 text-xs text-stone-800 rounded-lg px-2.5 py-1.5 shadow-2xs focus:outline-none focus:border-amber-500 font-medium"
+                >
+                  <option value="female">👩 พรีมวดี (ผู้หญิง - สดใส/ป้ายยา)</option>
+                  <option value="male">👨 นิวัฒน์ (ผู้ชาย - เป็นมิตร/น่าเชื่อถือ)</option>
+                </select>
+              </div>
+
+              {/* Speed Buttons */}
+              <div className="flex items-center gap-1 flex-wrap">
+                <div className="flex items-center gap-1 text-xs font-bold text-stone-700 mr-1">
+                  <Gauge className="w-3.5 h-3.5 text-amber-600" />
+                  <span>สปีดเสียง:</span>
+                </div>
+                {[
+                  { label: "0.85x ช้า", rate: "-15%", desc: "แนะนำสำหรับคนฟังไม่ทัน! ชัดถ้อยชัดคำ" },
+                  { label: "0.9x ฟังสบาย", rate: "-10%", desc: "ช้าลงเล็กน้อย ฟังสบาย" },
+                  { label: "1.0x ปกติ", rate: "+0%", desc: "ความเร็วมาตรฐาน" },
+                  { label: "1.15x กระฉับกระเฉง", rate: "+15%", desc: "พูดไว มีเอเนอร์จี้" },
+                  { label: "1.25x ไวรัล", rate: "+25%", desc: "เร็ว สไตล์ TikTok ไวรัล" },
+                ].map((s) => {
+                  const active = speechRate === s.rate;
+                  return (
+                    <button
+                      key={s.rate}
+                      type="button"
+                      onClick={() => setSpeechRate(s.rate)}
+                      title={s.desc}
+                      className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition active:scale-95 ${
+                        active
+                          ? "bg-amber-400 text-stone-950 border-amber-500 font-bold shadow-2xs ring-1 ring-amber-400/50"
+                          : "bg-stone-50 text-stone-700 border-stone-300 hover:bg-white hover:text-stone-900"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Helpful Helper note for user */}
+            <div className="text-[11px] text-stone-600 bg-amber-50/70 border border-amber-200/60 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+              <span className="text-amber-700 font-bold">💡 ปรับสปีด:</span>
+              <span>
+                หากเสียงพูดเร็วไปจนฟังไม่ทัน ให้เลือก <strong className="text-amber-800">0.85x ช้า</strong> หรือ <strong className="text-amber-800">0.9x ฟังสบาย</strong> เพื่อให้อ่านช้าลงและชัดเจนขึ้น
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white/90 border border-orange-200/80 rounded-xl p-3.5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Gemini Voice Selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-stone-700 whitespace-nowrap">โมเดลเสียง Gemini:</span>
+                <select
+                  value={geminiVoice}
+                  onChange={(e) => setGeminiVoice(e.target.value)}
+                  className="bg-white border border-stone-300 text-xs text-stone-800 rounded-lg px-2.5 py-1.5 shadow-2xs focus:outline-none focus:border-orange-500 font-medium"
+                >
+                  <option value="Puck">🎙️ Puck (สดใส มีเอเนอร์จี้ ชวนช้อป)</option>
+                  <option value="Kore">🎙️ Kore (มั่นใจ สุภาพ พรีเมียม)</option>
+                  <option value="Aoede">🎙️ Aoede (ฟังสบาย เป็นกันเอง)</option>
+                  <option value="Charon">🎙️ Charon (สุขุม น่าเชื่อถือ)</option>
+                  <option value="Fenrir">🎙️ Fenrir (ตื่นเต้น เร้าใจ)</option>
+                </select>
+              </div>
+
+              <div className="text-[11px] text-stone-500">
+                โมเดล: <strong className="text-stone-800">gemini-3.8-flash-tts</strong>
+              </div>
+            </div>
+
+            <div className="text-[11px] text-stone-600 bg-sky-50/70 border border-sky-200/60 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+              <span>
+                ระบบเชื่อมต่อ <strong>Gemini 3.8 Flash TTS</strong> โดยตรง (หากโควตา API ไม่เพียงพอ ระบบจะสลับไปใช้เสียงฟรีให้อัตโนมัติทันที)
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Fallback Notice Alert */}
+        {fallbackNotice && (
+          <div className="text-xs text-amber-900 bg-amber-50 border border-amber-300 rounded-xl p-2.5 flex items-center gap-2">
+            <Info className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>{fallbackNotice}</span>
+          </div>
+        )}
 
         {/* 📝 Editable Narration Text Box */}
         <div className="space-y-1.5">
