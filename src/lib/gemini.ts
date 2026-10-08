@@ -278,17 +278,52 @@ function deriveIntelligentBenefits(
 ): BenefitItem {
   const combined = `${productName} ${highlights}`.toLowerCase();
 
-  // 1. หมวดแม่และเด็ก / ผลิตภัณฑ์สำหรับทารก (Baby & Mother)
+  // 1. หมวดเครื่องกล่อมนอน / มือตบกล่อมนอน / ตุ๊กตากล่อมนอนเด็ก (Sleep Aid & Patting Toy)
   if (
-    combined.includes("ลูก") ||
-    combined.includes("เด็ก") ||
+    combined.includes("ตบ") ||
+    combined.includes("กล่อม") ||
+    combined.includes("มือตบ") ||
+    combined.includes("นอนหลับ") ||
+    combined.includes("ตุ๊กตา") ||
+    combined.includes("รีโมท")
+  ) {
+    const list: BenefitItem[] = [
+      {
+        title: "รีโมทไร้สาย ปรับได้ 3 ระดับ",
+        headlineLines: ["รีโมทไร้สาย", "ปรับได้ 3 ระดับ"],
+        desc: "ปรับจังหวะการตบได้ 3 ระดับ นุ่มนวล กล่อมลูกหลับสบาย",
+        captionLines: ["ปรับได้ 3 ระดับ", "กล่อมลูกหลับสบาย"],
+        word: "ปรับ 3 ระดับ",
+        stickerText: "🎮 รีโมท 3 จังหวะ",
+      },
+      {
+        title: "มีแบตในตัว ชาร์จผ่าน USB",
+        headlineLines: ["มีแบตในตัว", "ชาร์จง่าย USB"],
+        desc: "ใช้งานสะดวก ไม่ต้องใส่ถ่าน เสียบชาร์จผ่านสาย USB ได้ทันที",
+        captionLines: ["มีแบตเตอรี่ในตัว", "ชาร์จผ่าน USB"],
+        word: "มีแบตในตัว",
+        stickerText: "⚡ ชาร์จไฟ USB",
+      },
+      {
+        title: "ปลอกผ้านุ่ม ถอดซักทำความสะอาดได้",
+        headlineLines: ["ปลอกผ้านุ่ม", "ถอดซักได้ง่าย"],
+        desc: "ปลอกผ้านุ่มนิ่ม ถอดซักทำความสะอาดได้ ถูกสุขอนามัย ปลอดภัย",
+        captionLines: ["ถอดปลอกซักได้", "ถูกสุขอนามัย"],
+        word: "ถอดซักได้",
+        stickerText: "🧼 ปลอกถอดซักได้",
+      },
+    ];
+    return list[index % list.length];
+  }
+
+  // 2. หมวดผิวและผ้าอ้อมเด็ก (Baby Skincare & Diapers ONLY when explicitly mentioned)
+  if (
     combined.includes("ผ้าอ้อม") ||
-    combined.includes("ทารก") ||
-    combined.includes("baby") ||
-    combined.includes("diaper") ||
     combined.includes("ผดผื่น") ||
-    combined.includes("แม่") ||
-    combined.includes("mama")
+    combined.includes("diaper") ||
+    combined.includes("ครีมเด็ก") ||
+    combined.includes("โลชั่นเด็ก") ||
+    (combined.includes("เด็ก") && (combined.includes("ครีม") || combined.includes("ทาผิว")))
   ) {
     const list: BenefitItem[] = [
       {
@@ -314,6 +349,44 @@ function deriveIntelligentBenefits(
         captionLines: ["สารสกัดธรรมชาติ", "คุณแม่ไว้วางใจ"],
         word: "ปกป้องผิว",
         stickerText: "🛡️ เสริมเกราะผิว",
+      },
+    ];
+    return list[index % list.length];
+  }
+
+  // 3. หมวดสินค้าแม่และเด็กทั่วไป (General Baby & Mother)
+  if (
+    combined.includes("ลูก") ||
+    combined.includes("เด็ก") ||
+    combined.includes("ทารก") ||
+    combined.includes("baby") ||
+    combined.includes("แม่") ||
+    combined.includes("mama")
+  ) {
+    const list: BenefitItem[] = [
+      {
+        title: "ปลอดภัยต่อน้อง คุณแม่มั่นใจ",
+        headlineLines: ["ปลอดภัยต่อลูก", "คุณแม่มั่นใจ"],
+        desc: "ผลิตจากวัสดุคุณภาพดี ปลอดภัยสำหรับเด็กเล็ก",
+        captionLines: ["วัสดุคุณภาพดี", "ปลอดภัยต่อลูก"],
+        word: "ปลอดภัย",
+        stickerText: "👶 ปลอดภัยต่อลูก",
+      },
+      {
+        title: "ใช้งานสะดวก ตอบโจทย์คุณแม่",
+        headlineLines: ["ใช้งานสะดวก", "ตอบโจทย์คุณแม่"],
+        desc: "ออกแบบมาเพื่อความสบายของลูกน้อย ใช้งานง่ายทุกวัน",
+        captionLines: ["ออกแบบมาดี", "ใช้งานง่ายทุกวัน"],
+        word: "ตอบโจทย์",
+        stickerText: "✨ คุ้มค่าตอบโจทย์",
+      },
+      {
+        title: "ของแท้ตรงปก รีวิวคุณแม่แน่น",
+        headlineLines: ["ของแท้ตรงปก", "รีวิวคุณแม่แน่น"],
+        desc: "การันตีคุณภาพ คุ้มค่าเกินราคา พิกัดตะกร้าส้ม",
+        captionLines: ["การันตีคุณภาพ", "คุณแม่บอกต่อ"],
+        word: "ตรงปก",
+        stickerText: "⭐ รีวิวคุณแม่แน่น",
       },
     ];
     return list[index % list.length];
@@ -888,24 +961,159 @@ interface HookPhraseItem {
   headlineLines: string[];
 }
 
+function selectDiverseHighlights(items: string[], count: number = 3): string[] {
+  if (items.length <= count) return items;
+
+  const priorityKeywords = [
+    ["รีโมท", "ปรับจังหวะ", "3 ระดับ", "ปรับเกียร์"],
+    ["แบต", "ชาร์จ", "usb"],
+    ["ซัก", "ปลอก", "ผ้า"],
+    ["กล่อม", "นอน", "ตบ"],
+    ["ขนาด", "ซม"],
+    ["ลาย", "แบบ"],
+    ["เด็ก", "ขวบ", "0-6"],
+  ];
+
+  const selected: string[] = [];
+  const usedGroup = new Set<number>();
+
+  for (let g = 0; g < priorityKeywords.length; g++) {
+    const keywords = priorityKeywords[g];
+    const match = items.find((item) => {
+      const lower = item.toLowerCase();
+      return keywords.some((k) => lower.includes(k)) && !selected.includes(item);
+    });
+
+    if (match && !usedGroup.has(g)) {
+      usedGroup.add(g);
+      selected.push(match);
+      if (selected.length === count) break;
+    }
+  }
+
+  for (const item of items) {
+    if (selected.length < count && !selected.includes(item)) {
+      selected.push(item);
+    }
+  }
+
+  return selected.slice(0, count);
+}
+
+function deriveSceneFromUserHighlight(hText: string, index: number): {
+  title: string;
+  headlineLines: string[];
+  desc: string;
+  captionLines: string[];
+  stickerText: string;
+  word: string;
+} {
+  const lower = hText.toLowerCase();
+  let title = "";
+  let headlineLines: string[] = [];
+  let stickerText = "🏆 ของแท้ตรงปก";
+  let word = "ของดีตรงปก";
+
+  if (lower.includes("รีโมท") || (lower.includes("ปรับ") && lower.includes("ระดับ"))) {
+    title = lower.includes("3") ? "รีโมทปรับ 3 ระดับ" : "รีโมทปรับจังหวะได้";
+    headlineLines = ["รีโมทไร้สาย", "ปรับได้ 3 ระดับ"];
+    stickerText = "🎮 รีโมทไร้สาย";
+    word = "ปรับได้ 3 ระดับ";
+  } else if (lower.includes("แบต") || lower.includes("usb") || lower.includes("ชาร์จ")) {
+    title = "มีแบตในตัว ชาร์จ USB";
+    headlineLines = ["มีแบตในตัว", "ชาร์จง่าย USB"];
+    stickerText = "⚡ ชาร์จไฟ USB";
+    word = "มีแบตในตัว";
+  } else if (lower.includes("ซัก") || lower.includes("ปลอก")) {
+    title = "ปลอกผ้านุ่ม ถอดซักได้";
+    headlineLines = ["ปลอกผ้านุ่ม", "ถอดซักได้ง่าย"];
+    stickerText = "🧼 ถอดซักได้";
+    word = "ถอดซักได้";
+  } else if (lower.includes("ขนาด") || lower.includes("ซม")) {
+    title = "ขนาดกะทัดรัด 27x26 ซม.";
+    headlineLines = ["ขนาดกะทัดรัด", "27x26 ซม."];
+    stickerText = "📏 ขนาด 27x26 ซม.";
+    word = "ขนาดพอดี";
+  } else if (lower.includes("ลาย") || lower.includes("แบบ")) {
+    title = "มีให้เลือก 4 ลายน่ารัก";
+    headlineLines = ["มีให้เลือกถึง", "4 ลายน่ารัก"];
+    stickerText = "✨ 4 ลายน่ารัก";
+    word = "ลายน่ารัก";
+  } else if (lower.includes("0-6") || lower.includes("ขวบ")) {
+    title = "เหมาะกับวัย 0-6 ขวบ";
+    headlineLines = ["เหมาะสำหรับเด็ก", "วัย 0-6 ขวบ"];
+    stickerText = "👶 วัย 0-6 ขวบ";
+    word = "วัย 0-6 ขวบ";
+  } else if (lower.includes("กล่อม") || lower.includes("ตบ") || lower.includes("นอน")) {
+    title = "กล่อมนอนหลับปุ๋ยสบาย";
+    headlineLines = ["กล่อมนอนสบาย", "หลับปุ๋ยไม่งอแง"];
+    stickerText = "🌙 หลับสบาย";
+    word = "หลับปุ๋ย";
+  } else if (lower.includes("สวิตช์") || lower.includes("ซิป") || lower.includes("เปิด")) {
+    title = "ใช้งานง่าย สะดวกสบาย";
+    headlineLines = ["ใช้งานง่าย", "สั่งงานสะดวก"];
+    stickerText = "👌 ใช้งานง่าย";
+    word = "ใช้ง่าย";
+  } else {
+    title = hText.replace(/^(?:มี|มาพร้อม|เป็น|ช่วย|ฟังก์ชัน)\s*/, "").slice(0, 24).trim();
+    const lines = splitSafeThaiLines(title, 14, 4);
+    headlineLines = lines.length > 0 ? lines.slice(0, 2) : [title.slice(0, 14)];
+    word = headlineLines[0] || "ตรงปก";
+    stickerText = "🏆 สเปกครบครัน";
+  }
+
+  const desc = hText.slice(0, 35);
+  let capLines = splitSafeThaiLines(desc, 18, 4);
+  if (capLines.length === 0 || !capLines.every((l) => validateLine(l, 20, 3).valid)) {
+    capLines = splitSafeThaiLines(desc.slice(0, 28), 16, 4);
+  }
+
+  return {
+    title,
+    headlineLines,
+    desc,
+    captionLines: capLines.slice(0, 2),
+    stickerText,
+    word,
+  };
+}
+
 function generateFallbackStoryboard(
   params: ScriptGenerationParams,
   styleDNA: StyleDNA
 ): StoryboardPlan {
   const combined = `${params.productName} ${params.highlights}`.toLowerCase();
+
+  const isSleepOrToy =
+    combined.includes("ตบ") ||
+    combined.includes("กล่อม") ||
+    combined.includes("มือตบ") ||
+    combined.includes("นอน") ||
+    combined.includes("ของเล่น") ||
+    combined.includes("ตุ๊กตา") ||
+    combined.includes("รีโมท");
+
+  const isBabySkincare =
+    !isSleepOrToy &&
+    (combined.includes("ผ้าอ้อม") ||
+      combined.includes("ผดผื่น") ||
+      combined.includes("diaper") ||
+      combined.includes("ครีมเด็ก") ||
+      combined.includes("โลชั่นเด็ก"));
+
   const isBaby =
-    combined.includes("ลูก") ||
-    combined.includes("เด็ก") ||
-    combined.includes("ผ้าอ้อม") ||
-    combined.includes("ทารก") ||
-    combined.includes("baby") ||
-    combined.includes("diaper") ||
-    combined.includes("ผดผื่น") ||
-    combined.includes("แม่") ||
-    combined.includes("mama");
+    !isSleepOrToy &&
+    (isBabySkincare ||
+      combined.includes("ลูก") ||
+      combined.includes("เด็ก") ||
+      combined.includes("ทารก") ||
+      combined.includes("baby") ||
+      combined.includes("แม่") ||
+      combined.includes("mama"));
 
   const isBeauty =
     !isBaby &&
+    !isSleepOrToy &&
     (combined.includes("ผิว") ||
       combined.includes("ครีม") ||
       combined.includes("เซรั่ม") ||
@@ -990,6 +1198,18 @@ function generateFallbackStoryboard(
     ],
   };
 
+  const sleepHooks: HookPhraseItem[] = [
+    { title: `${params.productName} ตัวช่วยหลับปุ๋ย!`, headlineLines: splitSafeThaiLines(`${params.productName} ตัวช่วยหลับปุ๋ย!`, 14, 4) },
+    { title: "ลูกน้อยหลับสบาย คุณแม่หมดห่วง", headlineLines: ["ลูกน้อยหลับสบาย", "คุณแม่หมดห่วง"] },
+    { title: "หมดปัญหาลูกงอแง กล่อมนอนง่าย", headlineLines: ["หมดปัญหาลูกงอแง", "กล่อมนอนง่าย"] },
+  ];
+
+  const sleepSubheadlines = [
+    { subheadline: "มีรีโมทปรับได้ 3 ระดับ กล่อมลูกหลับเพลิน", captionLines: ["มีรีโมทปรับ 3 ระดับ", "กล่อมลูกหลับเพลิน"] },
+    { subheadline: "มีแบตในตัว เสียบชาร์จผ่านสาย USB สะดวกมาก", captionLines: ["มีแบตเตอรี่ในตัว", "ชาร์จง่าย USB"] },
+    { subheadline: "ปลอกผ้านุ่มนิ่ม ถอดซักทำความสะอาดได้ง่าย", captionLines: ["ปลอกผ้านุ่มนิ่ม", "ถอดซักง่ายมาก"] },
+  ];
+
   const babyHooks: HookPhraseItem[] = [
     { title: "คุณแม่ต้องมี! ไอเทมคู่ใจลูกน้อย", headlineLines: ["คุณแม่ต้องมี!", "ไอเทมลูกน้อย"] },
     { title: "ลูกน้อยสบายตัว คุณแม่หมดกังวล", headlineLines: ["ลูกน้อยสบายตัว", "คุณแม่หมดห่วง"] },
@@ -998,8 +1218,8 @@ function generateFallbackStoryboard(
   ];
 
   const babySubheadlines = [
-    { subheadline: "สูตรอ่อนโยน ผ่านการทดสอบจากแพทย์", captionLines: ["สูตรอ่อนโยน", "ผ่านการทดสอบ"] },
-    { subheadline: "ดูแลผิวบอบบาง ปลอดภัยไร้กังวล", captionLines: ["ดูแลผิวบอบบาง", "ปลอดภัยไร้กังวล"] },
+    { subheadline: "ผลิตจากวัสดุปลอดภัย ผ่านมาตรฐานรับรอง", captionLines: ["วัสดุปลอดภัย", "ผ่านการรับรอง"] },
+    { subheadline: "ดูแลลูกน้อยด้วยความอ่อนโยน ปลอดภัยไร้กังวล", captionLines: ["ดูแลลูกน้อย", "ปลอดภัยไร้กังวล"] },
     { subheadline: "รีวิวคุณแม่แน่น ใช้ดีบอกต่อจริง", captionLines: ["รีวิวคุณแม่แน่น", "ใช้ดีบอกต่อจริง"] },
   ];
 
@@ -1036,7 +1256,10 @@ function generateFallbackStoryboard(
   let hookList = hookPhrases[styleDNA.hookFormula] || hookPhrases.question;
   let subList = fallbackSubheadlines;
 
-  if (isBaby) {
+  if (isSleepOrToy) {
+    hookList = sleepHooks;
+    subList = sleepSubheadlines;
+  } else if (isBaby) {
     hookList = babyHooks;
     subList = babySubheadlines;
   } else if (isBeauty) {
@@ -1048,7 +1271,9 @@ function generateFallbackStoryboard(
   const pickedSub = subList[Math.floor(Math.random() * subList.length)];
 
   let hookBadge = "🔥 ป้ายยาไอเทมเด็ด";
-  if (isBaby) {
+  if (isSleepOrToy) {
+    hookBadge = "🌙 กล่อมนอนหลับปุ๋ย";
+  } else if (isBaby) {
     hookBadge = "🌿 สำหรับลูกน้อย";
   } else if (isBeauty) {
     hookBadge = "💧 ดูแลผิวปัง";
@@ -1066,35 +1291,48 @@ function generateFallbackStoryboard(
   const splitHighlights = params.highlights
     .split(/(?:\r?\n|[,;]|\s*•\s*)/)
     .map((s) => s.replace(/^(?:\d+[\s.)\-]+|[•\-\*]\s*)/, "").trim())
-    .filter(Boolean);
+    .filter((s) => s.length > 2);
+
+  const selectedHighlights = selectDiverseHighlights(splitHighlights, count);
 
   const layouts = styleDNA.layouts || ["hero-center", "polaroid-stack", "callout-circle"];
   const themes: PaperTheme[] = ["cream-grid", "pastel-mint", "kraft"];
 
   for (let i = 0; i < count; i++) {
-    const smart = deriveIntelligentBenefits(params.productName, params.highlights, i);
-    let cleanTitle = smart.title;
-    let headlineLines = smart.headlineLines;
+    const userH = selectedHighlights[i];
 
-    if (splitHighlights[i]) {
-      const hText = splitHighlights[i];
-      const lines = splitSafeThaiLines(hText, 14, 4);
-      if (lines.length > 0 && lines.every((l) => validateLine(l, 16, 3).valid)) {
-        headlineLines = lines.slice(0, 2);
-        cleanTitle = headlineLines.join(" ");
-      }
+    let cleanTitle = "";
+    let headlineLines: string[] = [];
+    let cleanDesc = "";
+    let captionLines: string[] = [];
+    let stickerText = "";
+    let highlightWord = "";
+
+    if (userH) {
+      const derived = deriveSceneFromUserHighlight(userH, i);
+      cleanTitle = derived.title;
+      headlineLines = derived.headlineLines;
+      cleanDesc = derived.desc;
+      captionLines = derived.captionLines;
+      stickerText = derived.stickerText;
+      highlightWord = derived.word;
+    } else {
+      const smart = deriveIntelligentBenefits(params.productName, params.highlights, i);
+      cleanTitle = smart.title;
+      headlineLines = smart.headlineLines;
+      cleanDesc = smart.desc;
+      captionLines = smart.captionLines;
+      stickerText = smart.stickerText;
+      highlightWord = smart.word;
     }
-
-    const cleanDesc = smart.desc;
-    const captionLines = smart.captionLines;
 
     scenes.push({
       highlightTitle: cleanTitle,
       headlineLines,
       highlightDesc: cleanDesc,
       captionLines,
-      stickerText: smart.stickerText,
-      highlightWord: smart.word,
+      stickerText,
+      highlightWord,
       layout: layouts[i % layouts.length],
       paperTheme: themes[i % themes.length],
       imageIndex: i,
@@ -1108,7 +1346,7 @@ function generateFallbackStoryboard(
     ctaSubtitle: "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
     captionLines: ["แจกโค้ดส่งฟรี", "คูปองลดเพิ่มทันที"],
     buttonText: "ช้อปเลยที่ Shopee",
-    badgeText: isBaby ? "🌿 เพื่อลูกน้อยที่คุณรัก" : "⚡ โค้ดมีจำนวนจำกัด",
+    badgeText: isSleepOrToy ? "🌙 หลับปุ๋ยสบาย" : isBaby ? "🌿 เพื่อลูกน้อยที่คุณรัก" : "⚡ โค้ดมีจำนวนจำกัด",
     basketNote: "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
     paperTheme: "halftone-orange",
     durationSec: 3,
@@ -1123,7 +1361,7 @@ function generateFallbackStoryboard(
       subheadline: pickedSub.subheadline,
       captionLines: pickedSub.captionLines,
       badgeText: hookBadge,
-      highlightWord: isBaby ? "ลูกน้อย" : "ตัวดัง",
+      highlightWord: isSleepOrToy ? "หลับปุ๋ย" : isBaby ? "ลูกน้อย" : "ตัวดัง",
       paperTheme: "kraft",
       durationSec: 3,
     },
@@ -1137,8 +1375,12 @@ function generateFallbackStoryboard(
       styleName: `Paper Collage (${styleDNA.pack})`,
     },
     audioSuggestion: {
-      mood: isBaby ? "อบอุ่น สดใส ฟังสบาย (Acoustic Warm Playful)" : "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
-      musicGenre: isBaby ? "Soft Acoustic Ukulele" : "Viral Shopee Beat",
+      mood: isSleepOrToy
+        ? "ฟังสบาย อบอุ่น ผ่อนคลาย (Gentle Lullaby & Acoustic)"
+        : isBaby
+        ? "อบอุ่น สดใส ฟังสบาย (Acoustic Warm Playful)"
+        : "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
+      musicGenre: isSleepOrToy ? "Gentle Acoustic Music" : isBaby ? "Soft Acoustic Ukulele" : "Viral Shopee Beat",
       soundEffectTips: "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ",
     },
     narrationScript,

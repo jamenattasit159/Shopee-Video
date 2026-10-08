@@ -4,11 +4,21 @@ export function buildNaturalNarrationText(
   scenes: Array<{ highlightTitle: string; highlightDesc: string }>,
   cta: { ctaTitle: string; basketNote?: string }
 ): string {
-  const scene1 = scenes[0] ? `${scenes[0].highlightTitle} ${scenes[0].highlightDesc}` : "";
-  const scene2 = scenes[1] ? `แถมยัง${scenes[1].highlightTitle} ${scenes[1].highlightDesc}` : "";
-  const scene3 = scenes[2] ? `ที่สำคัญคือ${scenes[2].highlightTitle}` : "";
+  const formatScene = (s?: { highlightTitle: string; highlightDesc: string }) => {
+    if (!s) return "";
+    const t = s.highlightTitle.trim();
+    const d = s.highlightDesc.trim();
+    if (!d || d === t) return t;
+    if (d.startsWith(t) || d.includes(t)) return d;
+    return `${t} ${d}`;
+  };
+
+  const scene1 = scenes[0] ? formatScene(scenes[0]) : "";
+  const scene2 = scenes[1] ? `แถมยัง${formatScene(scenes[1])}` : "";
+  const scene3 = scenes[2] ? `ที่สำคัญคือ${formatScene(scenes[2])}` : "";
 
   const featuresText = [scene1, scene2, scene3].filter(Boolean).join(" ");
+  const cleanPrice = price ? `เหลือแค่ ${price} เท่านั้น` : "ราคาดีมาก";
 
-  return `ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! ${productName} ตัวนี้คือดีงามมาก ${featuresText} ตอนนี้จัดโปรพิเศษเหลือแค่ ${price} เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!`;
+  return `ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! ${productName} ตัวนี้คือดีงามมาก ${featuresText} ตอนนี้จัดโปรพิเศษ${cleanPrice} พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!`;
 }

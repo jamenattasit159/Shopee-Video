@@ -1,5 +1,307 @@
 [
   {
+    "id": "prod_1791449222411",
+    "name": "มือตบกล่อมนอน ช่วยในการนอนหลับ ที่กล่อมนอนเด็ก มีแบตในตัวสายชาร์จ USB ถอดซักได้ ปรับเกียร์ได้ 3ระดับ",
+    "price": "VIP ลดเลย 30%",
+    "highlights": "มีแบตเตอรี่ในตัว ใช้งานสะดวกไม่ต้องใส่ถ่าน, รองรับการชาร์จไฟผ่านสาย USB สะดวกสบาย, ปลอกผ้านุ่มนิ่ม ถอดซักทำความสะอาดได้ง่าย ถูกสุขอนามัย, มีให้เลือกถึง 4 ลายน่ารัก, ขนาดกะทัดรัด 27x26 ซม. กำลังพอดี, เหมาะสำหรับเด็กวัย 0-6 ขวบ, ใช้งานง่าย แค่รูดซิปเปิดสวิตช์ที่ตัว แล้วกดสั่งการผ่านรีโมทได้ทันที, มาพร้อมรีโมทไร้สาย ปรับจังหวะตบได้ 3 ระดับ",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791449222411_0_th-11134201-81zti-mrkd7kw1ryf8eb.webp",
+      "/uploads/1791449222412_1_th-11134207-7rasd-m4a4v3vti7pm5e.webp",
+      "/uploads/1791449222414_2_th-11134207-7rasj-m4a4v3vtgtsad5.webp",
+      "/uploads/1791449222415_3__.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "มือตบกล่อมนอน ช่วยในการนอนหลับ ที่กล่อมนอนเด็ก มีแบตในตัวสายชาร์จ USB ถอดซักได้ ปรับเกียร์ได้ 3ระดับ ตัวช่วยหลับปุ๋ย!",
+        "headlineLines": [
+          "มือตบกล่อมนอน",
+          "ช่วยในการนอนหลับ ที่กล่อมนอนเด็ก มีแบตในตัวสายชาร์จ USB ถอดซักได้ ปรับเกียร์ได้ 3ระดับ ตัวช่วยหลับปุ๋ย!"
+        ],
+        "subheadline": "มีรีโมทปรับได้ 3 ระดับ กล่อมลูกหลับเพลิน",
+        "captionLines": [
+          "มีรีโมทปรับ 3 ระดับ",
+          "กล่อมลูกหลับเพลิน"
+        ],
+        "badgeText": "🌙 กล่อมนอนหลับปุ๋ย",
+        "highlightWord": "หลับปุ๋ย",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "รีโมทปรับจังหวะได้",
+          "headlineLines": [
+            "รีโมทไร้สาย",
+            "ปรับได้ 3 ระดับ"
+          ],
+          "highlightDesc": "ใช้งานง่าย แค่รูดซิปเปิดสวิตช์ที่ตั",
+          "captionLines": [
+            "ใช้งานง่าย แค่รูด",
+            "ซิปเปิดสวิตช์ที่ตั"
+          ],
+          "stickerText": "🎮 รีโมทไร้สาย",
+          "highlightWord": "ปรับได้ 3 ระดับ",
+          "layout": "polaroid-stack",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "มีแบตในตัว ชาร์จ USB",
+          "headlineLines": [
+            "มีแบตในตัว",
+            "ชาร์จง่าย USB"
+          ],
+          "highlightDesc": "มีแบตเตอรี่ในตัว ใช้งานสะดวกไม่ต้อง",
+          "captionLines": [
+            "มีแบตเตอรี่ในตัว ใช้งานสะดวก"
+          ],
+          "stickerText": "⚡ ชาร์จไฟ USB",
+          "highlightWord": "มีแบตในตัว",
+          "layout": "hero-center",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "ปลอกผ้านุ่ม ถอดซักได้",
+          "headlineLines": [
+            "ปลอกผ้านุ่ม",
+            "ถอดซักได้ง่าย"
+          ],
+          "highlightDesc": "ปลอกผ้านุ่มนิ่ม ถอดซักทำความสะอาดได",
+          "captionLines": [
+            "ปลอกผ้านุ่มนิ่ม ถอดซักทำความ"
+          ],
+          "stickerText": "🧼 ถอดซักได้",
+          "highlightWord": "ถอดซักได้",
+          "layout": "hero-center",
+          "paperTheme": "kraft",
+          "imageIndex": 2,
+          "durationSec": 3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างด่วน!"
+        ],
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "captionLines": [
+          "แจกโค้ดส่งฟรี",
+          "คูปองลดเพิ่มทันที"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "🌙 หลับปุ๋ยสบาย",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (kraft-scrapbook)"
+      },
+      "audioSuggestion": {
+        "mood": "ฟังสบาย อบอุ่น ผ่อนคลาย (Gentle Lullaby & Acoustic)",
+        "musicGenre": "Gentle Acoustic Music",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! มือตบกล่อมนอน ช่วยในการนอนหลับ ที่กล่อมนอนเด็ก มีแบตในตัวสายชาร์จ USB ถอดซักได้ ปรับเกียร์ได้ 3ระดับ ตัวนี้คือดีงามมาก รีโมทปรับจังหวะได้ ใช้งานง่าย แค่รูดซิปเปิดสวิตช์ที่ตั แถมยังมีแบตในตัว ชาร์จ USB มีแบตเตอรี่ในตัว ใช้งานสะดวกไม่ต้อง ที่สำคัญคือปลอกผ้านุ่ม ถอดซักได้ ปลอกผ้านุ่มนิ่ม ถอดซักทำความสะอาดได ตอนนี้จัดโปรพิเศษเหลือแค่ VIP ลดเลย 30% เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!",
+      "styleDNA": {
+        "seed": 1435647297,
+        "pack": "kraft-scrapbook",
+        "palette": "kraft-scrapbook-analogous-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "fontPair": "prompt-clean",
+        "structure": "problem-solution",
+        "hookFormula": "reaction",
+        "layouts": [
+          "polaroid-stack",
+          "hero-center",
+          "hero-center"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "page-shuffle"
+        ],
+        "tempo": "chill",
+        "stickerShape": "cloud",
+        "sfxKit": "retro-paper"
+      }
+    },
+    "createdAt": "2026-10-08T08:47:03.140Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%95%E0%B8%9A%E0%B8%81%E0%B8%A5%E0%B9%88%E0%B8%AD%E0%B8%A1%E0%B8%99%E0%B8%AD%E0%B8%99-%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B9%83%E0%B8%99%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%99%E0%B8%AD%E0%B8%99%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%9A-%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%81%E0%B8%A5%E0%B9%88%E0%B8%AD%E0%B8%A1%E0%B8%99%E0%B8%AD%E0%B8%99%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%A1%E0%B8%B5%E0%B9%81%E0%B8%9A%E0%B8%95%E0%B9%83%E0%B8%99%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%AA%E0%B8%B2%E0%B8%A2%E0%B8%8A%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%88-USB-%E0%B8%96%E0%B8%AD%E0%B8%94%E0%B8%8B%E0%B8%B1%E0%B8%81%E0%B9%84%E0%B8%94%E0%B9%89-%E0%B8%9B%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B9%80%E0%B8%81%E0%B8%B5%E0%B8%A2%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%94%E0%B9%89-3%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B1%E0%B8%9A-i.1198771808.26971931602",
+      "shopId": "1198771808",
+      "itemId": "26971931602",
+      "fetchedAt": "2026-10-08T07:32:03.802Z",
+      "confirmedAt": "2026-10-08T08:47:02.372Z"
+    },
+    "category": "baby",
+    "facts": {}
+  },
+  {
+    "id": "prod_1791445818063",
+    "name": "มือตบกล่อมนอน ช่วยในการนอนหลับ",
+    "price": "ลดหนักจัดด",
+    "highlights": "มีแบตเตอรี่ในตัว ใช้งานสะดวกไม่ต้องใส่ถ่าน, รองรับการชาร์จไฟผ่านสาย USB สะดวกสบาย, ปลอกผ้านุ่มนิ่ม ถอดซักทำความสะอาดได้ง่าย ถูกสุขอนามัย, มีให้เลือกถึง 4 ลายน่ารัก, ขนาดกะทัดรัด 27x26 ซม. กำลังพอดี, เหมาะสำหรับเด็กวัย 0-6 ขวบ, ใช้งานง่าย แค่รูดซิปเปิดสวิตช์ที่ตัว แล้วกดสั่งการผ่านรีโมทได้ทันที, มาพร้อมรีโมทไร้สาย ปรับจังหวะตบได้ 3 ระดับ",
+    "tone": "minimal",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791445818063_0_th-11134201-81zti-mrkd7kw1ryf8eb.webp",
+      "/uploads/1791445818065_1_th-11134207-7rasd-m4a4v3vti7pm5e.webp",
+      "/uploads/1791445818066_2_th-11134207-7rasj-m4a4v3vtgtsad5.webp",
+      "/uploads/1791445818067_3__.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "ลูกน้อยสบายตัว คุณแม่หมดกังวล",
+        "headlineLines": [
+          "ลูกน้อยสบายตัว",
+          "คุณแม่หมดห่วง"
+        ],
+        "subheadline": "สูตรอ่อนโยน ผ่านการทดสอบจากแพทย์",
+        "captionLines": [
+          "สูตรอ่อนโยน",
+          "ผ่านการทดสอบ"
+        ],
+        "badgeText": "🌿 สำหรับลูกน้อย",
+        "highlightWord": "ลูกน้อย",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "สูตรอ่อนโยน ไม่แพ้ระคายเคือง",
+          "headlineLines": [
+            "สูตรอ่อนโยน",
+            "ไม่แพ้ระคายเคือง"
+          ],
+          "highlightDesc": "ผ่านการทดสอบ ปลอดภัยต่อผิวบอบบางของลูกน้อย",
+          "captionLines": [
+            "ผ่านการทดสอบ",
+            "ผิวบอบบางใช้ได้"
+          ],
+          "stickerText": "🌿 ออร์แกนิคบริสุทธิ์",
+          "highlightWord": "อ่อนโยน",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "ลดผดผื่น สบายผิวลูกน้อย",
+          "headlineLines": [
+            "ลดผดผื่นคัน",
+            "สบายผิวลูกน้อย"
+          ],
+          "highlightDesc": "เนื้อซึมไว ไม่เหนียวเหนอะหนะ สบายตัวตลอดวัน",
+          "captionLines": [
+            "เนื้อซึมไว",
+            "ไม่เหนอะหนะลูก"
+          ],
+          "stickerText": "👶 ปลอบประโลมผิว",
+          "highlightWord": "สบายผิว",
+          "layout": "polaroid-stack",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "เติมความชุ่มชื้น ปกป้องยาวนาน",
+          "headlineLines": [
+            "เติมความชุ่มชื้น",
+            "ปกป้องผิวยาวนาน"
+          ],
+          "highlightDesc": "สารสกัดธรรมชาติ เสริมเกราะป้องกันผิวบอบบาง",
+          "captionLines": [
+            "สารสกัดธรรมชาติ",
+            "คุณแม่ไว้วางใจ"
+          ],
+          "stickerText": "🛡️ เสริมเกราะผิว",
+          "highlightWord": "ปกป้องผิว",
+          "layout": "callout-circle",
+          "paperTheme": "kraft",
+          "imageIndex": 2,
+          "durationSec": 3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างด่วน!"
+        ],
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "captionLines": [
+          "แจกโค้ดส่งฟรี",
+          "คูปองลดเพิ่มทันที"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "🌿 เพื่อลูกน้อยที่คุณรัก",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (supermarket-flyer)"
+      },
+      "audioSuggestion": {
+        "mood": "อบอุ่น สดใส ฟังสบาย (Acoustic Warm Playful)",
+        "musicGenre": "Soft Acoustic Ukulele",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! มือตบกล่อมนอน ช่วยในการนอนหลับ ตัวนี้คือดีงามมาก สูตรอ่อนโยน ไม่แพ้ระคายเคือง ผ่านการทดสอบ ปลอดภัยต่อผิวบอบบางของลูกน้อย แถมยังลดผดผื่น สบายผิวลูกน้อย เนื้อซึมไว ไม่เหนียวเหนอะหนะ สบายตัวตลอดวัน ที่สำคัญคือเติมความชุ่มชื้น ปกป้องยาวนาน ตอนนี้จัดโปรพิเศษเหลือแค่ ลดหนักจัดด เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!",
+      "styleDNA": {
+        "seed": 277923550,
+        "pack": "supermarket-flyer",
+        "palette": "supermarket-flyer-triadic-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "fontPair": "mali-handwritten",
+        "structure": "listicle",
+        "hookFormula": "secret",
+        "layouts": [
+          "hero-center",
+          "polaroid-stack",
+          "callout-circle"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "slap-strip"
+        ],
+        "tempo": "hyper",
+        "stickerShape": "tag",
+        "sfxKit": "playful-cartoon"
+      }
+    },
+    "createdAt": "2026-10-08T07:50:18.582Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%95%E0%B8%9A%E0%B8%81%E0%B8%A5%E0%B9%88%E0%B8%AD%E0%B8%A1%E0%B8%99%E0%B8%AD%E0%B8%99-%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B9%83%E0%B8%99%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%99%E0%B8%AD%E0%B8%99%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%9A-%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%81%E0%B8%A5%E0%B9%88%E0%B8%AD%E0%B8%A1%E0%B8%99%E0%B8%AD%E0%B8%99%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%A1%E0%B8%B5%E0%B9%81%E0%B8%9A%E0%B8%95%E0%B9%83%E0%B8%99%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%AA%E0%B8%B2%E0%B8%A2%E0%B8%8A%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%88-USB-%E0%B8%96%E0%B8%AD%E0%B8%94%E0%B8%8B%E0%B8%B1%E0%B8%81%E0%B9%84%E0%B8%94%E0%B9%89-%E0%B8%9B%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B9%80%E0%B8%81%E0%B8%B5%E0%B8%A2%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%94%E0%B9%89-3%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B1%E0%B8%9A-i.1198771808.26971931602",
+      "shopId": "1198771808",
+      "itemId": "26971931602",
+      "fetchedAt": "2026-10-08T07:32:03.802Z",
+      "confirmedAt": "2026-10-08T07:50:18.016Z"
+    },
+    "category": "baby",
+    "facts": {}
+  },
+  {
     "id": "prod_1791441087374",
     "name": "เซ็ทดูแลผิวลูกน้อย ครีมทาหน้าและตัวเด็ก ",
     "price": "ลดหนัก สิบจุดสิบ",
