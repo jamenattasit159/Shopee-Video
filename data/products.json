@@ -1,5 +1,157 @@
 [
   {
+    "id": "prod_1791451034896",
+    "name": "แท้ Clevamama ClevaFoam™ หมอนกันหัวแบน หมอนทารก ไซส์ 0 12 เดือน",
+    "price": "ลด 20%",
+    "highlights": "Clevamama ClevaFoam™ หมอนสำหรับทารก ของแท้นำเข้าโดยผู้จัดจำหน่ายที่ถูกต้องของประเทศไทย  ขายมามากกว่า 10 ปี !!!, หมอนแบรนด์ Clevamama รุ่น Baby Pillow 0-12m+ ได้รับการยืนยันจากทางเว็บไซต์ MyBest และได้เป็น Top1 ในหมวดหมู่หมอนหัวทุย",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791451034897_0_th-11134201-81zti-mrkd7kw1ryf8eb.webp",
+      "/uploads/1791451034900_1_th-11134207-7rasd-m4a4v3vti7pm5e.webp",
+      "/uploads/1791451034902_2_th-11134207-7rasj-m4a4v3vtgtsad5.webp",
+      "/uploads/1791451034903_3__.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "คุณแม่ต้องมี! ไอเทมคู่ใจลูกน้อย",
+        "headlineLines": [
+          "คุณแม่ต้องมี!",
+          "ไอเทมลูกน้อย"
+        ],
+        "subheadline": "รีวิวคุณแม่แน่น ใช้ดีบอกต่อจริง",
+        "captionLines": [
+          "รีวิวคุณแม่แน่น",
+          "ใช้ดีบอกต่อจริง"
+        ],
+        "badgeText": "🌿 สำหรับลูกน้อย",
+        "highlightWord": "ลูกน้อย",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "Clevamama ClevaFoam™ หมอ",
+          "headlineLines": [
+            "Clevamama",
+            "ClevaFoam™ หมอ"
+          ],
+          "highlightDesc": "Clevamama ClevaFoam™ หมอนสำหรับทารก",
+          "captionLines": [
+            "Clevamama ClevaFoam™",
+            "หมอนสำหรับทารก"
+          ],
+          "stickerText": "🏆 สเปกครบครัน",
+          "highlightWord": "Clevamama",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "หมอนแบรนด์ Clevamama รุ่",
+          "headlineLines": [
+            "หมอนแบรนด์",
+            "Clevamama รุ่"
+          ],
+          "highlightDesc": "หมอนแบรนด์ Clevamama รุ่น Baby Pill",
+          "captionLines": [
+            "หมอนแบรนด์ Clevamama",
+            "รุ่น Baby Pill"
+          ],
+          "stickerText": "🏆 สเปกครบครัน",
+          "highlightWord": "หมอนแบรนด์",
+          "layout": "callout-circle",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "ของแท้ตรงปก รีวิวคุณแม่แน่น",
+          "headlineLines": [
+            "ของแท้ตรงปก",
+            "รีวิวคุณแม่แน่น"
+          ],
+          "highlightDesc": "การันตีคุณภาพ คุ้มค่าเกินราคา พิกัดตะกร้าส้ม",
+          "captionLines": [
+            "การันตีคุณภาพ",
+            "คุณแม่บอกต่อ"
+          ],
+          "stickerText": "⭐ รีวิวคุณแม่แน่น",
+          "highlightWord": "ตรงปก",
+          "layout": "polaroid-stack",
+          "paperTheme": "kraft",
+          "imageIndex": 2,
+          "durationSec": 3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างด่วน!"
+        ],
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "captionLines": [
+          "แจกโค้ดส่งฟรี",
+          "คูปองลดเพิ่มทันที"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "🌿 เพื่อลูกน้อยที่คุณรัก",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (soft-kawaii)"
+      },
+      "audioSuggestion": {
+        "mood": "อบอุ่น สดใส ฟังสบาย (Acoustic Warm Playful)",
+        "musicGenre": "Soft Acoustic Ukulele",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! แท้ Clevamama ClevaFoam™ หมอนกันหัวแบน หมอนทารก ไซส์ 0 12 เดือน ตัวนี้คือดีงามมาก Clevamama ClevaFoam™ หมอนสำหรับทารก แถมยังหมอนแบรนด์ Clevamama รุ่น Baby Pill ที่สำคัญคือของแท้ตรงปก รีวิวคุณแม่แน่น การันตีคุณภาพ คุ้มค่าเกินราคา พิกัดตะกร้าส้ม ตอนนี้จัดโปรพิเศษเหลือแค่ ลด 20% เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!",
+      "styleDNA": {
+        "seed": 956236609,
+        "pack": "soft-kawaii",
+        "palette": "soft-kawaii-triadic-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "fontPair": "prompt-heavy",
+        "structure": "problem-solution",
+        "hookFormula": "question",
+        "layouts": [
+          "hero-center",
+          "callout-circle",
+          "polaroid-stack"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "slap-strip"
+        ],
+        "tempo": "snappy",
+        "stickerShape": "tag",
+        "sfxKit": "playful-cartoon"
+      }
+    },
+    "createdAt": "2026-10-08T09:17:15.345Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/-%E0%B9%81%E0%B8%97%E0%B9%89-Clevamama-ClevaFoam%E2%84%A2-%E0%B8%AB%E0%B8%A1%E0%B8%AD%E0%B8%99%E0%B8%81%E0%B8%B1%E0%B8%99%E0%B8%AB%E0%B8%B1%E0%B8%A7%E0%B9%81%E0%B8%9A%E0%B8%99-%E0%B8%AB%E0%B8%A1%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B8%B2%E0%B8%A3%E0%B8%81-%E0%B9%84%E0%B8%8B%E0%B8%AA%E0%B9%8C-0-12-%E0%B9%80%E0%B8%94%E0%B8%B7%E0%B8%AD%E0%B8%99-i.22291672.262306150?extraParams=%7B%22display_model_id%22%3A22938342718%2C%22model_selection_logic%22%3A3%7D",
+      "shopId": "22291672",
+      "itemId": "262306150",
+      "fetchedAt": "2026-10-08T09:16:42.459Z",
+      "confirmedAt": "2026-10-08T09:17:14.699Z"
+    },
+    "category": "baby",
+    "facts": {}
+  },
+  {
     "id": "prod_1791449222411",
     "name": "มือตบกล่อมนอน ช่วยในการนอนหลับ ที่กล่อมนอนเด็ก มีแบตในตัวสายชาร์จ USB ถอดซักได้ ปรับเกียร์ได้ 3ระดับ",
     "price": "VIP ลดเลย 30%",
@@ -147,7 +299,8 @@
       "confirmedAt": "2026-10-08T08:47:02.372Z"
     },
     "category": "baby",
-    "facts": {}
+    "facts": {},
+    "renderedVideoUrl": "/renders/shopee_prod_1791449222411_1791449531822.mp4"
   },
   {
     "id": "prod_1791445818063",
