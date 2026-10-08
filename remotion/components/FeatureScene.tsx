@@ -8,6 +8,7 @@ import { StickerText } from "../paper/StickerText";
 import { TornStrip } from "../paper/TornStrip";
 import { WashiTape } from "../paper/WashiTape";
 import { PackId, SceneData, SceneLayout } from "../types";
+import { renderKeep, splitSafeThaiLines } from "../lib/thaiKeep";
 
 interface FeatureSceneProps {
   scene: SceneData;
@@ -102,13 +103,14 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
           <TornStrip
             id={`feat-${sceneIndex}-strip`}
             text={scene.highlightTitle}
+            lines={scene.headlineLines}
             bg={accentColor}
             textColor={PALETTE.ink}
             fontSize={88} // Rule A2: >= 88px
             rotate={-2}
             delay={2}
             padding="16px 36px"
-            style={{ maxWidth: "900px" }}
+            style={{ maxWidth: "880px" }}
           />
 
           {/* Subtitle / Description (Rule A2: >= 56px with solid backing) */}
@@ -117,6 +119,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
               <StickerText
                 id={`feat-${sceneIndex}-desc`}
                 text={cleanDesc}
+                lines={scene.captionLines}
                 highlightWord={scene.highlightWord}
                 fontSize={56} // Rule A2: >= 56px
                 color={PALETTE.white}
@@ -138,32 +141,33 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             x={0}
             y={50}
             showTape={true}
-          />
-
-          {/* Sub-beat 1.2s: Fun Sticker Tag Badge */}
-          {scene.stickerText && (
-            <div
-              style={{
-                position: "absolute",
-                top: isSubBeat ? "470px" : "480px",
-                right: "90px",
-                backgroundColor: primaryColor,
-                color: PALETTE.white,
-                fontFamily: FONTS.heading,
-                fontWeight: 800,
-                fontSize: "44px",
-                padding: "10px 24px",
-                borderRadius: "14px",
-                transform: `rotate(${isSubBeat ? 8 : 4}deg)`,
-                boxShadow: "6px 8px 0px rgba(0,0,0,0.4)",
-                border: `3px solid ${PALETTE.white}`,
-                zIndex: 28,
-                transition: "transform 0.1s ease",
-              }}
-            >
-              {scene.stickerText}
-            </div>
-          )}
+          >
+            {/* Sub-beat 1.2s: Fun Sticker Tag Badge (contained within image boundaries) */}
+            {scene.stickerText && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "10%",
+                  right: "8px", // Clamped within product image boundary
+                  backgroundColor: primaryColor,
+                  color: PALETTE.white,
+                  fontFamily: FONTS.heading,
+                  fontWeight: 800,
+                  fontSize: "44px",
+                  padding: "10px 24px",
+                  borderRadius: "14px",
+                  transform: `rotate(${isSubBeat ? 8 : 4}deg)`,
+                  boxShadow: "6px 8px 0px rgba(0,0,0,0.4)",
+                  border: `3px solid ${PALETTE.white}`,
+                  whiteSpace: "nowrap",
+                  zIndex: 28,
+                  transition: "transform 0.1s ease",
+                }}
+              >
+                {scene.stickerText}
+              </div>
+            )}
+          </CutoutImage>
 
           {/* Doodles */}
           <Doodle
@@ -209,6 +213,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
           <TornStrip
             id={`feat-${sceneIndex}-polaroid-title`}
             text={scene.highlightTitle}
+            lines={scene.headlineLines}
             bg={PALETTE.sunnyYellow}
             textColor={PALETTE.ink}
             fontSize={88} // Rule A2: >= 88px
@@ -257,6 +262,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             <StickerText
               id={`feat-${sceneIndex}-pol-desc`}
               text={cleanDesc}
+              lines={scene.captionLines}
               highlightWord={scene.highlightWord}
               fontSize={56} // Rule A2: >= 56px
               color={PALETTE.white}
@@ -294,6 +300,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
           <TornStrip
             id={`feat-${sceneIndex}-callout-title`}
             text={scene.highlightTitle}
+            lines={scene.headlineLines}
             bg={accentColor}
             textColor={PALETTE.ink}
             fontSize={88} // Rule A2: >= 88px
@@ -327,13 +334,13 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             delay={8}
           />
 
-          {/* Callout Speech Bubble / Torn Note (Rule A2: >= 56px) */}
+          {/* Callout Speech Bubble / Torn Note (Rule A2: >= 56px) with pre-split lines */}
           <div
             style={{
               position: "absolute",
               top: "980px",
               left: "80px",
-              maxWidth: "580px",
+              maxWidth: "680px",
               backgroundColor: PALETTE.cream,
               border: `4px solid ${PALETTE.ink}`,
               padding: "20px 28px",
@@ -352,9 +359,20 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
                 color: PALETTE.ink,
                 lineHeight: 1.3,
                 letterSpacing: "0.01em",
+                whiteSpace: "nowrap",
+                wordBreak: "keep-all",
+                overflowWrap: "normal",
               }}
             >
-              👉 {cleanDesc}
+              {(scene.captionLines && scene.captionLines.length > 0
+                ? scene.captionLines
+                : splitSafeThaiLines(cleanDesc, 18, 4)
+              ).map((l, li) => (
+                <div key={li} style={{ whiteSpace: "nowrap" }}>
+                  {li === 0 ? `👉 ` : ""}
+                  {renderKeep(l)}
+                </div>
+              ))}
             </div>
           </div>
 

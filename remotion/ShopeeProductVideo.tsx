@@ -1,11 +1,11 @@
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import React from "react";
-import { Audio, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
+import { Audio, continueRender, delayRender, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
 import { AbsoluteFill } from "./components/AbsoluteFill";
 import { CTAScene } from "./components/CTAScene";
 import { FeatureScene } from "./components/FeatureScene";
 import { HookScene } from "./components/HookScene";
-import { FONTS, PALETTE } from "./lib/palette";
+import { FONTS, PALETTE, waitForFonts } from "./lib/palette";
 import { useBoil, useStepFrame } from "./lib/stopMotion";
 import { PaperFilters } from "./paper/PaperFilters";
 import { pageShuffle, slapStrip, tornWipe } from "./paper/PaperTransitions";
@@ -22,7 +22,9 @@ export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
   ],
   hook: {
     headline: "แก้วเก็บความเย็นตัวดังในตำนาน!",
+    headlineLines: ["แก้วเก็บความเย็น", "ตัวดังในตำนาน!"],
     subheadline: "น้ำแข็งอยู่ข้ามวัน ไม่ละลายจริงมั้ย?!",
+    captionLines: ["น้ำแข็งอยู่ข้ามวัน", "ไม่ละลายจริงมั้ย?!"],
     badgeText: "🔥 ป้ายยาไอเทมเด็ด",
     highlightWord: "ตัวดัง",
     paperTheme: "kraft",
@@ -31,7 +33,9 @@ export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
   scenes: [
     {
       highlightTitle: "เก็บเย็นสะใจ 24 ชั่วโมง",
+      headlineLines: ["เก็บเย็นสะใจ", "24 ชั่วโมง"],
       highlightDesc: "สแตนเลส 304 แท้ ไอน้ำไม่เกาะโต๊ะ",
+      captionLines: ["สแตนเลส 304 แท้", "ไอน้ำไม่เกาะโต๊ะ"],
       stickerText: "❄️ เย็นเจี๊ยบ",
       highlightWord: "24 ชั่วโมง",
       imageIndex: 0,
@@ -41,7 +45,9 @@ export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
     },
     {
       highlightTitle: "ดีไซน์มินิมอล มีหูหิ้ว",
+      headlineLines: ["ดีไซน์มินิมอล", "มีหูหิ้ว"],
       highlightDesc: "พกไปทำงาน ไปยิม คุมโทนสุดๆ",
+      captionLines: ["พกไปทำงานไปยิม", "คุมโทนสุดๆ"],
       stickerText: "✨ สวยตรงปก",
       highlightWord: "มินิมอล",
       imageIndex: 1,
@@ -51,7 +57,9 @@ export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
     },
     {
       highlightTitle: "โปรพิเศษลดเกิน 50%",
+      headlineLines: ["โปรพิเศษ", "ลดเกิน 50%"],
       highlightDesc: "เหลือเพียง ฿259 ส่งฟรีทั่วไทย",
+      captionLines: ["เหลือเพียง ฿259", "ส่งฟรีทั่วไทย"],
       stickerText: "🏷️ คุ้มค่าที่สุด",
       highlightWord: "50%",
       imageIndex: 2,
@@ -62,7 +70,9 @@ export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
   ],
   cta: {
     ctaTitle: "จิ้มตะกร้าส้มซ้ายล่างเลย!",
+    headlineLines: ["จิ้มตะกร้าส้ม", "ซ้ายล่างเลย!"],
     ctaSubtitle: "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่ม",
+    captionLines: ["แจกโค้ดส่งฟรี", "คูปองลดเพิ่ม"],
     buttonText: "ช้อปเลยที่ Shopee",
     basketNote: "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
     badgeText: "⚡ โค้ดส่งฟรีจำนวนจำกัด",
@@ -94,6 +104,19 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
 }) => {
   const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
+
+  // Preload and wait for Google Fonts before layout measurement and frame render
+  const [fontHandle] = React.useState(() =>
+    delayRender("Wait for Google Fonts to load for layout measurement")
+  );
+  React.useEffect(() => {
+    waitForFonts()
+      .then(() => continueRender(fontHandle))
+      .catch((err) => {
+        console.warn("[ShopeeProductVideo] Font loading warning:", err);
+        continueRender(fontHandle);
+      });
+  }, [fontHandle]);
 
   // Root boil clock for consistent paper flutter across whole video
   const rootBoil = useBoil("root-master", 3, { rot: 0.5, pos: 1, scale: 0.005 });

@@ -167,32 +167,32 @@ export default function DashboardPage() {
       };
 
   return (
-    <div className="min-h-screen bg-[#0C101A] text-slate-200 flex flex-col font-sans">
+    <div className="min-h-screen bg-transparent text-stone-800 flex flex-col font-sans">
       {/* Top Notification Toast */}
       {notification && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg shadow-orange-950/40 backdrop-blur-md flex items-center gap-2 transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2">
-          <Sparkles className="w-4 h-4 text-amber-200" />
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-stone-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-[3px_3px_0px_#ea580c] flex items-center gap-2 transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2 border border-stone-800">
+          <Sparkles className="w-4 h-4 text-amber-300" />
           <span>{notification}</span>
         </div>
       )}
 
       {/* Top Navigation Bar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+      <header className="border-b border-stone-200/90 bg-white/85 backdrop-blur-md sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#EE4D2D] to-[#FF6533] flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#EE4D2D] to-[#FF6533] flex items-center justify-center shadow-md shadow-orange-500/20 border border-orange-500/30">
               <ShoppingBag className="w-6 h-6 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-extrabold text-base sm:text-lg text-white tracking-tight">
+                <h1 className="font-extrabold text-base sm:text-lg text-stone-900 tracking-tight">
                   Shopee Video Generator
                 </h1>
-                <span className="text-[10px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full">
-                  AI Voice & Safe Zone Pro
+                <span className="text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-300 px-2 py-0.5 rounded-full shadow-xs">
+                  AI Voice & Paper Collage Pro
                 </span>
               </div>
-              <p className="text-xs text-slate-400 hidden sm:block">
+              <p className="text-xs text-stone-500 hidden sm:block">
                 ระบบสร้างคลิปป้ายยาอัตโนมัติ (Next.js + Remotion + Gemini AI + Edge TTS)
               </p>
             </div>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
                     }
                   }
                 }}
-                className="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 max-w-[180px] sm:max-w-[240px] truncate"
+                className="bg-white border border-stone-300 text-xs text-stone-800 rounded-xl px-3 py-2 shadow-xs focus:outline-none focus:border-orange-500 max-w-[180px] sm:max-w-[240px] truncate"
               >
                 <option value="new">+ สร้างสินค้าใหม่...</option>
                 {products.map((p) => (
@@ -230,7 +230,7 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={handleStartNewProduct}
-              className="bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow transition cursor-pointer"
+              className="shopee-gradient-btn text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>สร้างคลิปใหม่</span>
@@ -245,14 +245,14 @@ export default function DashboardPage() {
           {/* Left Column: Form & Storyboard Workflow (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
             {/* Step Tabs */}
-            <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 text-xs font-semibold">
+            <div className="flex items-center gap-2 bg-stone-100/90 p-1.5 rounded-2xl border border-stone-300/80 shadow-xs text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setActiveTab("create")}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "create"
-                    ? "bg-orange-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-white/80"
                 }`}
               >
                 <span>1. ข้อมูล & ภาพ</span>
@@ -269,8 +269,8 @@ export default function DashboardPage() {
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "storyboard"
-                    ? "bg-amber-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    ? "bg-amber-600 text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-white/80"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
@@ -288,8 +288,8 @@ export default function DashboardPage() {
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "render"
-                    ? "bg-emerald-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-white/80"
                 }`}
               >
                 <Video className="w-3.5 h-3.5" />
@@ -355,19 +355,19 @@ export default function DashboardPage() {
 
             {/* Always show Render trigger at bottom of Storyboard view */}
             {activeTab === "storyboard" && (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-stone-200/90 rounded-2xl p-5 flex items-center justify-between shadow-sm">
                 <div>
-                  <h4 className="font-bold text-sm text-white">
+                  <h4 className="font-bold text-sm text-stone-900">
                     พอใจกับสคริปต์และเสียงพากย์แล้วใช่ไหม?
                   </h4>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-stone-500">
                     ไปที่ขั้นตอนเรนเดอร์เพื่อสร้างไฟล์ MP4 พร้อมเสียง และรับแคปชั่นสำหรับโพสต์
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveTab("render")}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-5 rounded-xl flex items-center gap-2 shadow"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-5 rounded-xl flex items-center gap-2 shadow-sm transition"
                 >
                   <Video className="w-4 h-4" />
                   <span>ไปหน้าเรนเดอร์ MP4</span>
@@ -386,19 +386,19 @@ export default function DashboardPage() {
 
             {/* Active Product Quick Info Card */}
             {activeProduct ? (
-              <div className="mt-4 bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-400 space-y-1.5">
+              <div className="mt-4 bg-white border border-stone-200/90 rounded-xl p-4 text-xs text-stone-600 shadow-sm space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-200">
+                  <span className="font-bold text-stone-800">
                     สินค้าที่เลือกอยู่:
                   </span>
-                  <span className="text-orange-400 font-bold">
+                  <span className="text-orange-600 font-bold">
                     {activeProduct.price}
                   </span>
                 </div>
-                <div className="text-white font-medium truncate">
+                <div className="text-stone-900 font-medium truncate">
                   {activeProduct.name}
                 </div>
-                <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-800">
+                <div className="text-[11px] text-stone-500 flex items-center justify-between pt-1 border-t border-stone-200">
                   <span>รูปภาพ: {activeProduct.images.length} ภาพ</span>
                   <span>
                     เสียง: {voiceoverUrl ? "🔊 พากย์ AI + BGM" : "🎵 เพลง BGM"}
@@ -406,9 +406,9 @@ export default function DashboardPage() {
                 </div>
               </div>
             ) : (
-              <div className="mt-4 bg-slate-900/60 border border-dashed border-slate-800 rounded-xl p-4 text-center text-xs text-slate-400">
+              <div className="mt-4 bg-stone-100/70 border border-dashed border-stone-300 rounded-xl p-4 text-center text-xs text-stone-500">
                 <span>กรอกข้อมูลและอัปโหลดรูปทางซ้ายมือ แล้วกด </span>
-                <span className="text-orange-400 font-semibold">"บันทึกสินค้า & สร้าง AI Script"</span>
+                <span className="text-orange-600 font-semibold">"บันทึกสินค้า & สร้าง AI Script"</span>
                 <span> เพื่อเริ่มสร้างคลิป</span>
               </div>
             )}
@@ -417,7 +417,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 py-6 mt-12 bg-slate-900/50 text-center text-xs text-slate-500">
+      <footer className="border-t border-stone-200/80 py-6 mt-12 bg-white/60 text-center text-xs text-stone-500">
         Shopee Affiliate Video Production System • Powered by Next.js, Remotion, Google Gemini & Edge TTS
       </footer>
     </div>

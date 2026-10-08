@@ -95,13 +95,14 @@ export const HookScene: React.FC<HookSceneProps> = ({
         <TornStrip
           id="hook-headline-strip"
           text={hook.headline}
+          lines={hook.headlineLines}
           bg={accentColor}
           textColor={PALETTE.ink}
           fontSize={88} // V2 rule: Headline >= 88px
           rotate={-1.5}
           delay={2}
           padding="16px 36px"
-          style={{ maxWidth: "900px" }}
+          style={{ maxWidth: "880px" }}
         />
 
         {/* 📝 Subheadline (Delay 8f, with solid backing for 7:1 contrast) */}
@@ -110,6 +111,7 @@ export const HookScene: React.FC<HookSceneProps> = ({
             <StickerText
               id="hook-subheadline"
               text={hook.subheadline}
+              lines={hook.captionLines}
               highlightWord={hook.highlightWord}
               fontSize={56} // V2 rule: Subtitle >= 56px
               color={PALETTE.white}
@@ -131,31 +133,32 @@ export const HookScene: React.FC<HookSceneProps> = ({
           x={0}
           y={40}
           showTape={true}
-        />
-
-        {/* ⚡ Sub-beat Accent: Extra sticker popping in at 1.2s (frame 36) */}
-        {isSubBeat && (
-          <div
-            style={{
-              position: "absolute",
-              top: "780px",
-              right: "100px",
-              backgroundColor: PALETTE.shopeeOrange,
-              color: PALETTE.white,
-              fontFamily: FONTS.heading,
-              fontWeight: 800,
-              fontSize: "32px",
-              padding: "8px 22px",
-              borderRadius: "14px",
-              transform: "rotate(6deg)",
-              boxShadow: "6px 8px 0px rgba(0,0,0,0.4)",
-              border: `3px solid ${PALETTE.white}`,
-              zIndex: 30,
-            }}
-          >
-            🔥 ของแท้ 100%
-          </div>
-        )}
+        >
+          {/* ⚡ Sub-beat Accent: Clamped sticker relative to product image (Rule E3: max 12px beyond edge, safe non-guarantee wording per E4) */}
+          {isSubBeat && (
+            <div
+              style={{
+                position: "absolute",
+                top: "12%",
+                right: "8px", // Clamped within product image boundary
+                backgroundColor: PALETTE.shopeeOrange,
+                color: PALETTE.white,
+                fontFamily: FONTS.heading,
+                fontWeight: 800,
+                fontSize: "32px",
+                padding: "8px 22px",
+                borderRadius: "14px",
+                transform: "rotate(6deg)",
+                boxShadow: "6px 8px 0px rgba(0,0,0,0.4)",
+                border: `3px solid ${PALETTE.white}`,
+                whiteSpace: "nowrap",
+                zIndex: 30,
+              }}
+            >
+              ✨ ไอเทมเด็ดช้อปปี้
+            </div>
+          )}
+        </CutoutImage>
 
         {/* 🏹 Hand-drawn Doodles */}
         <Doodle

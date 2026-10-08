@@ -132,28 +132,28 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+    <div className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-sm space-y-6 relative">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between pb-4 border-b border-stone-200/80">
         <div>
-          <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-1 rounded-full uppercase tracking-wider">
+          <span className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
             Step 4: One-Click Render & Export
           </span>
-          <h2 className="text-xl font-bold text-white mt-1.5 flex items-center gap-2">
+          <h2 className="text-xl font-extrabold text-stone-900 mt-1.5 flex items-center gap-2">
             <span>🎬 เรนเดอร์และส่งออกไฟล์วิดีโอ (MP4 1080x1920 พร้อมเสียง)</span>
           </h2>
         </div>
       </div>
 
       {/* Render Trigger Section */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-950 p-5 rounded-xl border border-slate-800/80">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-stone-50/80 p-5 rounded-xl border border-stone-200 shadow-2xs">
         <div>
-          <h3 className="font-bold text-white text-base flex items-center gap-2">
-            <Film className="w-5 h-5 text-orange-400" />
+          <h3 className="font-bold text-stone-900 text-base flex items-center gap-2">
+            <Film className="w-5 h-5 text-orange-600" />
             <span>สร้างไฟล์วิดีโอระดับมืออาชีพสำหรับ Shopee / TikTok</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
-            รวมภาพเคลื่อนไหว Ken Burns, เสียงเพลง BGM, เสียงเอฟเฟกต์ SFX, เสียงพากย์ AI และจัดเลย์เอาต์หลบ Red Zone
+          <p className="text-xs text-stone-500 mt-1">
+            รวมภาพเคลื่อนไหว Paper Collage, เสียงเพลง BGM, เสียงเอฟเฟกต์ SFX, เสียงพากย์ AI และจัดเลย์เอาต์หลบ Red Zone
           </p>
         </div>
 
@@ -161,7 +161,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           type="button"
           onClick={handleRender}
           disabled={isRendering}
-          className="w-full md:w-auto shopee-gradient-btn text-white font-bold py-3.5 px-7 rounded-xl flex items-center justify-center gap-2.5 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
+          className="w-full md:w-auto shopee-gradient-btn text-white font-bold py-3.5 px-7 rounded-xl flex items-center justify-center gap-2.5 shadow-md disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
         >
           {isRendering ? (
             <>
@@ -179,11 +179,11 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
       {/* Status / Error feedback */}
       {isRendering && (
-        <div className="bg-orange-950/30 border border-orange-800/50 rounded-xl p-4 flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-orange-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-          <div className="text-xs text-orange-200">
-            <span className="font-semibold block">{renderMessage}</span>
-            <span className="text-orange-300/70">
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-3 shadow-2xs">
+          <div className="w-6 h-6 border-2 border-orange-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+          <div className="text-xs text-orange-950">
+            <span className="font-bold block">{renderMessage}</span>
+            <span className="text-orange-700/80">
               การเรนเดอร์ใช้เวลาประมาณ 15 - 25 วินาที ผ่าน Remotion Headless Chromium + FFMPEG
             </span>
           </div>
@@ -191,25 +191,25 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
       )}
 
       {error && (
-        <div className="bg-red-950/40 border border-red-800 rounded-xl p-4 text-xs text-red-300">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-xs text-red-900 shadow-2xs">
           <span className="font-bold">เกิดข้อผิดพลาดในการเรนเดอร์:</span> {error}
         </div>
       )}
 
       {/* Rendered Output Display */}
       {renderedUrl && !isRendering && (
-        <div className="bg-slate-950 border border-emerald-800/40 rounded-xl p-5 space-y-6">
+        <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-5 space-y-6 shadow-2xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              <span className="font-bold text-emerald-400 text-sm">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <span className="font-bold text-emerald-800 text-sm">
                 ไฟล์ MP4 พร้อมเสียงเสร็จสมบูรณ์แล้ว!
               </span>
             </div>
             <a
               href={renderedUrl}
               download
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center gap-1.5 shadow transition"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center gap-1.5 shadow-sm transition"
             >
               <Download className="w-4 h-4" />
               <span>ดาวน์โหลดไฟล์ MP4</span>
@@ -218,7 +218,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
           {/* Video Preview */}
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-48 aspect-[9/16] bg-black rounded-xl overflow-hidden border border-slate-700 shadow-md">
+            <div className="w-48 aspect-[9/16] bg-black rounded-xl overflow-hidden border-2 border-white shadow-md">
               <video
                 key={`${renderedUrl}_${renderTimestamp}`}
                 src={`${renderedUrl}?t=${renderTimestamp}`}
@@ -229,21 +229,21 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
               />
             </div>
 
-            <div className="space-y-3 text-xs text-slate-300 flex-1">
+            <div className="space-y-3 text-xs text-stone-700 flex-1">
               <div>
-                <span className="text-slate-400 block">ตำแหน่งไฟล์ในเครื่อง:</span>
-                <code className="text-emerald-300 bg-slate-900 px-2 py-1 rounded block mt-1 break-all">
+                <span className="text-stone-500 block">ตำแหน่งไฟล์ในเครื่อง:</span>
+                <code className="text-emerald-800 bg-white border border-emerald-200 px-2 py-1 rounded block mt-1 break-all font-mono shadow-2xs">
                   {renderedUrl} (บันทึกไว้ที่ ./public{renderedUrl} และ ./renders/)
                 </code>
               </div>
               <div>
-                <span className="text-slate-400 block">สเปคไฟล์:</span>
-                <span className="font-semibold text-white">
+                <span className="text-stone-500 block">สเปคไฟล์:</span>
+                <span className="font-semibold text-stone-900">
                   1080 x 1920 (Vertical 9:16), 30 FPS, H.264 Video + AAC Audio
                 </span>
               </div>
-              <div className="flex items-center gap-2 pt-1 text-emerald-400">
-                <Volume2 className="w-4 h-4" />
+              <div className="flex items-center gap-2 pt-1 text-emerald-700 font-medium">
+                <Volume2 className="w-4 h-4 text-emerald-600" />
                 <span>
                   {videoProps.voiceoverUrl
                     ? "บรรจุเสียงพากย์ AI + เพลง BGM + ซาวด์เอฟเฟกต์เรียบร้อย"
@@ -255,7 +255,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
                   href={renderedUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-orange-400 hover:underline"
+                  className="inline-flex items-center gap-1 text-orange-600 hover:underline font-semibold"
                 >
                   <Play className="w-3.5 h-3.5" />
                   <span>เปิดดูในแท็บใหม่เต็มจอ</span>
@@ -265,10 +265,10 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           </div>
 
           {/* 📋 Quick-Copy Post Captions & Hashtags */}
-          <div className="pt-4 border-t border-slate-800 space-y-3">
+          <div className="pt-4 border-t border-emerald-200/80 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+              <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-orange-600" />
                 <span>แคปชั่นสำหรับก๊อปปี้ไปวางตอนลงคลิป (เลือกสไตล์ที่ชอบ):</span>
               </span>
             </div>
@@ -277,13 +277,13 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
               {captions.map((cap, idx) => (
                 <div
                   key={idx}
-                  className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  className="bg-white border border-stone-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs"
                 >
                   <div className="flex-1 pr-2 truncate">
-                    <span className="font-bold text-orange-400 block mb-0.5">
+                    <span className="font-bold text-orange-600 block mb-0.5">
                       {cap.styleName}
                     </span>
-                    <span className="text-slate-300 block truncate font-mono text-[11px]">
+                    <span className="text-stone-600 block truncate font-mono text-[11px]">
                       {cap.captionText.split("\n")[0]}...
                     </span>
                   </div>
@@ -293,8 +293,8 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
                     onClick={() => copyCaption(cap.fullPost, idx)}
                     className={`text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition flex-shrink-0 ${
                       copiedCaptionIndex === idx
-                        ? "bg-emerald-600 text-white"
-                        : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-300 shadow-2xs"
                     }`}
                   >
                     {copiedCaptionIndex === idx ? (

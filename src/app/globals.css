@@ -3,46 +3,101 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-base-100 text-base-content antialiased;
+  @apply bg-base-200 text-base-content antialiased;
+  background-color: #FAF8F5;
+  background-image: 
+    radial-gradient(#E5DFD3 0.9px, transparent 0.9px),
+    linear-gradient(to right, rgba(235, 229, 216, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(235, 229, 216, 0.4) 1px, transparent 1px);
+  background-size: 24px 24px, 24px 24px, 24px 24px;
 }
 
-/* Eye-friendly text selection */
+/* Warm paper highlighter selection */
 ::selection {
-  background-color: rgba(234, 88, 12, 0.35);
-  color: #FFFFFF;
+  background-color: rgba(254, 215, 170, 0.85);
+  color: #7C2D12;
 }
 
-/* Custom scrollbar - subtle and ergonomic */
+/* Custom scrollbar - subtle warm paper */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #0F141C;
+  background: #F5F2EB;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2D3748;
+  background: #D6CEC2;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #EA580C;
+  background: #EE4D2D;
 }
 
-/* Soft, ambient glow without blinding halos */
-.shopee-glow {
-  box-shadow: 0 4px 20px rgba(234, 88, 12, 0.16);
+/* Tactile paper collage shadows */
+.paper-shadow {
+  box-shadow: 2px 2px 0px 0px rgba(28, 25, 23, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
+.paper-shadow-md {
+  box-shadow: 3px 3px 0px 0px rgba(28, 25, 23, 0.12), 0 3px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+.paper-sticker {
+  box-shadow: 2px 2px 0px 0px #1C1917;
+}
+
+/* Washi tape decor */
+.washi-tape-strip {
+  position: relative;
+}
+.washi-tape-strip::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  width: 72px;
+  height: 16px;
+  background-color: rgba(254, 240, 138, 0.75);
+  border-left: 2px dashed rgba(217, 119, 6, 0.4);
+  border-right: 2px dashed rgba(217, 119, 6, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Tactile Shopee button in paper collage style */
 .shopee-gradient-btn {
-  background: linear-gradient(135deg, #EA580C 0%, #F97316 100%);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(135deg, #EE4D2D 0%, #FF6533 100%);
+  box-shadow: 2px 2px 0px 0px #7C2D12, 0 2px 4px rgba(238, 77, 45, 0.2);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .shopee-gradient-btn:hover {
-  background: linear-gradient(135deg, #C2410C 0%, #EA580C 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.22);
+  background: linear-gradient(135deg, #E03E1E 0%, #EE4D2D 100%);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px #7C2D12, 0 4px 8px rgba(238, 77, 45, 0.25);
+}
+.shopee-gradient-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px #7C2D12;
+}
+
+/* Tactile Paper Button */
+.btn-paper {
+  border: 1.5px solid #1C1917;
+  box-shadow: 2px 2px 0px 0px #1C1917;
+  transition: all 0.15s ease-out;
+}
+.btn-paper:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px #1C1917;
+}
+.btn-paper:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px #1C1917;
 }

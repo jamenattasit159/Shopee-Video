@@ -50,12 +50,39 @@ export function assertAllowedDomain(u: string): URL {
   return parsedUrl;
 }
 
+function cleanTitleFromSlug(rawSlug: string): { title: string | null; promoTag: string | null } {
+  try {
+    let raw = rawSlug.replace(/-i\.\d+\.\d+$/, '');
+    let decoded = decodeURIComponent(raw).replace(/^-+|-+$/g, '');
+    let promoTag: string | null = null;
+    const promoMatch = decoded.match(
+      /^(?:\[([^\]]+)\]|(ลด\d+[^-]*|โค้ด[^-]*|ยกลัง\d*|แถม\d*))/i
+    );
+    if (promoMatch) {
+      promoTag = promoMatch[1] || promoMatch[2];
+      decoded = decoded.replace(promoMatch[0], '').replace(/^-+/, '');
+    }
+
+    // แปลง hyphen ให้เป็น space อย่างเหมาะสมทั้งภาษาไทยและอังกฤษ
+    let title = decoded
+      .replace(/-(?=[ก-๙])|(?<=[ก-๙])-/g, ' ')
+      .replace(/-/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return { title: title.length > 3 ? title : null, promoTag };
+  } catch {
+    return { title: null, promoTag: null };
+  }
+}
+
 /**
  * แยก shopId และ itemId จาก URL ของ Shopee
  * รองรับรูปแบบ:
  * - /product/201488045/6439091330
  * - -i.201488045.6439091330
  * - /some-product-slug/201488045/6439091330
+ * - Query parameters (?itemid=...&shopid=...)
  */
 export function extractShopeeIds(url: string): { shopId: string | null; itemId: string | null } {
   if (!url) return { shopId: null, itemId: null };
@@ -75,57 +102,65 @@ export function extractShopeeIds(url: string): { shopId: string | null; itemId: 
     return { shopId: matchSlug[1], itemId: matchSlug[2] };
   }
 
+  try {
+    const parsed = new URL(url);
+    const qItemId = parsed.searchParams.get('itemid') || parsed.searchParams.get('itemId');
+    const qShopId = parsed.searchParams.get('shopid') || parsed.searchParams.get('shopId');
+    if (qItemId) {
+      return { shopId: qShopId || null, itemId: qItemId };
+    }
+  } catch {
+    // ignore URL parse errors
+  }
+
   return { shopId: null, itemId: null };
 }
 
 /**
- * ถอดรหัสชื่อสินค้าและ promoTag จาก URL Slug ของ Shopee (เช่น .../<slug>-i.<shopId>.<itemId>)
+ * ถอดรหัสชื่อสินค้าและ promoTag จาก URL Slug ของ Shopee (เช่น .../<slug>-i.<shopId>.<itemId> หรือ /<slug>)
  */
 export function extractTitleFromUrl(url: string): { title: string | null; promoTag: string | null } {
   if (!url) return { title: null, promoTag: null };
 
+  // 1. ตรวจสอบรูปแบบมาตรฐาน <slug>-i.<shopId>.<itemId>
   const matchSlugI = url.match(/\/([^\/?#]+)-i\.\d+\.\d+/);
   if (matchSlugI && matchSlugI[1]) {
-    try {
-      let decoded = decodeURIComponent(matchSlugI[1]).replace(/^-+|-+$/g, '');
-      let promoTag: string | null = null;
-      const promoMatch = decoded.match(
-        /^(?:\[([^\]]+)\]|(ลด\d+[^-]*|โค้ด[^-]*|ยกลัง\d*|แถม\d*))/i
-      );
-      if (promoMatch) {
-        promoTag = promoMatch[1] || promoMatch[2];
-        decoded = decoded.replace(promoMatch[0], '').replace(/^-+/, '');
-      }
-
-      let title = decoded
-        .replace(/-(?=[ก-๙])|(?<=[ก-๙])-/g, ' ')
-        .replace(/-{2,}/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      if (title.length > 3) {
-        return { title, promoTag };
-      }
-    } catch {
-      // ignore URI decode error
-    }
+    const res = cleanTitleFromSlug(matchSlugI[1]);
+    if (res.title && res.title.length > 3) return res;
   }
 
+  // 2. ตรวจสอบรูปแบบ /<slug>/<shopId>/<itemId>
   const matchSlugPath = url.match(/\/([^\/?#]+)\/\d{6,}\/\d{6,}/);
   if (matchSlugPath && matchSlugPath[1] && matchSlugPath[1] !== 'product') {
-    try {
-      let decoded = decodeURIComponent(matchSlugPath[1]).replace(/^-+|-+$/g, '');
-      let title = decoded
-        .replace(/-(?=[ก-๙])|(?<=[ก-๙])-/g, ' ')
-        .replace(/-{2,}/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-      if (title.length > 3) {
-        return { title, promoTag: null };
+    const res = cleanTitleFromSlug(matchSlugPath[1]);
+    if (res.title && res.title.length > 3) return res;
+  }
+
+  // 3. Fallback: ถอดรหัส slug แรกของ pathname บน shopee.co.th (เช่น /Mama's-Choice-เซรั่มบำรุงผิว)
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes('shopee.co.th')) {
+      const segments = parsed.pathname.split('/').filter(Boolean);
+      const firstSegment = segments[0];
+      const ignoredSegments = [
+        'search',
+        'cart',
+        'user',
+        'buyer',
+        'portal',
+        'api',
+        'help',
+        'daily_discover',
+        'flash_sale',
+        'mall',
+      ];
+      if (firstSegment && !ignoredSegments.includes(firstSegment.toLowerCase())) {
+        const res = cleanTitleFromSlug(firstSegment);
+        if (res.title && res.title.length > 3) return res;
       }
-    } catch {
-      // ignore
     }
+  } catch {
+    // ignore URI decode error
   }
 
   return { title: null, promoTag: null };

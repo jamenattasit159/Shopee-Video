@@ -1,159 +1,186 @@
+import { fitText, measureText } from "@remotion/layout-utils";
+import { FONTS } from "./palette";
+import { splitSafeThaiLines } from "./thaiKeep";
+
 /**
- * Thai text fitting and line-balancing utility using Intl.Segmenter
- * Ensures no orphan words in last line and proper 2-line wraps.
+ * Text fitting and line balancing utility (Paper Collage V2 Patch V3 - Part E)
+ * 
+ * - Pre-split line support (Gemini & Fallback Generator)
+ * - Exact browser measurement using @remotion/layout-utils (fitText / measureText)
+ * - Safe font size clamping respecting minimum readable standards (A2: Headline >= 88px, Subtitle >= 56px)
+ * - Plate width calculation ensuring text never overflows safe boundaries (Safe Zone: 1080 - 200 = 880px)
  */
-
-export function segmentThaiWords(text: string): string[] {
-  if (!text) return [];
-  let rawWords: string[] = [];
-
-  // Use native Intl.Segmenter if available, fallback to space-split
-  if (typeof Intl !== "undefined" && (Intl as any).Segmenter) {
-    const segmenter = new (Intl as any).Segmenter("th", {
-      granularity: "word",
-    });
-    const segments = Array.from(segmenter.segment(text)) as Array<{
-      segment: string;
-      isWordLike?: boolean;
-    }>;
-    rawWords = segments.map((s) => s.segment);
-  } else {
-    rawWords = text.split(/(\s+)/);
-  }
-
-  // Merge common Thai compound fragments that shouldn't break across lines
-  const merged: string[] = [];
-  for (let i = 0; i < rawWords.length; i++) {
-    const curr = rawWords[i];
-    const next = rawWords[i + 1];
-    if (curr === "มินิ" && next === "มอล") {
-      merged.push("มินิมอล");
-      i++;
-    } else if (curr === "ตรง" && next === "ปก") {
-      merged.push("ตรงปก");
-      i++;
-    } else {
-      merged.push(curr);
-    }
-  }
-
-  return merged;
-}
 
 export interface TextFitResult {
   lines: string[];
   fontSize: number;
+  width: number;
+  plateWidth: number;
+}
+
+export type TextInput =
+  | string
+  | {
+      text?: string;
+      lines?: string[];
+    };
+
+/**
+ * Normalizes input text or lines into string array
+ */
+function resolveLines(
+  input: TextInput,
+  maxCharsPerLine: number,
+  minCharsPerLine: number
+): string[] {
+  if (typeof input === "object" && input !== null) {
+    if (Array.isArray(input.lines) && input.lines.length > 0) {
+      const clean = input.lines.map((l) => l.trim()).filter(Boolean);
+      if (clean.length > 0) return clean.slice(0, 2);
+    }
+    if (typeof input.text === "string" && input.text.trim()) {
+      return splitSafeThaiLines(input.text.trim(), maxCharsPerLine, minCharsPerLine);
+    }
+    return [];
+  }
+
+  if (typeof input === "string" && input.trim()) {
+    return splitSafeThaiLines(input.trim(), maxCharsPerLine, minCharsPerLine);
+  }
+
+  return [];
 }
 
 /**
- * Balances text into max 2 lines with Thai word boundary awareness.
- * Rule from V2 Patch:
- * - Headline: max 2 lines, <= 14 Thai chars per line, min font size >= 88px (or scale down if long).
- * - No single orphan word on the last line.
+ * Fits Headline lines into plate:
+ * - Rule A2: Headline minimum font size 88px (or minFontSize), max 2 lines, <= 14 Thai chars/line
+ * - Safe Zone width: max 880px
  */
 export function fitHeadline(
-  text: string,
+  input: TextInput,
   baseFontSize = 88,
   minFontSize = 76,
-  maxCharsPerLine = 15
+  plateInnerWidth = 800,
+  fontFamily = FONTS.heading
 ): TextFitResult {
-  if (!text) return { lines: [], fontSize: baseFontSize };
-
-  const cleanText = text.trim();
-  if (cleanText.length <= maxCharsPerLine) {
-    return { lines: [cleanText], fontSize: baseFontSize };
+  const lines = resolveLines(input, 14, 4);
+  if (lines.length === 0) {
+    return { lines: [], fontSize: baseFontSize, width: 0, plateWidth: 200 };
   }
 
-  const words = segmentThaiWords(cleanText).filter((w) => w.length > 0);
-  if (words.length <= 1) {
-    // Single long word
-    const mid = Math.ceil(cleanText.length / 2);
-    return {
-      lines: [cleanText.slice(0, mid), cleanText.slice(mid)],
-      fontSize: minFontSize,
-    };
-  }
+  const longest = lines.reduce(
+    (a, b) => (a.length >= b.length ? a : b),
+    lines[0] || ""
+  );
 
-  // Attempt to split into 2 balanced lines
-  let bestSplit = 1;
-  let minDiff = Infinity;
-  const totalLength = cleanText.length;
+  let fittedFontSize = baseFontSize;
+  let measuredWidth = Math.round(longest.length * (baseFontSize * 0.58));
 
-  let currentLength = 0;
-  for (let i = 0; i < words.length - 1; i++) {
-    currentLength += words[i].length;
-    const line1 = currentLength;
-    const line2 = totalLength - currentLength;
-    const diff = Math.abs(line1 - line2);
+  // If in browser canvas environment, use @remotion/layout-utils
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    try {
+      const res = fitText({
+        text: longest,
+        withinWidth: plateInnerWidth,
+        fontFamily,
+        fontWeight: 800,
+      });
+      fittedFontSize = Math.max(minFontSize, Math.min(res.fontSize, baseFontSize));
 
-    // Prevent orphan word (last word alone in line 2 if it's very short)
-    const isOrphan = i === words.length - 2 && words[words.length - 1].length < 4;
-
-    if (!isOrphan && diff < minDiff) {
-      minDiff = diff;
-      bestSplit = i + 1;
+      const measured = measureText({
+        text: longest,
+        fontFamily,
+        fontSize: fittedFontSize,
+        fontWeight: 800,
+      });
+      measuredWidth = Math.round(measured.width);
+    } catch {
+      // Fallback to estimation below if canvas is unavailable
+    }
+  } else {
+    // SSR / Node.js fallback estimation
+    const estimated = longest.length * (baseFontSize * 0.58);
+    if (estimated > plateInnerWidth) {
+      fittedFontSize = Math.max(
+        minFontSize,
+        Math.round(baseFontSize * (plateInnerWidth / estimated))
+      );
+      measuredWidth = Math.round(longest.length * (fittedFontSize * 0.58));
     }
   }
 
-  const line1 = words.slice(0, bestSplit).join("").trim();
-  const line2 = words.slice(bestSplit).join("").trim();
-
-  // If text is long, scale font size appropriately to stay legible and fit width
-  const maxLineLen = Math.max(line1.length, line2.length);
-  let fontSize = baseFontSize;
-  if (maxLineLen > 14) {
-    fontSize = Math.max(minFontSize, Math.round(baseFontSize * (14 / maxLineLen)));
-  }
+  // Calculate plate width (measured width + padding, clamped to Safe Zone max 880px)
+  const plateWidth = Math.min(880, Math.max(260, measuredWidth + 88));
 
   return {
-    lines: [line1, line2],
-    fontSize,
+    lines,
+    fontSize: fittedFontSize,
+    width: measuredWidth,
+    plateWidth,
   };
 }
 
 /**
- * Subtitle / Caption text fitter:
- * Max 2 lines, <= 18 chars per line, min fontSize >= 56px.
+ * Fits Subtitle / Caption lines into backing plate:
+ * - Rule A2: Subtitle minimum font size 56px, max 2 lines, <= 18 chars/line
  */
 export function fitSubtitle(
-  text: string,
+  input: TextInput,
   baseFontSize = 56,
   minFontSize = 48,
-  maxCharsPerLine = 20
+  plateInnerWidth = 820,
+  fontFamily = FONTS.heading
 ): TextFitResult {
-  if (!text) return { lines: [], fontSize: baseFontSize };
-
-  const cleanText = text.trim();
-  if (cleanText.length <= maxCharsPerLine) {
-    return { lines: [cleanText], fontSize: baseFontSize };
+  const lines = resolveLines(input, 18, 4);
+  if (lines.length === 0) {
+    return { lines: [], fontSize: baseFontSize, width: 0, plateWidth: 160 };
   }
 
-  const words = segmentThaiWords(cleanText).filter((w) => w.length > 0);
-  let currentLength = 0;
-  let bestSplit = Math.ceil(words.length / 2);
-  let minDiff = Infinity;
-  const totalLength = cleanText.length;
+  const longest = lines.reduce(
+    (a, b) => (a.length >= b.length ? a : b),
+    lines[0] || ""
+  );
 
-  for (let i = 0; i < words.length - 1; i++) {
-    currentLength += words[i].length;
-    const diff = Math.abs(currentLength - (totalLength - currentLength));
-    if (diff < minDiff) {
-      minDiff = diff;
-      bestSplit = i + 1;
+  let fittedFontSize = baseFontSize;
+  let measuredWidth = Math.round(longest.length * (baseFontSize * 0.56));
+
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    try {
+      const res = fitText({
+        text: longest,
+        withinWidth: plateInnerWidth,
+        fontFamily,
+        fontWeight: 800,
+      });
+      fittedFontSize = Math.max(minFontSize, Math.min(res.fontSize, baseFontSize));
+
+      const measured = measureText({
+        text: longest,
+        fontFamily,
+        fontSize: fittedFontSize,
+        fontWeight: 800,
+      });
+      measuredWidth = Math.round(measured.width);
+    } catch {
+      // Fallback to estimation below
+    }
+  } else {
+    const estimated = longest.length * (baseFontSize * 0.56);
+    if (estimated > plateInnerWidth) {
+      fittedFontSize = Math.max(
+        minFontSize,
+        Math.round(baseFontSize * (plateInnerWidth / estimated))
+      );
+      measuredWidth = Math.round(longest.length * (fittedFontSize * 0.56));
     }
   }
 
-  const line1 = words.slice(0, bestSplit).join("").trim();
-  const line2 = words.slice(bestSplit).join("").trim();
-
-  const maxLineLen = Math.max(line1.length, line2.length);
-  let fontSize = baseFontSize;
-  if (maxLineLen > 20) {
-    fontSize = Math.max(minFontSize, Math.round(baseFontSize * (20 / maxLineLen)));
-  }
+  const plateWidth = Math.min(880, Math.max(220, measuredWidth + 64));
 
   return {
-    lines: [line1, line2],
-    fontSize,
+    lines,
+    fontSize: fittedFontSize,
+    width: measuredWidth,
+    plateWidth,
   };
 }

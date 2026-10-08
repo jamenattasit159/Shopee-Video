@@ -153,21 +153,24 @@ export const LinkImport: React.FC<LinkImportProps> = ({
   };
 
   return (
-    <div className="bg-base-200 border border-base-300 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4 mb-6">
+    <div className="bg-white border border-stone-200/90 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4 mb-6 relative">
+      {/* Washi Tape Strip Accent */}
+      <div className="absolute -top-2.5 right-12 w-20 h-4 bg-amber-200/80 border-l border-r border-dashed border-amber-600/40 rotate-1 pointer-events-none shadow-xs rounded-xs z-10" />
+
       {/* Header & Mode Switch */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300/50">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200/60">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-primary/10 text-primary rounded-xl">
+          <div className="p-2 bg-orange-50 text-orange-600 border border-orange-200 rounded-xl shadow-xs">
             <LinkIcon className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-base text-base-content flex items-center gap-2">
+            <h3 className="font-bold text-base text-stone-900 flex items-center gap-2">
               <span>นำเข้าข้อมูลสินค้าผ่านลิงก์ Shopee</span>
-              <span className="badge badge-primary badge-outline text-xs font-normal">
+              <span className="badge badge-primary badge-outline text-xs font-semibold">
                 สะดวก & รวดเร็ว
               </span>
             </h3>
-            <p className="text-xs text-base-content/70">
+            <p className="text-xs text-stone-500">
               วางลิงก์หรือข้อความแชร์จากแอป Shopee ช่องเดียว ระบบจะดึงข้อมูลมาเติมให้อัตโนมัติ
             </p>
           </div>

@@ -21,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" data-theme="dark" className={`dark ${notoSansThai.variable}`}>
-      <body className="min-h-screen bg-base-100 text-base-content antialiased font-sans">
+    <html lang="th" data-theme="paper" className={notoSansThai.variable}>
+      <body className="min-h-screen bg-[#FAF8F5] text-stone-900 antialiased font-sans">
         {children}
       </body>
     </html>

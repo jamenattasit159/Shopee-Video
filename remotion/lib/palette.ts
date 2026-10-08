@@ -25,6 +25,19 @@ export const FONTS = {
   handwriting: `${maliData.fontFamily}, cursive, sans-serif`,
 };
 
+export const waitForFonts = async () => {
+  try {
+    await Promise.all([
+      promptData.waitUntilDone?.(),
+      kanitData.waitUntilDone?.(),
+      maliData.waitUntilDone?.(),
+    ]);
+  } catch (err) {
+    console.warn("[waitForFonts] Font loading warning:", err);
+  }
+};
+
+
 export const PALETTE = {
   shopeeOrange: "#EE4D2D",
   sunnyYellow: "#FFD23F",

@@ -55,7 +55,9 @@ export interface StyleDNA {
 
 export interface HookData {
   headline: string;
+  headlineLines?: string[]; // Part E: Pre-split lines (max 2 lines, <= 14 chars/line, >= 4 chars/line)
   subheadline?: string;
+  captionLines?: string[]; // Part E: Pre-split lines (max 2 lines, <= 18 chars/line, >= 4 chars/line)
   badgeText?: string;
   highlightWord?: string;
   paperTheme?: PaperTheme;
@@ -65,7 +67,9 @@ export interface HookData {
 
 export interface SceneData {
   highlightTitle: string;
+  headlineLines?: string[]; // Part E: Pre-split lines
   highlightDesc: string;
+  captionLines?: string[]; // Part E: Pre-split lines
   stickerText?: string;
   highlightWord?: string;
   imageIndex: number;
@@ -78,7 +82,9 @@ export interface SceneData {
 
 export interface CTAData {
   ctaTitle: string;
+  headlineLines?: string[]; // Part E: Pre-split lines
   ctaSubtitle?: string;
+  captionLines?: string[]; // Part E: Pre-split lines
   buttonText: string;
   basketNote?: string;
   badgeText?: string;
@@ -89,6 +95,8 @@ export interface CTAData {
 export interface CollageScene {
   type: "hook" | "feature" | "cta";
   headline: string; // ≤ 24 Thai chars
+  headlineLines?: string[];
+  captionLines?: string[];
   highlightWord?: string;
   sticker?: string;
   emoji?: string;

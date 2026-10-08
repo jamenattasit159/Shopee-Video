@@ -90,6 +90,16 @@ async function processSingleInput(
     };
   }
 
+  // ตรวจจับกรณีผู้ใช้วางรหัสค้นหาในแอป Shopee (Shopee Search Code เช่น AHY-VQC-QNT)
+  const trimmedInput = rawInput.trim();
+  const searchCodeMatch = trimmedInput.match(/^([A-Za-z0-9]{3})-([A-Za-z0-9]{3})-([A-Za-z0-9]{3})$/);
+  if (searchCodeMatch) {
+    throw {
+      code: 'shopee_search_code',
+      message: `รหัส "${trimmedInput.toUpperCase()}" เป็นโค้ดสำหรับค้นหาในแอป Shopee (ไม่ใช่ลิงก์เว็บตรง)\n\nวิธีใช้งาน:\n1. เปิดแอป Shopee และวางรหัสนี้ในช่องค้นหา (Search Bar)\n2. กดเข้าหน้าสินค้า ➔ กดไอคอน "แชร์" ➔ เลือก "คัดลอกลิงก์" (Copy Link)\n3. นำลิงก์ที่ได้มาวางในช่องนี้ หรือใช้ปุ่ม "อัปโหลดภาพหน้าจอสินค้า (OCR)" แทนได้ทันทีครับ`,
+    };
+  }
+
   // Tier 0: Parse share text
   const parsed = parseShareText(rawInput);
   if (!parsed.url) {

@@ -2,10 +2,12 @@ import React from "react";
 import { FONTS, PALETTE } from "../lib/palette";
 import { useBoil, usePop } from "../lib/stopMotion";
 import { fitSubtitle } from "../lib/textFit";
+import { renderKeep } from "../lib/thaiKeep";
 
 interface StickerTextProps {
   id: string;
-  text: string;
+  text?: string;
+  lines?: string[];
   highlightWord?: string;
   fontSize?: number; // Minimum 56px per Rule A2
   color?: string;
@@ -23,7 +25,8 @@ interface StickerTextProps {
 
 export const StickerText: React.FC<StickerTextProps> = ({
   id,
-  text,
+  text = "",
+  lines,
   highlightWord,
   fontSize = 56, // V2 rule: minimum 56px for subtitle
   color = PALETTE.white,
@@ -44,49 +47,59 @@ export const StickerText: React.FC<StickerTextProps> = ({
   // Clamp rotation to max ±3°
   const clampedRotate = Math.max(-3, Math.min(3, rotate + boil.rotate * 0.4));
 
-  // Fit subtitle into max 2 balanced lines
-  const fitted = fitSubtitle(text, fontSize);
+  // Fit subtitle into max 2 balanced lines respecting Part E boundaries
+  const fitted = fitSubtitle({ text, lines }, fontSize);
 
   const renderFittedLines = () => {
     return fitted.lines.map((line, lineIdx) => {
-      if (!highlightWord || !line.includes(highlightWord)) {
-        return <div key={lineIdx}>{line}</div>;
-      }
+      let content: React.ReactNode = renderKeep(line);
 
-      const parts = line.split(highlightWord);
-      return (
-        <div key={lineIdx}>
-          {parts.map((part, pIdx) => (
-            <React.Fragment key={pIdx}>
-              {part}
-              {pIdx < parts.length - 1 && (
+      if (highlightWord && line.includes(highlightWord)) {
+        const parts = line.split(highlightWord);
+        content = parts.map((part, pIdx) => (
+          <React.Fragment key={pIdx}>
+            {renderKeep(part)}
+            {pIdx < parts.length - 1 && (
+              <span
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                  color: PALETTE.ink,
+                  WebkitTextStroke: "0",
+                  padding: "2px 8px",
+                  margin: "0 4px",
+                  zIndex: 2,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {/* Solid opaque fluorescent marker underlay */}
                 <span
                   style={{
-                    position: "relative",
-                    display: "inline-block",
-                    color: PALETTE.ink,
-                    WebkitTextStroke: "0",
-                    padding: "2px 8px",
-                    margin: "0 4px",
-                    zIndex: 2,
+                    position: "absolute",
+                    inset: "12% -4% 6% -4%",
+                    backgroundColor: highlightColor,
+                    borderRadius: "4px",
+                    zIndex: -1,
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
                   }}
-                >
-                  {/* Solid opaque fluorescent marker underlay */}
-                  <span
-                    style={{
-                      position: "absolute",
-                      inset: "12% -4% 6% -4%",
-                      backgroundColor: highlightColor,
-                      borderRadius: "4px",
-                      zIndex: -1,
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-                    }}
-                  />
-                  {highlightWord}
-                </span>
-              )}
-            </React.Fragment>
-          ))}
+                />
+                {highlightWord}
+              </span>
+            )}
+          </React.Fragment>
+        ));
+      }
+
+      return (
+        <div
+          key={lineIdx}
+          style={{
+            whiteSpace: "nowrap",
+            wordBreak: "keep-all",
+            overflowWrap: "normal",
+          }}
+        >
+          {content}
         </div>
       );
     });
@@ -97,6 +110,7 @@ export const StickerText: React.FC<StickerTextProps> = ({
       style={{
         position: "relative",
         display: "inline-block",
+        maxWidth: `${fitted.plateWidth}px`,
         transform: `translate(${boil.x}px, ${boil.y}px) rotate(${clampedRotate}deg) scale(${pop * boil.scale})`,
         transformOrigin: "center center",
         zIndex: 22,
@@ -130,6 +144,9 @@ export const StickerText: React.FC<StickerTextProps> = ({
           letterSpacing: "0.02em", // Rule A2: 0.01em - 0.03em
           color,
           textAlign,
+          whiteSpace: "nowrap", // Strict Part E rule: nowrap, no word-break
+          wordBreak: "keep-all",
+          overflowWrap: "normal",
           WebkitTextStroke: `${strokeWidthEm}em ${strokeColor}`,
           paintOrder: "stroke fill",
           padding: "4px 10px",

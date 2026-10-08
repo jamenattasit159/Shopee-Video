@@ -16,6 +16,7 @@ interface CutoutImageProps {
   isPolaroid?: boolean;
   polaroidCaption?: string;
   showTape?: boolean;
+  children?: React.ReactNode;
   style?: React.CSSProperties;
 }
 
@@ -30,6 +31,7 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
   isPolaroid = false,
   polaroidCaption,
   showTape = false,
+  children,
   style = {},
 }) => {
   const pop = usePop(delay);
@@ -144,6 +146,7 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
           display: "block",
         }}
       />
+      {children}
     </div>
   );
 };

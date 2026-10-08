@@ -84,13 +84,14 @@ export const CTAScene: React.FC<CTASceneProps> = ({
         <TornStrip
           id="cta-main-title"
           text={cta.ctaTitle || "จิ้มตะกร้าส้มซ้ายล่างเลย!"}
+          lines={cta.headlineLines}
           bg={accentColor}
           textColor={PALETTE.ink}
           fontSize={88} // Rule A2: >= 88px
           rotate={-1}
           delay={2}
           padding="16px 36px"
-          style={{ maxWidth: "900px" }}
+          style={{ maxWidth: "880px" }}
         />
 
         {/* 🎁 Subtitle incentive (Rule A2: >= 56px with solid backing) */}
@@ -99,6 +100,7 @@ export const CTAScene: React.FC<CTASceneProps> = ({
             <StickerText
               id="cta-subtitle-sticker"
               text={cta.ctaSubtitle}
+              lines={cta.captionLines}
               fontSize={56} // Rule A2: >= 56px
               color={PALETTE.white}
               strokeColor={PALETTE.ink}

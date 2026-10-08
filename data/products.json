@@ -1,5 +1,307 @@
 [
   {
+    "id": "prod_1791441087374",
+    "name": "เซ็ทดูแลผิวลูกน้อย ครีมทาหน้าและตัวเด็ก ",
+    "price": "ลดหนัก สิบจุดสิบ",
+    "highlights": "เซ็ทผลิตภัณฑ์ธรรมชาติที่อ่อนโยน ปลอดภัยสำหรับผิวบอบบางของลูกน้อย ตั้งแต่อายุ 0 เดือนขึ้นไป\r\n1) Mama's Choice Diaper Cream\r\nครีมบรรเทาผดผื่นและอาการระคายเคืองที่เกิดจากผ้าอ้อม คราบน้ำนม และความร้อน พร้อมให้ความชุ่มชื้นกับผิว\r\nคุณสมบัติ:\r\nช่วยบรรเทาผดผื่น ลดอาการคัน และลดรอยดำรอยแดงบนผิว\r\nผลลัพธ์ชัดเจนตั้งแต่ครั้งแรกที่ใช้ เห็นผลดียิ่งขึ้นเมื่อใช้วันละ 3 ครั้ง\r\nส่วนผสมจากสมุนไพรธรรมชาติ 8 ชนิด ไม่ทิ้งคราบขาว ไม่เหนียวเหนอะหนะ\r\nส่วนผสมหลัก:\r\nสารสกัดจากใบบัวบก: ลดรอยดำ รอยแดง และโอกาสการเกิดแผลเป็น\r\nสารสกัดจากโรสแมรี่: ปกป้องผิวจากการระคายเคืองและช่วยให้ผิวนุ่มชุ่มชื้น\r\nอัลมอนด์: เพิ่มความชุ่มชื้นและปลอบประโลมผิว\r\nชาเขียว: ต้านอนุมูลอิสระและปกป้องผิวจากเชื้อแบคทีเรีย\r\nคาโมไมล์: ช่วยเพิ่มความแข็งแรง ลดการระคายเคืองของผิว\r\nผ่านการทดสอบทางผิวหนัง และ รับรองฮาลาล\r\n2) Mama's Choice Baby Daily Nourishing Face Cream\r\nครีมบำรุงผิวหน้า เพิ่มความชุ่มชื้น ปกป้องผิวบอบบางจากการแพ้และการระคายเคือง\r\nคุณสมบัติ:\r\nลดการระคายเคืองและเพิ่มความชุ่มชื้น ปกป้องจากจุดด่างดำและรอยสิว\r\nส่วนผสมจากธรรมชาติ ปลอดภัยสำหรับผิวหน้า\r\nส่วนผสมหลัก:\r\nทานตะวัน: ปกป้องผิวจากการแพ้และเพิ่มความกระจ่างใส\r\nอัลมอนด์: เพิ่มความชุ่มชื้นจากวิตามิน E และสารต้านอนุมูลอิสระ\r\nเซราไมด์: สร้างเกราะป้องกันผิว\r\nว่านหางจระเข้ออร์แกนิค: ปลอบประโลมผิวและลดการระคายเคือง\r\nผ่านการทดสอบทางผิวหนัง และ รับรองออร์แกนิค โดย ECOCERT ประเทศฝรั่งเศส",
+    "tone": "minimal",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791441087374_0_th-11134207-7ra0s-mcg79hp173sj72.webp",
+      "/uploads/1791441087375_1_th-11134207-7rase-m2anjobuqgtg93.webp",
+      "/uploads/1791441087376_2_th-11134207-7rasg-m2anjoc4q28x89.webp",
+      "/uploads/1791441087377_3_th-11134207-81ztg-mprrk6fh0hz504.webp",
+      "/uploads/1791441087379_4_th-11134207-81zto-mmr3918w934441.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "ตัวช่วยกู้ชีวิต ใช้งานง่ายสุดๆ",
+        "headlineLines": [
+          "ตัวช่วยกู้ชีวิต",
+          "ใช้งานง่ายสุดๆ"
+        ],
+        "subheadline": "รีวิวแน่น ผู้ใช้จริงบอกต่อ",
+        "captionLines": [
+          "รีวิวแน่น",
+          "ผู้ใช้จริงบอกต่อ"
+        ],
+        "badgeText": "🔥 ด่วนลดพิเศษ",
+        "highlightWord": "ตัวดัง",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "เซ็ทผลิตภัณฑ์ธรรมชาติที่",
+          "headlineLines": [
+            "เซ็ทผลิตภัณ",
+            "ฑ์ธรรมชาติที่"
+          ],
+          "highlightDesc": "ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ",
+          "captionLines": [
+            "ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ"
+          ],
+          "stickerText": "✨ ไฮไลท์เด็ด",
+          "highlightWord": "ผิวอิ่มฟู",
+          "layout": "polaroid-stack",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "1) Mama's Choice Diaper ",
+          "headlineLines": [
+            "1) Mama's",
+            "Choice Diaper"
+          ],
+          "highlightDesc": "เนื้อบางเบา สบายผิว ไม่ระคายเคือง",
+          "captionLines": [
+            "เนื้อบางเบา สบายผิว",
+            "ไม่ระคายเคือง"
+          ],
+          "stickerText": "👍 สวยตรงปก",
+          "highlightWord": "ซึมไว",
+          "layout": "hero-center",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "ครีมบรรเทาผดผื่นและอาการ",
+          "headlineLines": [
+            "ครีมบรรเทาผด",
+            "ผื่นและอาการ"
+          ],
+          "highlightDesc": "รีวิวแน่น ใช้ต่อเนื่องผิวยิ่งกระจ่า",
+          "captionLines": [
+            "รีวิวแน่น ใช้ต่อเนื่องผิวยิ่งกระจ่า"
+          ],
+          "stickerText": "🏷️ คุ้มค่าที่สุด",
+          "highlightWord": "เห็นผลจริง",
+          "layout": "hero-center",
+          "paperTheme": "kraft",
+          "imageIndex": 2,
+          "durationSec": 3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างด่วน!"
+        ],
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "captionLines": [
+          "แจกโค้ดส่งฟรี",
+          "คูปองลดเพิ่มทันที"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดมีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (supermarket-flyer)"
+      },
+      "audioSuggestion": {
+        "mood": "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
+        "musicGenre": "Viral Shopee Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! เซ็ทดูแลผิวลูกน้อย ครีมทาหน้าและตัวเด็ก  ตัวนี้คือดีงามมาก เซ็ทผลิตภัณฑ์ธรรมชาติที่ ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ แถมยัง1) Mama's Choice Diaper  เนื้อบางเบา สบายผิว ไม่ระคายเคือง ที่สำคัญคือครีมบรรเทาผดผื่นและอาการ ตอนนี้จัดโปรพิเศษเหลือแค่ ลดหนัก สิบจุดสิบ เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!",
+      "styleDNA": {
+        "seed": 1589646725,
+        "pack": "supermarket-flyer",
+        "palette": "supermarket-flyer-triadic-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "fontPair": "prompt-heavy",
+        "structure": "listicle",
+        "hookFormula": "relatable-pain",
+        "layouts": [
+          "polaroid-stack",
+          "hero-center",
+          "hero-center"
+        ],
+        "transitions": [
+          "page-shuffle",
+          "slap-strip"
+        ],
+        "tempo": "hyper",
+        "stickerShape": "tag",
+        "sfxKit": "playful-cartoon"
+      }
+    },
+    "createdAt": "2026-10-08T06:31:27.902Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/Mama's-Choice-%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%97%E0%B8%94%E0%B8%B9%E0%B9%81%E0%B8%A5%E0%B8%9C%E0%B8%B4%E0%B8%A7%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%99%E0%B9%89%E0%B8%AD%E0%B8%A2-(%E0%B8%84%E0%B8%A3%E0%B8%B5%E0%B8%A1%E0%B8%97%E0%B8%B2%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%84%E0%B8%A3%E0%B8%B5%E0%B8%A1%E0%B8%97%E0%B8%B2%E0%B8%9C%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%9C%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B8%9C%E0%B9%89%E0%B8%B2%E0%B8%AD%E0%B9%89%E0%B8%AD%E0%B8%A1",
+      "shopId": null,
+      "itemId": null,
+      "fetchedAt": "2026-10-08T06:28:48.162Z",
+      "confirmedAt": "2026-10-08T06:31:27.329Z"
+    },
+    "category": "baby",
+    "facts": {},
+    "renderedVideoUrl": "/renders/shopee_prod_1791441087374_1791441366329.mp4"
+  },
+  {
+    "id": "prod_1791432512827",
+    "name": "เซ็ทดูแลผิวลูกน้อย",
+    "price": "10.10 ลดทั้งร้าน",
+    "highlights": "1) Mama's Choice Diaper Cream\r\nครีมบรรเทาผดผื่นและอาการระคายเคืองที่เกิดจากผ้าอ้อม คราบน้ำนม และความร้อน พร้อมให้ความชุ่มชื้นกับผิว\r\nคุณสมบัติ:\r\nช่วยบรรเทาผดผื่น ลดอาการคัน และลดรอยดำรอยแดงบนผิว\r\n\r\nผลลัพธ์ชัดเจนตั้งแต่ครั้งแรกที่ใช้ เห็นผลดียิ่งขึ้นเมื่อใช้วันละ 3 ครั้ง\r\nส่วนผสมจากสมุนไพรธรรมชาติ 8 ชนิด ไม่ทิ้งคราบขาว ไม่เหนียวเหนอะหนะ\r\nส่วนผสมหลัก:\r\nสารสกัดจากใบบัวบก: ลดรอยดำ รอยแดง และโอกาสการเกิดแผลเป็น\r\nสารสกัดจากโรสแมรี่: ปกป้องผิวจากการระคายเคืองและช่วยให้ผิวนุ่มชุ่มชื้น\r\nอัลมอนด์: เพิ่มความชุ่มชื้นและปลอบประโลมผิว\r\nชาเขียว: ต้านอนุมูลอิสระและปกป้องผิวจากเชื้อแบคทีเรีย\r\nคาโมไมล์: ช่วยเพิ่มความแข็งแรง ลดการระคายเคืองของผิว\r\nผ่านการทดสอบทางผิวหนัง และ รับรองฮาลาล\r\n---------------------------------------\r\n2) Mama's Choice Baby Daily Nourishing Face Cream\r\nครีมบำรุงผิวหน้า เพิ่มความชุ่มชื้น ปกป้องผิวบอบบางจากการแพ้และการระคายเคือง\r\nคุณสมบัติ:\r\nลดการระคายเคืองและเพิ่มความชุ่มชื้น ปกป้องจากจุดด่างดำและรอยสิว\r\nส่วนผสมจากธรรมชาติ ปลอดภัยสำหรับผิวหน้า\r\nส่วนผสมหลัก:\r\nทานตะวัน: ปกป้องผิวจากการแพ้และเพิ่มความกระจ่างใส\r\nอัลมอนด์: เพิ่มความชุ่มชื้นจากวิตามิน E และสารต้านอนุมูลอิสระ\r\nเซราไมด์: สร้างเกราะป้องกันผิว\r\nว่านหางจระเข้ออร์แกนิค: ปลอบประโลมผิวและลดการระคายเคือง",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791432512827_0_th-11134207-7ra0s-mcg79hp173sj72.webp",
+      "/uploads/1791432512828_1_th-11134207-7rase-m2anjobuqgtg93.webp",
+      "/uploads/1791432512829_2_th-11134207-7rasg-m2anjoc4q28x89.webp",
+      "/uploads/1791432512830_3_th-11134207-81ztg-mprrk6fh0hz504.webp",
+      "/uploads/1791432512831_4_th-11134207-81zto-mmr3918w934441.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "ราคาหลักร้อย คุณภาพหลักพัน",
+        "headlineLines": [
+          "ราคาหลักร้อย",
+          "คุณภาพหลักพัน"
+        ],
+        "subheadline": "พิกัดของแท้ตรงปก รีบสั่งด่วน",
+        "captionLines": [
+          "พิกัดของแท้",
+          "ตรงปกสั่งด่วน"
+        ],
+        "badgeText": "⚡ ไม่ซื้อคือพลาด",
+        "highlightWord": "ตัวดัง",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "1) Mama's Choice Diaper ",
+          "headlineLines": [
+            "1) Mama's",
+            "Choice Diaper"
+          ],
+          "highlightDesc": "ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ",
+          "captionLines": [
+            "ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ"
+          ],
+          "stickerText": "✨ ไฮไลท์เด็ด",
+          "highlightWord": "ผิวอิ่มฟู",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "ครีมบรรเทาผดผื่นและอาการ",
+          "headlineLines": [
+            "ครีมบรรเทาผด",
+            "ผื่นและอาการ"
+          ],
+          "highlightDesc": "เนื้อบางเบา สบายผิว ไม่ระคายเคือง",
+          "captionLines": [
+            "เนื้อบางเบา สบายผิว",
+            "ไม่ระคายเคือง"
+          ],
+          "stickerText": "👍 สวยตรงปก",
+          "highlightWord": "ซึมไว",
+          "layout": "polaroid-stack",
+          "paperTheme": "pastel-mint",
+          "imageIndex": 1,
+          "durationSec": 3
+        },
+        {
+          "highlightTitle": "คุณสมบัติ:",
+          "headlineLines": [
+            "คุณสมบัติ:"
+          ],
+          "highlightDesc": "รีวิวแน่น ใช้ต่อเนื่องผิวยิ่งกระจ่า",
+          "captionLines": [
+            "รีวิวแน่น ใช้ต่อเนื่องผิวยิ่งกระจ่า"
+          ],
+          "stickerText": "🏷️ คุ้มค่าที่สุด",
+          "highlightWord": "เห็นผลจริง",
+          "layout": "callout-circle",
+          "paperTheme": "kraft",
+          "imageIndex": 2,
+          "durationSec": 3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างด่วน!"
+        ],
+        "ctaSubtitle": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่มเฉพาะคลิปนี้",
+        "captionLines": [
+          "แจกโค้ดส่งฟรี",
+          "คูปองลดเพิ่มทันที"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดมีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f3a916",
+        "bgColor": "#d6e8eb",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (sticker-bomb)"
+      },
+      "audioSuggestion": {
+        "mood": "จังหวะสนุกสนาน กระตุ้นการตัดสินใจ (Upbeat TikTok Dance)",
+        "musicGenre": "Viral Shopee Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปิดตัว และ Cash Ding ตอนโชว์ราคาพิเศษ"
+      },
+      "narrationScript": "ทุกคนนน เจอไอเทมเด็ดอีกแล้ว! เซ็ทดูแลผิวลูกน้อย ตัวนี้คือดีงามมาก 1) Mama's Choice Diaper  ฟื้นฟูผิวเร่งด่วน ผิวสุขภาพดีอย่างเ แถมยังครีมบรรเทาผดผื่นและอาการ เนื้อบางเบา สบายผิว ไม่ระคายเคือง ที่สำคัญคือคุณสมบัติ: ตอนนี้จัดโปรพิเศษเหลือแค่ 10.10 ลดทั้งร้าน เท่านั้น พิกัดจิ้มที่ตะกร้าส้มซ้ายล่างได้เลยจ้า รีบกดก่อนของหมดน้า!",
+      "styleDNA": {
+        "seed": 645147382,
+        "pack": "sticker-bomb",
+        "palette": "sticker-bomb-complementary-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f3a916",
+        "bgColor": "#d6e8eb",
+        "fontPair": "prompt-heavy",
+        "structure": "compare",
+        "hookFormula": "price-shock",
+        "layouts": [
+          "hero-center",
+          "polaroid-stack",
+          "callout-circle"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "slap-strip"
+        ],
+        "tempo": "hyper",
+        "stickerShape": "torn-rect",
+        "sfxKit": "retro-paper"
+      }
+    },
+    "createdAt": "2026-10-08T04:08:33.517Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/Mama's-Choice-%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%97%E0%B8%94%E0%B8%B9%E0%B9%81%E0%B8%A5%E0%B8%9C%E0%B8%B4%E0%B8%A7%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%99%E0%B9%89%E0%B8%AD%E0%B8%A2-(%E0%B8%84%E0%B8%A3%E0%B8%B5%E0%B8%A1%E0%B8%97%E0%B8%B2%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%84%E0%B8%A3%E0%B8%B5%E0%B8%A1%E0%B8%97%E0%B8%B2%E0%B8%9C%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%9C%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B8%9C%E0%B9%89%E0%B8%B2%E0%B8%AD%E0%B9%89%E0%B8%AD%E0%B8%A1",
+      "shopId": null,
+      "itemId": null,
+      "fetchedAt": "2026-10-08T04:06:47.132Z",
+      "confirmedAt": "2026-10-08T04:08:32.788Z"
+    },
+    "category": "general",
+    "facts": {}
+  },
+  {
     "id": "prod_1791360975084",
     "name": "MamyPoko มามี่โพโคเทป ซุปเปอร์ พรีเมี่ยม ออร์แกนิค รุ่น หมีเนย ไซส์ NB-S จำนวน 3 แพ็ค",
     "price": "ลด 200 จากโค้ด 'MAMYEOT26",
