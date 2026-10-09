@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { FONTS, PALETTE } from "../lib/palette";
 import { CutoutImage } from "../paper/CutoutImage";
 import { Doodle } from "../paper/Doodle";
@@ -9,6 +9,8 @@ import { TornStrip } from "../paper/TornStrip";
 import { WashiTape } from "../paper/WashiTape";
 import { PackId, SceneData, SceneLayout } from "../types";
 import { renderKeep, splitSafeThaiLines } from "../lib/thaiKeep";
+import { SceneMotionPlan } from "../motion/types";
+import { orchestrateSceneMotion } from "../motion/orchestrator";
 
 interface FeatureSceneProps {
   scene: SceneData;
@@ -20,6 +22,7 @@ interface FeatureSceneProps {
   accentColor?: string;
   packId?: PackId;
   bgColor?: string;
+  motionPlan?: SceneMotionPlan;
 }
 
 export const FeatureScene: React.FC<FeatureSceneProps> = ({
@@ -32,8 +35,20 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
   accentColor = PALETTE.sunnyYellow,
   packId,
   bgColor,
+  motionPlan,
 }) => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+
+  const effectiveMotion =
+    motionPlan?.motionConfig ||
+    orchestrateSceneMotion({
+      packId,
+      sceneIndex,
+      totalScenes,
+      sceneType: "feature",
+      durationInFrames,
+    }).motionConfig;
 
   // Layouts: strictly alternate
   const layoutList: SceneLayout[] = ["hero-center", "polaroid-stack", "callout-circle"];
@@ -43,8 +58,8 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
   const themeList: PaperTheme[] = ["cream-grid", "pastel-mint", "kraft"];
   const paperTheme: PaperTheme = scene.paperTheme || themeList[sceneIndex % themeList.length];
 
-  // Sub-beat every 1.2s (at frame 36 of 30fps)
-  const isSubBeat = frame >= 36;
+  // Dynamic sub-beat based on motion plan
+  const isSubBeat = frame >= effectiveMotion.subBeatTimingFrame;
 
   // RULE A2: Headline ≠ Caption (Never duplicate identical text in same scene)
   let cleanDesc = scene.highlightDesc || "";
@@ -109,6 +124,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             fontSize={88} // Rule A2: >= 88px
             rotate={-2}
             delay={2}
+            motionPreset={effectiveMotion.textPreset}
             padding="16px 36px"
             style={{ maxWidth: "880px" }}
           />
@@ -127,6 +143,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
                 withSolidBacking={true}
                 delay={6}
                 rotate={1}
+                motionPreset={effectiveMotion.textPreset}
               />
             </div>
           )}
@@ -141,6 +158,9 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             x={0}
             y={50}
             showTape={true}
+            motionPreset={effectiveMotion.entryPreset}
+            durationInFrames={durationInFrames}
+            enableAmbient={effectiveMotion.ambientDrift}
           >
             {/* Sub-beat 1.2s: Fun Sticker Tag Badge (contained within image boundaries) */}
             {scene.stickerText && (
@@ -219,6 +239,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             fontSize={88} // Rule A2: >= 88px
             rotate={1.5}
             delay={2}
+            motionPreset={effectiveMotion.textPreset}
           />
 
           {/* Back Polaroid Card (Delay 4f) */}
@@ -233,6 +254,9 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             y={10}
             delay={4}
             showTape={true}
+            motionPreset={effectiveMotion.entryPreset}
+            durationInFrames={durationInFrames}
+            enableAmbient={effectiveMotion.ambientDrift}
           />
 
           {/* Front Main Polaroid Card (Delay 7f, higher z-index to avoid collision) */}
@@ -247,6 +271,9 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             y={110}
             delay={7}
             showTape={true}
+            motionPreset={effectiveMotion.entryPreset}
+            durationInFrames={durationInFrames}
+            enableAmbient={effectiveMotion.ambientDrift}
           />
 
           {/* Bottom Subtitle / Description (Rule A2: >= 56px with solid backing) */}
@@ -269,6 +296,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
               strokeColor={PALETTE.ink}
               withSolidBacking={true}
               delay={10}
+              motionPreset={effectiveMotion.textPreset}
             />
           </div>
 
@@ -306,6 +334,7 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             fontSize={88} // Rule A2: >= 88px
             rotate={-1.5}
             delay={2}
+            motionPreset={effectiveMotion.textPreset}
           />
 
           {/* Cutout Product Image centered-right (Scale 1.4x) */}
@@ -318,6 +347,9 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
             x={30}
             y={50}
             showTape={true}
+            motionPreset={effectiveMotion.entryPreset}
+            durationInFrames={durationInFrames}
+            enableAmbient={effectiveMotion.ambientDrift}
           />
 
           {/* Hand-Drawn Highlight Circle (Delay 8f, expands slightly at sub-beat) */}

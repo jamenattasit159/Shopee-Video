@@ -93,11 +93,50 @@ export default function DashboardPage() {
         .then((data) => {
           if (data.success && data.audioUrl) {
             setVoiceoverUrl(data.audioUrl);
-            const updated = { ...newProduct, voiceoverUrl: data.audioUrl };
+            const updatedStoryboard = data.timeline
+              ? {
+                  ...newProduct.storyboard,
+                  hook: {
+                    ...newProduct.storyboard.hook,
+                    durationSec: data.timeline.hookDurationSec,
+                  },
+                  scenes: (newProduct.storyboard.scenes || []).map((s, idx) => ({
+                    ...s,
+                    durationSec: data.timeline.scenesDurationSec[idx] ?? s.durationSec ?? 4,
+                  })),
+                  cta: {
+                    ...newProduct.storyboard.cta,
+                    durationSec: data.timeline.ctaDurationSec,
+                  },
+                }
+              : newProduct.storyboard;
+
+            const updated: ProductRecord = {
+              ...newProduct,
+              voiceoverUrl: data.audioUrl,
+              storyboard: updatedStoryboard,
+              audioDurationSec: data.durationSec,
+              actualDurationFrames: data.timeline?.totalDurationFrames,
+            } as any;
+
             setActiveProduct(updated);
             setProducts((prev) =>
               prev.map((p) => (p.id === updated.id ? updated : p))
             );
+
+            // Persist to storage
+            fetch("/api/products", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: updated.id,
+                voiceoverUrl: data.audioUrl,
+                storyboard: updatedStoryboard,
+                audioDurationSec: data.durationSec,
+                actualDurationFrames: data.timeline?.totalDurationFrames,
+              }),
+            }).catch(() => {});
+
             showNotification("🎙️ เสียงพากย์ AI สร้างเสร็จสมบูรณ์และเชื่อมกับคลิปแล้ว!");
           }
         })
@@ -115,6 +154,14 @@ export default function DashboardPage() {
     setProducts((prev) =>
       prev.map((p) => (p.id === updated.id ? updated : p))
     );
+    fetch("/api/products", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: updated.id,
+        storyboard: updatedStoryboard,
+      }),
+    }).catch(() => {});
   };
 
   const handleRegenerateScript = async () => {
@@ -158,6 +205,9 @@ export default function DashboardPage() {
         theme: activeProduct.storyboard.theme,
         styleDNA: activeProduct.storyboard.styleDNA,
         voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
+        audioDurationSec: (activeProduct as any).audioDurationSec,
+        actualDurationFrames: (activeProduct as any).actualDurationFrames,
+        tailBufferSec: 0.8,
         bgmUrl: "/audio/bgm-upbeat.mp3",
         imageWarning: (activeProduct as any).imageWarning || undefined,
         originalUrl: activeProduct.import?.originalUrl,
@@ -318,15 +368,54 @@ export default function DashboardPage() {
                 onRegenerate={handleRegenerateScript}
                 isRegenerating={isRegenerating}
                 voiceoverUrl={voiceoverUrl}
-                onVoiceoverGenerated={(url) => {
+                onVoiceoverGenerated={(url, durSec, timeline) => {
                   setVoiceoverUrl(url);
-                  if (activeProduct) {
-                    const updated = { ...activeProduct, voiceoverUrl: url };
-                    setActiveProduct(updated);
-                    setProducts((prev) =>
-                      prev.map((p) => (p.id === updated.id ? updated : p))
+                  setActiveProduct((prev) => {
+                    if (!prev) return prev;
+                    const updatedStoryboard = timeline
+                      ? {
+                          ...prev.storyboard,
+                          hook: {
+                            ...prev.storyboard.hook,
+                            durationSec: timeline.hookDurationSec,
+                          },
+                          scenes: (prev.storyboard.scenes || []).map((s, idx) => ({
+                            ...s,
+                            durationSec: timeline.scenesDurationSec[idx] ?? s.durationSec ?? 4,
+                          })),
+                          cta: {
+                            ...prev.storyboard.cta,
+                            durationSec: timeline.ctaDurationSec,
+                          },
+                        }
+                      : prev.storyboard;
+
+                    const updated: ProductRecord = {
+                      ...prev,
+                      voiceoverUrl: url,
+                      storyboard: updatedStoryboard,
+                      audioDurationSec: durSec,
+                      actualDurationFrames: timeline?.totalDurationFrames,
+                    } as any;
+
+                    setProducts((pList) =>
+                      pList.map((p) => (p.id === updated.id ? updated : p))
                     );
-                  }
+
+                    fetch("/api/products", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        id: updated.id,
+                        voiceoverUrl: url,
+                        storyboard: updatedStoryboard,
+                        audioDurationSec: durSec,
+                        actualDurationFrames: timeline?.totalDurationFrames,
+                      }),
+                    }).catch(() => {});
+
+                    return updated;
+                  });
                   showNotification("🎙️ เสียงพากย์ AI ถูกเชื่อมต่อเข้าสู่วิดีโอแล้ว!");
                 }}
               />

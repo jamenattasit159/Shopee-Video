@@ -2,6 +2,8 @@ import React from "react";
 import { Img } from "remotion";
 import { FONTS } from "../lib/palette";
 import { useBoil, usePop } from "../lib/stopMotion";
+import { useObjectMotionStyle } from "../motion/presets";
+import { ObjectMotionPreset } from "../motion/types";
 import { resolveMediaSrc } from "../utils";
 import { WashiTape } from "./WashiTape";
 
@@ -16,6 +18,9 @@ interface CutoutImageProps {
   isPolaroid?: boolean;
   polaroidCaption?: string;
   showTape?: boolean;
+  motionPreset?: ObjectMotionPreset;
+  durationInFrames?: number;
+  enableAmbient?: boolean;
   children?: React.ReactNode;
   style?: React.CSSProperties;
 }
@@ -31,16 +36,21 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
   isPolaroid = false,
   polaroidCaption,
   showTape = false,
+  motionPreset = "scale-pop",
+  durationInFrames = 120,
+  enableAmbient = true,
   children,
   style = {},
 }) => {
-  const pop = usePop(delay);
   const boil = useBoil(id, 3, { rot: 0.8, pos: 2, scale: 0.01 });
+  const motion = useObjectMotionStyle(motionPreset, {
+    delay,
+    baseRotate,
+    durationInFrames,
+    enableAmbient,
+  });
 
   const resolvedSrc = resolveMediaSrc(src);
-
-  // Clamp rotation
-  const clampedRotate = Math.max(-5, Math.min(5, baseRotate + boil.rotate * 0.4));
 
   if (isPolaroid) {
     // Polaroid caption rule: >= 44px, tilt <= 3°
@@ -53,7 +63,8 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
           left: "50%",
           top: "50%",
           width,
-          transform: `translate(-50%, -50%) translate(${x + boil.x}px, ${y + boil.y}px) rotate(${polaroidTilt + boil.rotate * 0.2}deg) scale(${pop * boil.scale})`,
+          transform: `translate(-50%, -50%) translate(${x + boil.x}px, ${y + boil.y}px) ${motion.transform}`,
+          opacity: motion.opacity,
           transformOrigin: "center center",
           background: "#FFFBF2",
           padding: "24px 24px 64px 24px",
@@ -118,7 +129,8 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
         left: "50%",
         top: "55%", // Rule D2: Centered around ~55% height
         width,
-        transform: `translate(-50%, -50%) translate(${x + boil.x}px, ${y + boil.y}px) rotate(${clampedRotate}deg) scale(${pop * boil.scale})`,
+        transform: `translate(-50%, -50%) translate(${x + boil.x}px, ${y + boil.y}px) ${motion.transform}`,
+        opacity: motion.opacity,
         transformOrigin: "center center",
         // High-performance sticker border + hard offset shadow
         filter:

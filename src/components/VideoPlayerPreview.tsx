@@ -34,7 +34,33 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
     }
   };
 
-  const durationInFrames = calculateTotalFrames(props, 30);
+  const [probedAudioSec, setProbedAudioSec] = useState<number | null>(null);
+
+  // Proactively measure voiceover duration in the browser to ensure the preview player never cuts off early
+  React.useEffect(() => {
+    if (!props.voiceoverUrl) {
+      setProbedAudioSec(null);
+      return;
+    }
+    const audio = new window.Audio();
+    audio.src = props.voiceoverUrl;
+    audio.onloadedmetadata = () => {
+      if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+        setProbedAudioSec(Math.round(audio.duration * 100) / 100);
+      }
+    };
+  }, [props.voiceoverUrl]);
+
+  const effectiveAudioDuration =
+    props.audioDurationSec || (probedAudioSec ?? undefined);
+
+  const effectiveProps: ShopeeProductVideoProps = {
+    ...props,
+    audioDurationSec: effectiveAudioDuration,
+    tailBufferSec: props.tailBufferSec || 0.8,
+  };
+
+  const durationInFrames = calculateTotalFrames(effectiveProps, 30);
   const durationSec = (durationInFrames / 30).toFixed(1);
 
   return (
@@ -106,7 +132,7 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
         <div className="relative w-full rounded-[32px] overflow-hidden bg-black aspect-[9/16] shadow-inner">
           <Player<any, ShopeeProductVideoProps>
             component={ShopeeProductVideo}
-            inputProps={props}
+            inputProps={effectiveProps}
             durationInFrames={durationInFrames}
             compositionWidth={1080}
             compositionHeight={1920}

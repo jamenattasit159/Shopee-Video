@@ -143,6 +143,9 @@ export interface ShopeeProductVideoProps {
   theme?: Partial<ThemeData>;
   styleDNA?: StyleDNA;
   voiceoverUrl?: string;
+  audioDurationSec?: number;
+  actualDurationFrames?: number;
+  tailBufferSec?: number;
   bgmUrl?: string;
   showSafeZone?: boolean;
 }

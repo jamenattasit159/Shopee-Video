@@ -1,6 +1,14 @@
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import React from "react";
-import { Audio, continueRender, delayRender, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
+import {
+  Audio,
+  continueRender,
+  delayRender,
+  interpolate,
+  Sequence,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { AbsoluteFill } from "./components/AbsoluteFill";
 import { CTAScene } from "./components/CTAScene";
 import { FeatureScene } from "./components/FeatureScene";
@@ -8,7 +16,8 @@ import { HookScene } from "./components/HookScene";
 import { FONTS, PALETTE, waitForFonts } from "./lib/palette";
 import { useBoil, useStepFrame } from "./lib/stopMotion";
 import { PaperFilters } from "./paper/PaperFilters";
-import { pageShuffle, slapStrip, tornWipe } from "./paper/PaperTransitions";
+import { getTransitionPresentation } from "./paper/PaperTransitions";
+import { orchestrateFullStoryboardMotion } from "./motion/orchestrator";
 import { ShopeeProductVideoProps } from "./types";
 import { resolveMediaSrc } from "./utils";
 
@@ -159,45 +168,55 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
   // Transition parameters (fast 8 frames = ~0.26s stop-motion slap/tear)
   const TRANSITION_FRAMES = 8;
 
-  // Calculate durations with transition overlap compensation
-  // Hook sequence
-  const hookDurationFrames = Math.max(1, Math.round((hook?.durationSec || 3) * fps));
-
-  // Feature scenes
+  // Feature scenes list
   const safeScenes = scenes && scenes.length > 0 ? scenes : defaultShopeeVideoProps.scenes;
 
-  // CTA duration
-  const ctaDurationFrames = Math.max(1, Math.round((cta?.durationSec || 3) * fps));
+  // Raw duration frames based on scene props
+  const rawHookFrames = Math.max(1, Math.round((hook?.durationSec || 3) * fps));
+  const rawSceneFrames = safeScenes.map((s) => Math.max(1, Math.round((s.durationSec || 4) * fps)));
+  const rawCtaFrames = Math.max(1, Math.round((cta?.durationSec || 3) * fps));
+  const rawTotalFrames = rawHookFrames + rawSceneFrames.reduce((a, b) => a + b, 0) + rawCtaFrames;
 
-  // Transition presentation selector from styleDNA
-  const getTransitionForIndex = (idx: number) => {
-    const tList =
-      styleDNA?.transitions && styleDNA.transitions.length > 0
-        ? styleDNA.transitions
-        : ["slap-strip", "torn-wipe", "page-shuffle"];
-    const tType = tList[idx % tList.length];
-    switch (tType) {
-      case "torn-wipe":
-        return tornWipe();
-      case "page-shuffle":
-        return pageShuffle();
-      case "slap-strip":
-      default:
-        return slapStrip();
-    }
-  };
+  // If the composition has been extended (e.g. by audio-first durationInFrames in Root.tsx)
+  // scale or expand the scene durations so scenes fill 100% of durationInFrames without blank frames
+  const needsScale = durationInFrames > rawTotalFrames + 3;
+  const scaleRatio = needsScale ? durationInFrames / rawTotalFrames : 1;
 
-  // Build audio timeline cue points
+  const hookDurationFrames = Math.round(rawHookFrames * scaleRatio);
+  const ctaDurationFrames = Math.round(rawCtaFrames * scaleRatio);
+  const remainingFeatureFrames = durationInFrames - hookDurationFrames - ctaDurationFrames;
+  const featureFramesList = rawSceneFrames.map((rf) => {
+    if (!needsScale) return rf;
+    const proportion = rf / rawSceneFrames.reduce((a, b) => a + b, 0);
+    return Math.max(1, Math.round(remainingFeatureFrames * proportion));
+  });
+
+  // Adjust any rounding discrepancy on the last feature scene
+  if (needsScale && featureFramesList.length > 0) {
+    const currentSum = hookDurationFrames + featureFramesList.reduce((a, b) => a + b, 0) + ctaDurationFrames;
+    const diff = durationInFrames - currentSum;
+    featureFramesList[featureFramesList.length - 1] += diff;
+  }
+
+  // Orchestrate diverse motion presets across the entire storyboard
+  const fullMotionPlan = React.useMemo(() => {
+    return orchestrateFullStoryboardMotion({
+      packId: packId as any,
+      scenesCount: safeScenes.length,
+      hookFrames: hookDurationFrames,
+      scenesFrames: featureFramesList,
+      ctaFrames: ctaDurationFrames,
+    });
+  }, [packId, safeScenes.length, hookDurationFrames, featureFramesList, ctaDurationFrames]);
+
+  // Build audio timeline cue points for SFX
   let currentCueFrame = hookDurationFrames;
   const transitionCueFrames: number[] = [hookDurationFrames];
 
-  safeScenes.forEach((s) => {
-    const d = Math.max(1, Math.round((s.durationSec || 4) * fps));
+  featureFramesList.forEach((d) => {
     currentCueFrame += d;
     transitionCueFrames.push(currentCueFrame);
   });
-
-  const ctaCueFrame = currentCueFrame - Math.max(1, Math.round((safeScenes[safeScenes.length - 1]?.durationSec || 4) * fps));
 
   // Stepped progress bar for stop-motion aesthetic
   const stepFrame = useStepFrame(3);
@@ -239,7 +258,14 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
       {bgmUrl && (
         <Audio
           src={resolveMediaSrc(bgmUrl)}
-          volume={0.22}
+          volume={(f) =>
+            interpolate(
+              f,
+              [0, 15, Math.max(16, durationInFrames - 30), durationInFrames],
+              [0, 0.22, 0.22, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+            )
+          }
           loop
         />
       )}
@@ -248,7 +274,14 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
       {voiceoverUrl && (
         <Audio
           src={resolveMediaSrc(voiceoverUrl)}
-          volume={1.0}
+          volume={(f) =>
+            interpolate(
+              f,
+              [Math.max(0, durationInFrames - 15), durationInFrames],
+              [1.0, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+            )
+          }
         />
       )}
 
@@ -291,20 +324,20 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             accentColor={accentColor}
             packId={packId}
             bgColor={bgColor}
+            motionPlan={fullMotionPlan.hookPlan}
           />
         </TransitionSeries.Sequence>
 
         {/* Feature Scenes with alternating transitions */}
         {safeScenes.map((scene, idx) => {
-          const isLastScene = idx === safeScenes.length - 1;
-          const sceneDuration =
-            Math.max(1, Math.round((scene.durationSec || 4) * fps)) +
-            (isLastScene ? TRANSITION_FRAMES : TRANSITION_FRAMES);
+          const sceneDuration = featureFramesList[idx] + TRANSITION_FRAMES;
+          const transitionType =
+            fullMotionPlan.featurePlans[idx]?.motionConfig.transitionOut || "slap-strip";
 
           return (
             <React.Fragment key={`series-scene-${idx}`}>
               <TransitionSeries.Transition
-                presentation={getTransitionForIndex(idx)}
+                presentation={getTransitionPresentation(transitionType)}
                 timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
               />
               <TransitionSeries.Sequence durationInFrames={sceneDuration}>
@@ -318,6 +351,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
                   accentColor={accentColor}
                   packId={packId}
                   bgColor={bgColor}
+                  motionPlan={fullMotionPlan.featurePlans[idx]}
                 />
               </TransitionSeries.Sequence>
             </React.Fragment>
@@ -326,7 +360,9 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
 
         {/* Transition into CTA */}
         <TransitionSeries.Transition
-          presentation={slapStrip()}
+          presentation={getTransitionPresentation(
+            fullMotionPlan.featurePlans[safeScenes.length - 1]?.motionConfig.transitionOut || "slap-strip"
+          )}
           timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
         />
 
@@ -339,6 +375,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             productName={productName}
             primaryColor={primaryColor}
             accentColor={accentColor}
+            motionPlan={fullMotionPlan.ctaPlan}
           />
         </TransitionSeries.Sequence>
       </TransitionSeries>

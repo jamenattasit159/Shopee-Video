@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { ShopeeProductVideoProps } from "../../remotion/types";
-import { generatePostCaptions } from "../lib/captions";
+import { ShopeeCaptionBox } from "./ShopeeCaptionBox";
 
 interface RenderExportModalProps {
   productId?: string;
@@ -56,6 +56,12 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     setError(null);
 
     let activeVoiceUrl = videoProps.voiceoverUrl;
+    let activeAudioDuration = videoProps.audioDurationSec;
+    let activeActualDurationFrames = videoProps.actualDurationFrames;
+    let activeHook = videoProps.hook;
+    let activeScenes = videoProps.scenes;
+    let activeCta = videoProps.cta;
+
     if (!activeVoiceUrl && videoProps.hook) {
       setRenderMessage("กำลังบันทึกเสียงพากย์ AI อัตโนมัติ (Edge TTS)...");
       try {
@@ -76,6 +82,16 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
         const voiceData = await voiceRes.json();
         if (voiceData.success && voiceData.audioUrl) {
           activeVoiceUrl = voiceData.audioUrl;
+          activeAudioDuration = voiceData.durationSec;
+          activeActualDurationFrames = voiceData.timeline?.totalDurationFrames;
+          if (voiceData.timeline) {
+            activeHook = { ...activeHook, durationSec: voiceData.timeline.hookDurationSec };
+            activeScenes = (activeScenes || []).map((s, idx) => ({
+              ...s,
+              durationSec: voiceData.timeline.scenesDurationSec[idx] ?? s.durationSec ?? 4,
+            }));
+            activeCta = { ...activeCta, durationSec: voiceData.timeline.ctaDurationSec };
+          }
         }
       } catch (voiceErr) {
         console.warn("Auto-synthesizing voice failed, continuing with BGM only:", voiceErr);
@@ -93,7 +109,13 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           productId: productId || `prod_${Date.now()}`,
           props: {
             ...videoProps,
+            hook: activeHook,
+            scenes: activeScenes,
+            cta: activeCta,
             voiceoverUrl: activeVoiceUrl,
+            audioDurationSec: activeAudioDuration,
+            actualDurationFrames: activeActualDurationFrames,
+            tailBufferSec: videoProps.tailBufferSec || 0.8,
           },
         }),
       });
@@ -115,20 +137,6 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     } finally {
       setIsRendering(false);
     }
-  };
-
-  const captions = generatePostCaptions(
-    videoProps.productName || productName,
-    videoProps.price || price,
-    highlights || videoProps.hook?.headline || "",
-    videoProps.cta?.ctaTitle,
-    (videoProps as any).originalUrl
-  );
-
-  const copyCaption = (text: string, index: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedCaptionIndex(index);
-    setTimeout(() => setCopiedCaptionIndex(null), 3000);
   };
 
   return (
@@ -265,53 +273,14 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           </div>
 
           {/* 📋 Quick-Copy Post Captions & Hashtags */}
-          <div className="pt-4 border-t border-emerald-200/80 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-orange-600" />
-                <span>แคปชั่นสำหรับก๊อปปี้ไปวางตอนลงคลิป (เลือกสไตล์ที่ชอบ):</span>
-              </span>
-            </div>
-
-            <div className="space-y-2.5">
-              {captions.map((cap, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white border border-stone-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs"
-                >
-                  <div className="flex-1 pr-2 truncate">
-                    <span className="font-bold text-orange-600 block mb-0.5">
-                      {cap.styleName}
-                    </span>
-                    <span className="text-stone-600 block truncate font-mono text-[11px]">
-                      {cap.captionText.split("\n")[0]}...
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => copyCaption(cap.fullPost, idx)}
-                    className={`text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition flex-shrink-0 ${
-                      copiedCaptionIndex === idx
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-300 shadow-2xs"
-                    }`}
-                  >
-                    {copiedCaptionIndex === idx ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" />
-                        <span>คัดลอกแล้ว!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>คัดลอกแคปชั่นนี้</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
+          <div className="pt-4 border-t border-emerald-200/80">
+            <ShopeeCaptionBox
+              productName={videoProps.productName || productName}
+              price={videoProps.price || price}
+              highlights={highlights || videoProps.hook?.headline || ""}
+              ctaText={videoProps.cta?.ctaTitle}
+              originalUrl={(videoProps as any).originalUrl}
+            />
           </div>
         </div>
       )}

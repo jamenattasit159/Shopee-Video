@@ -1,0 +1,302 @@
+================================================================================
+                    SHOPEE VIDEO GENERATOR — COMMIT LOG & HISTORY
+================================================================================
+--------------------------------------------------------------------------------
+
+[AUTO-COMMIT]
+Commit Hash: 850dcb2792cbb8bf22951ff63361be10caa15de6 (850dcb2)
+Date/Time:   9/10/2569 16:19:29
+Subject:     chore(auto): daily automated sync at 16:19:29
+รายละเอียด: บันทึกการเปลี่ยนแปลงอัตโนมัติประจำวัน (Daily Git Auto-Sync)
+
+--------------------------------------------------------------------------------
+
+[AUTO-COMMIT]
+Commit Hash: 1586751db79831ae98b02d4457930f96be0e794e (1586751)
+Date/Time:   9/10/2569 16:17:59
+Subject:     chore(auto): daily automated sync at 16:17:59
+รายละเอียด: บันทึกการเปลี่ยนแปลงอัตโนมัติประจำวัน (Daily Git Auto-Sync)
+
+คำชี้แจง: ไฟล์นี้ใช้สำหรับบันทึกประวัติการแก้ไขและ Commit ในระบบทุกครั้ง
+โดยระบุ: รหัส Commit (Hash), วันที่/เวลา, ผู้แก้ไข, เรื่อง/หัวข้อ และรายละเอียดสิ่งที่แก้ไข
+================================================================================
+
+[COMMIT RECORD #016]
+Commit Hash: d2c51eccfcc9aadb056c2c4e05f2fceae0769634 (d2c51ec)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 15:37:05 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     feat(captions): add Shopee 100-word limited caption engine with AI generator and reroll variations
+รายละเอียดสิ่งที่แก้ไข:
+1. แก้ไขปัญหาแคปชั่นสำหรับโพสต์คลิปซ้ำซากจำเจ และแก้ปัญหาขีดจำกัดความยาวของ Shopee Video (ไม่เกิน 100 คำ):
+   - พัฒนาระบบ Shopee Video Caption Engine ใหม่ใน `src/lib/captions.ts`:
+     - เพิ่มฟังก์ชันนับคำภาษาไทย/อังกฤษอย่างแม่นยำด้วย `Intl.Segmenter` (`countWords`, `countChars`)
+     - เพิ่มระบบตัดคำอัตโนมัติ (`enforceWordLimit`) บังคับไม่ให้ข้อความเกินขีดจำกัด 90-100 คำเด็ดขาด
+     - เพิ่มพูลสำนวนภาษาและสไตล์แคปชั่น 5 หมวดหมู่ใหม่ (ฮุกไวสั้นกระชับ, ฟีลเพื่อนป้ายยา, ล่าดีลโค้ดส่งฟรี, แก้ปัญหาตรงจุด, มินิมอลสวยตรงปก)
+     - มีระบบสุ่มตัวเลือก (Variation Pools & Dynamic Hashtags) ตามหมวดหมู่สินค้า ทำให้การสร้างแต่ละครั้งได้ข้อความที่ไม่ซ้ำกัน
+2. สร้างคอมโพเนนต์ reusable `src/components/ShopeeCaptionBox.tsx`:
+   - แสดงตัวนับคำแบบ Real-time (เช่น `45/100 คำ`) พร้อม Badge สถานะปลอดภัย (Shopee 100 คำ Safe)
+   - มีปุ่ม "🎲 สุ่มสำนวนใหม่" (Reroll) สลับคำพูดได้ทันทีโดยไม่ต้องโหลดหน้าใหม่
+   - มีปุ่ม "✨ ให้ AI คิดแคปชั่นใหม่" เชื่อมต่อกับ Gemini 2.5 Flash สร้างไอเดียสดใหม่เฉพาะสินค้า
+   - มีกล่องข้อความที่สามารถพิมพ์แก้ไขปรับแต่งได้เอง (Editable Textarea) ก่อนกดคัดลอก
+   - มีปุ่ม "ตัดให้พอดี 100 คำ" อัตโนมัติหากผู้ใช้พิมพ์เกิน
+3. เพิ่ม API Route `src/app/api/generate-captions/route.ts`:
+   - ใช้ Gemini 2.5 Flash ในการสร้างแคปชั่น 4 สไตล์ที่เน้นขายดีบน Shopee Video โดยกำกับความยาวไม่ให้เกิน 70-80 คำ
+4. ผสานการทำงานเข้ากับ `src/components/ScriptStoryboard.tsx` และ `src/components/RenderExportModal.tsx`:
+   - แทนที่โค้ดเดิมทั้งสองหน้าด้วยคอมโพเนนต์ `ShopeeCaptionBox` เพื่อประสบการณ์ใช้งานที่ต่อเนื่องและสอดคล้องกันตาม Design System
+ไฟล์ที่เปลี่ยนแปลง (11 files):
+- src/lib/captions.ts
+- src/app/api/generate-captions/route.ts
+- src/components/ShopeeCaptionBox.tsx
+- src/components/RenderExportModal.tsx
+- src/components/ScriptStoryboard.tsx
+- data/products.json
+- public/uploads/ (รูปภาพและเสียงรอบล่าสุด)
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #015]
+Commit Hash: a2b4d7b1a6a5cc9c8df2356b51f9c3a39a4038b6 (a2b4d7b)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 14:45:49 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     fix(timeline): resolve windows audio path probing and prevent stale frame count truncation
+รายละเอียดสิ่งที่แก้ไข:
+1. แก้ไขปัญหาวิดีโอตัดจบที่ 18 วินาทีทั้งที่เสียงพากย์ยาว 30 วินาที (จากกรณีไฟล์ shopee_prod_1791529123039):
+   - แก้ไข Path Resolution Bug บนระบบ Windows ใน `src/lib/audioTimeline.ts` และ `scripts/render.mjs`:
+     เดิมทีคำสั่ง `path.isAbsolute('/uploads/...')` บน Windows จะประเมินผลเป็น `true` ส่งผลให้ระบบอ้างอิงไปยัง `C:\uploads\...` (ซึ่งไม่มีอยู่จริง) แทนที่จะเป็นโฟลเดอร์ `public/uploads` ในโปรเจกต์ ทำให้ `ffprobe` ล้มเหลวและวัดความยาวเสียงพากย์ได้ 0 วินาทีเสมอ
+     ได้ปรับปรุงฟังก์ชัน `resolveAudioFilePath` และ `resolveAudioPath` ให้ตรวจสอบ drive letter (`^[a-zA-Z]:[/\\]`) และ `fsSync.existsSync` อย่างแม่นยำ รวมถึงตัด query parameter ออก ทำให้ `ffprobe` เข้าถึงไฟล์เสียงจริงได้ถูกต้อง 100%
+2. ป้องกัน Stale Frame Count Truncation ใน `remotion/Root.tsx`:
+   - ปรับปรุง `calculateTotalFrames`: ป้องกันกรณีที่ `actualDurationFrames` จากการสร้างเสียงรอบก่อนหน้า (เช่น 540 เฟรม หรือ 18 วินาที) ค้างอยู่ในฐานข้อมูล แล้วมาตัดความยาววิดีโอให้สั้นกว่าเสียงจริง
+   - บังคับใช้เงื่อนไข Audio-First Safety: ความยาววิดีโอต้องไม่สั้นกว่าความยาวเสียงจริง (`audioTotalSeconds * fps`) และความยาวฉากรวม (`visualTotalSeconds * fps`) เสมอ
+3. เพิ่ม Audio-First Pre-flight Synchronization ใน `src/app/api/render-video/route.ts`:
+   - ก่อนสั่งรัน worker เรนเดอร์ ระบบจะตรวจสอบความยาวเสียงจริงด้วย `ffprobe` และจัดสรรเวลาฉาก Hook, Scenes, CTA และคำนวณ `actualDurationFrames` ใหม่โดยอัตโนมัติ เพื่อป้องกันข้อมูลคลาดเคลื่อนตั้งแต่ระดับ API
+4. เสริมความปลอดภัยใน `scripts/render.mjs`:
+   - บังคับให้ `inputProps.actualDurationFrames` มีค่าครอบคลุมทั้ง `targetTotalSec * fps` และ `curTotal * fps` เสมอ
+5. อัปเดตข้อมูลและเรนเดอร์ทดสอบสินค้า `prod_1791529123039` ใหม่:
+   - ทดสอบเรนเดอร์ได้ผลลัพธ์วิดีโอ 30.95 วินาที ครอบคลุมเสียง Gemini 29.96 วินาทีได้อย่างสมบูรณ์ (+0.99s tail buffer)
+   - ชุดทดสอบทั้งหมด 31 assertions ผ่าน 100%
+ไฟล์ที่เปลี่ยนแปลง (12 files):
+- data/products.json
+- remotion/Root.tsx
+- scripts/render.mjs
+- src/app/api/render-video/route.ts
+- src/lib/audioTimeline.ts
+- public/uploads/ (ไฟล์รูปภาพและเสียงสินค้ารอบล่าสุด)
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #014]
+Commit Hash: 9aa2ae060c08304553f463f0c8a0c49ae0ae613b (9aa2ae0)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 13:58:02 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     docs: add COMMIT_LOG.txt to track commit history and change details
+รายละเอียดสิ่งที่แก้ไข:
+1. สร้างไฟล์ COMMIT_LOG.txt บันทึกประวัติการ commit ทุกครั้งในระบบตามคำสั่งผู้ใช้
+2. รวบรวมและแจกแจงประวัติ commit ย้อนหลังทั้งหมด 13 รายการอย่างละเอียด พร้อมรหัส commit hash (แบบย่อและเต็ม), วันที่/เวลา, ผู้ทำรายการ, หัวข้อ, และรายละเอียดสิ่งที่แก้ไขเป็นภาษาไทย
+3. กำหนดแนวทางและมาตรฐานการบันทึกประวัติการ commit ลงในไฟล์นี้ทุกครั้งที่มีการ commit โค้ด
+ไฟล์ที่เปลี่ยนแปลง (1 file):
+- COMMIT_LOG.txt
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #013]
+Commit Hash: f1e3fa578faa464c29845f71b16e6ef88f0f148d (f1e3fa5)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 11:46:47 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     fix(audio): resolve audio URL path resolution, persistence, and smooth fadeout
+รายละเอียดสิ่งที่แก้ไข:
+1. แก้ไขปัญหาเสียงพากย์ TTS ขาดหายกะทันหัน หรือวิดีโอและเสียงจบไม่เท่ากัน:
+   - ปรับปรุง `resolveAudioFilePath` ใน `src/lib/audioTimeline.ts` และ `scripts/render.mjs` ให้รองรับกรณีที่ URL เป็น Full URL จาก localhost เช่น `http://localhost:3000/uploads/...` โดยแยก hostname และ query string ออกอย่างถูกต้อง ทำให้ ffprobe หาไฟล์จริงเจอ ไม่ fallback กลับไปใช้ระยะเวลาดีฟอลต์ (14-18 วินาที)
+2. ปรับปรุงความคงอยู่ของข้อมูล (Persistence) และ React State:
+   - เพิ่ม API Endpoint `PATCH /api/products` ใน `src/app/api/products/route.ts` เพื่อบันทึกค่า `durationSec` และ `timeline` ที่คำนวณใหม่ลงใน `data/products.json` โดยอัตโนมัติ
+   - แก้ไข `src/app/page.tsx` ในฟังก์ชัน `onVoiceoverGenerated` ไม่ให้ state เดิมไป overwrite ทับ timeline และระยะเวลาที่เพิ่งอัปเดต
+3. ปรับปรุงตัวเล่นพรีวิว (Video Player Preview):
+   - ใน `src/components/VideoPlayerPreview.tsx` ใช้ `window.Audio.onloadedmetadata` ดึงความยาวเสียงพากย์จริงมาคำนวณ `durationInFrames` แบบเรียลไทม์ ทำให้การพรีวิวในหน้าเว็บเล่นได้ครบถ้วนจนจบเสียง
+4. ปรับปรุงคุณภาพเสียง (Smooth Audio Envelope):
+   - เพิ่ม fadeout ใน `remotion/ShopeeProductVideo.tsx`: ให้เสียงพากย์ (Voiceover) ค่อยๆ เฟดลงใน 15 เฟรมสุดท้าย และเพลงประกอบ (BGM) ค่อยๆ เฟดลงใน 30 เฟรมสุดท้าย เพื่อไม่ให้เสียงขาดหายกะทันหัน
+ไฟล์ที่เปลี่ยนแปลง (16 files):
+- data/products.json
+- public/uploads/ (ไฟล์เสียงและรูปภาพสินค้ารอบล่าสุด)
+- remotion/ShopeeProductVideo.tsx
+- scripts/render.mjs
+- src/app/api/products/route.ts
+- src/app/page.tsx
+- src/components/RenderExportModal.tsx
+- src/components/ScriptStoryboard.tsx
+- src/components/VideoPlayerPreview.tsx
+- src/lib/audioTimeline.ts
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #012]
+Commit Hash: 4700728a7ee8e00b9125a9b4be6d481cadd4cc66 (4700728)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 10:31:39 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     feat(engine): implement audio-first timeline synchronization and diverse motion engine
+รายละเอียดสิ่งที่แก้ไข:
+1. พัฒนาระบบ Audio-First Timeline Engine (`src/lib/audioTimeline.ts`):
+   - วัดความยาวเสียงพากย์จริงด้วย `ffprobe` เป็น Single Source of Truth ในการกำหนดความยาววิดีโอ
+   - จัดสรรเวลาฉาก Hook (3.0-4.5s), CTA (3.0-4.5s) และแบ่งเฉลี่ยฉาก Feature Scenes ให้เท่ากันตามสัดส่วนความยาวเสียงจริง
+   - เพิ่ม Tail Buffer 0.8 วินาที เพื่อการันตีว่าเสียงพูดจบสมบูรณ์ก่อนจบคลิป ไม่โดนตัดท้าย
+2. พัฒนาระบบ Diverse Motion Engine (`remotion/motion/`):
+   - แยกหมวดหมู่ Motion Types, Object Presets, Typography Presets, และ Transition Presets
+   - เพิ่มแอนิเมชันหลากหลาย (Slide In, Spring Pop, Floating, Mask Reveal, Drift, Scale Pop, Zoom)
+   - เพิ่ม Motion Orchestrator ป้องกันแอนิเมชันหรือทรานซิชันซ้ำติดกัน (Anti-Repetition Guard)
+   - เพิ่ม Ambient Motion สำหรับฉากที่ยาวเกิน 4 วินาที ป้องกันภาพนิ่งแข็ง
+3. พัฒนาระบบตรวจสอบหลังเรนเดอร์ (Post-render Validation):
+   - เพิ่ม `validateRenderedVideo` ใน `scripts/render.mjs` ตรวจสอบความยาววิดีโอเทียบกับความยาวเสียงจริงหลังเรนเดอร์
+4. เพิ่มชุดทดสอบระบบ (Test Suite):
+   - สร้าง `scripts/test-engine-upgrade.mjs` ทดสอบครอบคลุมทั้ง 31 assertions ผ่านทั้งหมด 100%
+ไฟล์ที่เปลี่ยนแปลง (19 files):
+- remotion/Root.tsx
+- remotion/ShopeeProductVideo.tsx
+- remotion/components/CTAScene.tsx
+- remotion/components/FeatureScene.tsx
+- remotion/components/HookScene.tsx
+- remotion/motion/orchestrator.ts
+- remotion/motion/presets.ts
+- remotion/motion/types.ts
+- remotion/paper/CutoutImage.tsx
+- remotion/paper/PaperTransitions.tsx
+- remotion/paper/StickerText.tsx
+- remotion/paper/TornStrip.tsx
+- remotion/types.ts
+- scripts/render.mjs
+- scripts/test-engine-upgrade.mjs
+- src/app/api/render-video/route.ts
+- src/app/api/synthesize-voice/route.ts
+- src/components/ScriptStoryboard.tsx
+- src/lib/audioTimeline.ts
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #011]
+Commit Hash: 24c3d1078c09c32890eef4be8cc4cd689e4b413d (24c3d10)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 10:02:08 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     feat: add Gemini 3.8 Flash Voice Replication (Voice Cloning) and fix TTS API integration
+รายละเอียดสิ่งที่แก้ไข:
+1. เพิ่มระบบโคลนเสียง (Voice Replication / Cloning) ด้วย Gemini 3.8 Flash
+2. ปรับปรุงการส่งคำสั่งและพารามิเตอร์ของ TTS API
+3. รองรับการประมวลผลตัวอย่างเสียงของผู้ใช้ เพื่อให้ได้โทนเสียงพากย์ที่เป็นเอกลักษณ์
+ไฟล์ที่เปลี่ยนแปลง:
+- src/app/api/synthesize-voice/route.ts
+- src/components/ScriptStoryboard.tsx
+- โค้ดที่เกี่ยวข้องกับการเรียกใช้งาน Gemini TTS
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #010]
+Commit Hash: b920b50b9af7a784451a748d4363f3c2b042593e (b920b50)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Thu Oct 8 16:18:10 2026 +0700
+Subject:     chore: sync latest audio file
+รายละเอียดสิ่งที่แก้ไข:
+1. อัปเดตและซิงค์ไฟล์เสียงพากย์ล่าสุดที่สร้างขึ้นจากระบบเข้าสู่ repository
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #009]
+Commit Hash: eb56aaf560bdecc703d70c86238b6153201e052d (eb56aaf)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Thu Oct 8 16:17:45 2026 +0700
+Subject:     chore(data): save imported product data and media assets
+รายละเอียดสิ่งที่แก้ไข:
+1. บันทึกข้อมูลสินค้าและ asset มีเดียที่ดึงมาจาก Shopee เก็บไว้ในโปรเจกต์
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #008]
+Commit Hash: 056301b490cd592e4734cd373945065c3283a9a9 (056301b)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Thu Oct 8 16:14:50 2026 +0700
+Subject:     feat(tts): add engine selection (Gemini 3.8 Flash vs Free Edge-TTS) and speech speed rate controls
+รายละเอียดสิ่งที่แก้ไข:
+1. เพิ่มตัวเลือกให้ผู้ใช้เลือก Engine เสียงพากย์ได้ระหว่าง Gemini 3.8 Flash และ Edge-TTS (ฟรี)
+2. เพิ่มตัวปรับระดับความเร็วในการพูด (Speech Speed Rate) ให้ผู้ใช้ควบคุมได้ละเอียดขึ้น
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #007]
+Commit Hash: bc1b6b464d334da68b7e39d2cba7dade9599dd32 (bc1b6b4)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Thu Oct 8 15:47:12 2026 +0700
+Subject:     fix: dynamically generate scenes from user highlights and prevent hardcoded baby diaper cream fallback
+รายละเอียดสิ่งที่แก้ไข:
+1. แก้ไขให้ระบบสร้างฉากแบบไดนามิกจากจุดเด่นสินค้าจริงที่ผู้ใช้ระบุ
+2. ป้องกันไม่ให้ระบบตกไปใช้ข้อมูลตัวอย่างฮาร์ดโค้ด (ครีมทาก้นเด็ก / baby diaper cream)
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #006]
+Commit Hash: 4112010b7d070d377289ce093bf54f0efa6aaa9b (4112010)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Thu Oct 8 14:49:40 2026 +0700
+Subject:     feat: Bright Paper Collage UI redesign, Remotion Paper Collage V2, and AI Copy Humanizer feature
+รายละเอียดสิ่งที่แก้ไข:
+1. ปรับปรุงหน้าตา UI ในสไตล์ Bright Paper Collage
+2. อัปเกรด Remotion Paper Collage V2 เพิ่มประสิทธิภาพของกราฟิก
+3. เพิ่มฟังก์ชัน AI Copy Humanizer ช่วยปรับข้อความและสคริปต์ให้เหมือนมนุษย์เขียน เป็นธรรมชาติและดึงดูดใจ
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #005]
+Commit Hash: 5ad824792b27971b556eb95470e170ebb6944868 (5ad8247)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Wed Oct 7 15:24:09 2026 +0700
+Subject:     chore: sync rendered video metadata
+รายละเอียดสิ่งที่แก้ไข:
+1. ซิงค์และจัดเก็บ metadata ของวิดีโอที่ผ่านการเรนเดอร์เรียบร้อยแล้ว
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #004]
+Commit Hash: e96511e0ce4cfa4ac97bec29f5fb5fc3f421a089 (e96511e)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Wed Oct 7 15:23:23 2026 +0700
+Subject:     feat: implement Shopee link import with Review Screen, SSRF protection, URL slug decoding, and Gemini enrichment
+รายละเอียดสิ่งที่แก้ไข:
+1. ระบบนำเข้าลิงก์สินค้าจาก Shopee โดยตรง พร้อมหน้าตรวจสอบข้อมูล (Review Screen)
+2. ป้องกันช่องโหว่ความปลอดภัย SSRF (Server-Side Request Forgery)
+3. ถอดรหัส URL Slug และดึงข้อมูลเสริมด้วยโมเดล Gemini AI
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #003]
+Commit Hash: 5c92862de925d1e794a17d39527cd64de063c7a5 (5c92862)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Wed Oct 7 14:09:24 2026 +0700
+Subject:     feat: เพิ่มระบบ Paper Collage Animation V2 และตั้งค่า Modern Web Design System (daisyUI)
+รายละเอียดสิ่งที่แก้ไข:
+1. ติดตั้ง daisyUI และ Tailwind CSS ตาม UI/UX Master Rule และ Design System
+2. เพิ่มธีม Dark Mode, ฟอนต์ Noto Sans Thai และ Semantic Color Tokens
+3. สร้างระบบ Paper Collage Animation V2 พร้อมสไตล์แพ็ก (Scrapbook, Pop-art, Kawaii, Zine)
+4. พัฒนาระบบ Style Director, ตัดภาพไดคัท (Cutout) และสกัดคู่สีอัตโนมัติ (Palette Deriver)
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #002]
+Commit Hash: 8087a82ab32a0679ca5d1d0efb24f993e3297e75 (8087a82)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Tue Oct 6 16:28:49 2026 +0700
+Subject:     feat: complete Shopee Affiliate Video Production System with Remotion, Gemini AI, Edge-TTS and Safe Zone UI
+รายละเอียดสิ่งที่แก้ไข:
+1. พัฒนาระบบสร้างวิดีโอ Shopee Affiliate อัตโนมัติด้วย Remotion, Gemini AI, และ Edge-TTS
+2. พัฒนาระบบ Safe Zone Preview บนหน้าเว็บให้แสดงกรอบแสดงผลตามขนาดแพลตฟอร์มต่างๆ
+
+--------------------------------------------------------------------------------
+
+[COMMIT RECORD #001]
+Commit Hash: 70404f6f9f96bd43870867bd10849d5c57ced22d (70404f6)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Tue Oct 6 11:03:45 2026 +0700
+Subject:     Initial commit
+รายละเอียดสิ่งที่แก้ไข:
+1. โครงสร้างโปรเจกต์ตั้งต้น (Initial project repository setup)
+
+================================================================================

@@ -47,12 +47,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Measure exact audio duration via Audio-First Timeline Engine
+    const { measureAudioDuration, synchronizeTimelineToAudio } = await import(
+      "../../../lib/audioTimeline"
+    );
+    const audioMeta = await measureAudioDuration(result.audioUrl);
+    const numScenes = storyboard?.scenes?.length || 3;
+    const timeline = synchronizeTimelineToAudio({
+      audioDurationSec: audioMeta.durationSec,
+      numScenes,
+      fps: 30,
+    });
+
     return NextResponse.json({
       success: true,
       audioUrl: result.audioUrl,
       scriptText,
       engineUsed: result.engineUsed,
       fallbackNotice: result.fallbackNotice,
+      durationSec: audioMeta.durationSec,
+      durationFrames: audioMeta.durationFrames,
+      timeline,
     });
   } catch (error: any) {
     console.error("Synthesize voice error:", error);

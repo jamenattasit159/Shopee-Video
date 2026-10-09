@@ -13,8 +13,25 @@ export const calculateTotalFrames = (
     0
   );
   const ctaDuration = props.cta?.durationSec || 3;
-  const totalSeconds = hookDuration + scenesDuration + ctaDuration;
-  return Math.max(30, Math.round(totalSeconds * fps));
+  const visualTotalSeconds = hookDuration + scenesDuration + ctaDuration;
+
+  // Audio-First safety: If audioDurationSec is provided, video MUST cover it plus tail buffer
+  const audioTotalSeconds = props.audioDurationSec
+    ? props.audioDurationSec + (props.tailBufferSec || 0.8)
+    : 0;
+
+  const minRequiredFrames = Math.max(
+    Math.round(visualTotalSeconds * fps),
+    Math.round(audioTotalSeconds * fps)
+  );
+
+  const explicitFrames =
+    props.actualDurationFrames && props.actualDurationFrames > 0
+      ? Math.round(props.actualDurationFrames)
+      : 0;
+
+  // Audio-First guarantee: Video length must NEVER be shorter than the audio + tail buffer or visual storyboard
+  return Math.max(30, Math.max(explicitFrames, minRequiredFrames));
 };
 
 export const RemotionRoot: React.FC = () => {
