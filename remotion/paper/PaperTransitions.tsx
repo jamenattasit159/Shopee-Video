@@ -203,3 +203,146 @@ export const pageShuffle = (): TransitionPresentation<any> => ({
   component: PageShufflePresentation,
   props: {},
 });
+
+// --- 4. WHIP PAN TRANSITION ---
+// Fast directional camera whip across the frame
+const WhipPanPresentation: React.FC<TransitionPresentationComponentProps<any>> = ({
+  children,
+  presentationProgress,
+  presentationDirection,
+}) => {
+  const step = Math.floor(presentationProgress * 6) / 6;
+
+  const style = useMemo((): React.CSSProperties => {
+    if (presentationDirection === "exiting") {
+      const x = -step * 100;
+      return {
+        width: "100%",
+        height: "100%",
+        transform: `translateX(${x}%)`,
+        filter: step > 0 && step < 1 ? "blur(4px)" : "none",
+        zIndex: 1,
+      };
+    }
+    const x = (1 - step) * 100;
+    return {
+      width: "100%",
+      height: "100%",
+      transform: `translateX(${x}%)`,
+      filter: step > 0 && step < 1 ? "blur(4px)" : "none",
+      zIndex: 2,
+    };
+  }, [presentationDirection, step]);
+
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={style}>{children}</AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+export const whipPan = (): TransitionPresentation<any> => ({
+  component: WhipPanPresentation,
+  props: {},
+});
+
+// --- 5. PUSH SLIDE TRANSITION ---
+// Entering scene pushes exiting scene upwards
+const PushSlidePresentation: React.FC<TransitionPresentationComponentProps<any>> = ({
+  children,
+  presentationProgress,
+  presentationDirection,
+}) => {
+  const step = Math.floor(presentationProgress * 6) / 6;
+
+  const style = useMemo((): React.CSSProperties => {
+    if (presentationDirection === "exiting") {
+      const y = -step * 100;
+      return {
+        width: "100%",
+        height: "100%",
+        transform: `translateY(${y}%)`,
+        zIndex: 1,
+      };
+    }
+    const y = (1 - step) * 100;
+    return {
+      width: "100%",
+      height: "100%",
+      transform: `translateY(${y}%)`,
+      zIndex: 2,
+      boxShadow: "0 -20px 40px rgba(0,0,0,0.4)",
+    };
+  }, [presentationDirection, step]);
+
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={style}>{children}</AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+export const pushSlide = (): TransitionPresentation<any> => ({
+  component: PushSlidePresentation,
+  props: {},
+});
+
+// --- 6. SHAPE MASK TRANSITION ---
+// Expanding circle mask reveal from center
+const ShapeMaskPresentation: React.FC<TransitionPresentationComponentProps<any>> = ({
+  children,
+  presentationProgress,
+  presentationDirection,
+}) => {
+  const step = Math.floor(presentationProgress * 6) / 6;
+
+  const style = useMemo((): React.CSSProperties => {
+    if (presentationDirection === "exiting") {
+      return {
+        width: "100%",
+        height: "100%",
+        zIndex: 1,
+      };
+    }
+    const radius = step * 100;
+    return {
+      width: "100%",
+      height: "100%",
+      clipPath: `circle(${radius}% at 50% 50%)`,
+      zIndex: 2,
+    };
+  }, [presentationDirection, step]);
+
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={style}>{children}</AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+export const shapeMask = (): TransitionPresentation<any> => ({
+  component: ShapeMaskPresentation,
+  props: {},
+});
+
+/**
+ * Universal Transition Presentation Resolver
+ * Selects the appropriate presentation matching transition name.
+ */
+export function getTransitionPresentation(name?: string): TransitionPresentation<any> {
+  switch (name) {
+    case "torn-wipe":
+      return tornWipe();
+    case "page-shuffle":
+      return pageShuffle();
+    case "whip-pan":
+      return whipPan();
+    case "push-slide":
+      return pushSlide();
+    case "shape-mask":
+      return shapeMask();
+    case "slap-strip":
+    default:
+      return slapStrip();
+  }
+}

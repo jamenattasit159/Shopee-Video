@@ -181,6 +181,30 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
         if (resData.fallbackNotice) {
           setFallbackNotice(resData.fallbackNotice);
         }
+
+        // Audio-First Timeline: Synchronize scene durations to match voiceover length
+        if (resData.timeline) {
+          const updatedScenes = (data.scenes || []).map((s, idx) => ({
+            ...s,
+            durationSec: resData.timeline.scenesDurationSec[idx] ?? s.durationSec ?? 4,
+          }));
+          const updatedStoryboard: StoryboardPlan = {
+            ...data,
+            narrationScript: narrationText,
+            hook: {
+              ...data.hook,
+              durationSec: resData.timeline.hookDurationSec,
+            },
+            scenes: updatedScenes,
+            cta: {
+              ...data.cta,
+              durationSec: resData.timeline.ctaDurationSec,
+            },
+          };
+          setData(updatedStoryboard);
+          onUpdateStoryboard(updatedStoryboard);
+        }
+
         if (onVoiceoverGenerated) {
           onVoiceoverGenerated(resData.audioUrl);
         }

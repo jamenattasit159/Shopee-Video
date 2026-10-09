@@ -10,6 +10,7 @@ import { StickerText } from "../paper/StickerText";
 import { TornStrip } from "../paper/TornStrip";
 import { WashiTape } from "../paper/WashiTape";
 import { CTAData } from "../types";
+import { SceneMotionPlan } from "../motion/types";
 
 interface CTASceneProps {
   cta: CTAData;
@@ -18,6 +19,7 @@ interface CTASceneProps {
   productName?: string;
   primaryColor?: string;
   accentColor?: string;
+  motionPlan?: SceneMotionPlan;
 }
 
 export const CTAScene: React.FC<CTASceneProps> = ({
@@ -27,9 +29,16 @@ export const CTAScene: React.FC<CTASceneProps> = ({
   productName,
   primaryColor = PALETTE.shopeeOrange,
   accentColor = PALETTE.sunnyYellow,
+  motionPlan,
 }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
+
+  const effectiveMotion = motionPlan?.motionConfig || {
+    entryPreset: "bounce-reveal" as const,
+    textPreset: "stamp-slam" as const,
+    ambientDrift: true,
+  };
 
   // Rule: Last 6 frames hold static for comfortable reading by the user
   const isLastHold = frame >= durationInFrames - 6;
@@ -92,6 +101,7 @@ export const CTAScene: React.FC<CTASceneProps> = ({
           delay={2}
           padding="16px 36px"
           style={{ maxWidth: "880px" }}
+          motionPreset={effectiveMotion.textPreset}
         />
 
         {/* 🎁 Subtitle incentive (Rule A2: >= 56px with solid backing) */}
@@ -107,6 +117,7 @@ export const CTAScene: React.FC<CTASceneProps> = ({
               withSolidBacking={true}
               delay={6}
               rotate={1}
+              motionPreset={effectiveMotion.textPreset}
             />
           </div>
         )}
@@ -121,6 +132,9 @@ export const CTAScene: React.FC<CTASceneProps> = ({
           x={60}
           y={40}
           showTape={true}
+          motionPreset={effectiveMotion.entryPreset}
+          durationInFrames={durationInFrames}
+          enableAmbient={effectiveMotion.ambientDrift}
         />
 
         {/* 💥 Starburst Price Burst Badge (HERO PRICE >= 120px, size 500px) */}

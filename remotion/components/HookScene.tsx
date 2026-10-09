@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { FONTS, PALETTE } from "../lib/palette";
 import { useStepFrame } from "../lib/stopMotion";
 import { CutoutImage } from "../paper/CutoutImage";
@@ -10,6 +10,8 @@ import { TornStrip } from "../paper/TornStrip";
 import { WashiTape } from "../paper/WashiTape";
 import { HookData, PackId } from "../types";
 import { PACK_MAP } from "../packs";
+import { SceneMotionPlan } from "../motion/types";
+import { orchestrateSceneMotion } from "../motion/orchestrator";
 
 interface HookSceneProps {
   hook: HookData;
@@ -18,6 +20,7 @@ interface HookSceneProps {
   accentColor?: string;
   packId?: PackId;
   bgColor?: string;
+  motionPlan?: SceneMotionPlan;
 }
 
 export const HookScene: React.FC<HookSceneProps> = ({
@@ -27,13 +30,25 @@ export const HookScene: React.FC<HookSceneProps> = ({
   accentColor = PALETTE.sunnyYellow,
   packId,
   bgColor,
+  motionPlan,
 }) => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
   const stepFrame = useStepFrame(3);
   const paperTheme = hook.paperTheme || "kraft";
 
-  // Sub-beat at ~1.2s (frame 36) - playful shake/pulse
-  const isSubBeat = frame >= 36;
+  const effectiveMotion =
+    motionPlan?.motionConfig ||
+    orchestrateSceneMotion({
+      packId,
+      sceneIndex: 0,
+      totalScenes: 5,
+      sceneType: "hook",
+      durationInFrames,
+    }).motionConfig;
+
+  // Sub-beat timing is dynamic based on motion config
+  const isSubBeat = frame >= effectiveMotion.subBeatTimingFrame;
 
   const pack = packId && PACK_MAP[packId] ? PACK_MAP[packId] : null;
 
@@ -101,6 +116,7 @@ export const HookScene: React.FC<HookSceneProps> = ({
           fontSize={88} // V2 rule: Headline >= 88px
           rotate={-1.5}
           delay={2}
+          motionPreset={effectiveMotion.textPreset}
           padding="16px 36px"
           style={{ maxWidth: "880px" }}
         />
@@ -119,6 +135,7 @@ export const HookScene: React.FC<HookSceneProps> = ({
               withSolidBacking={true}
               delay={8}
               rotate={1}
+              motionPreset={effectiveMotion.textPreset}
             />
           </div>
         )}
@@ -133,6 +150,9 @@ export const HookScene: React.FC<HookSceneProps> = ({
           x={0}
           y={40}
           showTape={true}
+          motionPreset={effectiveMotion.entryPreset}
+          durationInFrames={durationInFrames}
+          enableAmbient={effectiveMotion.ambientDrift}
         >
           {/* ⚡ Sub-beat Accent: Clamped sticker relative to product image (Rule E3: max 12px beyond edge, safe non-guarantee wording per E4) */}
           {isSubBeat && (

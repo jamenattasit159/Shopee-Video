@@ -7,13 +7,24 @@ export const calculateTotalFrames = (
   props: ShopeeProductVideoProps,
   fps: number = 30
 ): number => {
+  if (props.actualDurationFrames && props.actualDurationFrames > 0) {
+    return Math.max(30, Math.round(props.actualDurationFrames));
+  }
+
   const hookDuration = props.hook?.durationSec || 3;
   const scenesDuration = (props.scenes || []).reduce(
     (sum, s) => sum + (s.durationSec || 4),
     0
   );
   const ctaDuration = props.cta?.durationSec || 3;
-  const totalSeconds = hookDuration + scenesDuration + ctaDuration;
+  const visualTotalSeconds = hookDuration + scenesDuration + ctaDuration;
+
+  // Audio-First safety: If audioDurationSec is provided, video MUST cover it plus tail buffer
+  const audioTotalSeconds = props.audioDurationSec
+    ? props.audioDurationSec + (props.tailBufferSec || 0.8)
+    : 0;
+
+  const totalSeconds = Math.max(visualTotalSeconds, audioTotalSeconds);
   return Math.max(30, Math.round(totalSeconds * fps));
 };
 

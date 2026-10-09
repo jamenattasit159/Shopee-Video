@@ -87,6 +87,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Audio-First Validation: Verify rendered video duration vs audio
+    let validationResult;
+    try {
+      const { validateRenderedVideo, resolveAudioFilePath } = await import(
+        "../../../lib/audioTimeline"
+      );
+      const audioPath = props.voiceoverUrl
+        ? resolveAudioFilePath(props.voiceoverUrl)
+        : undefined;
+      validationResult = await validateRenderedVideo(outputPublicPath, audioPath);
+      console.log(
+        `[Render API Validation] Valid: ${validationResult.isValid}, Video: ${validationResult.videoDurationSec}s, Audio: ${validationResult.audioDurationSec || 0}s`
+      );
+    } catch (valErr: any) {
+      console.warn("[Render API Validation] Error running validation:", valErr.message);
+    }
+
     const videoUrl = `/renders/${filename}`;
     if (productId) {
       await updateProductVideo(productId, videoUrl);
@@ -96,6 +113,7 @@ export async function POST(req: NextRequest) {
       success: true,
       videoUrl,
       filename,
+      validation: validationResult,
       message: "Video rendered successfully",
     });
   } catch (error: any) {

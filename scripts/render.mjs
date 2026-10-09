@@ -1,7 +1,44 @@
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderMedia } from "@remotion/renderer";
+import { exec } from "child_process";
 import fs from "fs/promises";
 import path from "path";
+import util from "util";
+
+const execAsync = util.promisify(exec);
+
+/**
+ * Resolves a public URL or relative path into an absolute filesystem path.
+ */
+function resolveAudioPath(audioUrlOrPath) {
+  if (!audioUrlOrPath) return null;
+  if (path.isAbsolute(audioUrlOrPath) && !audioUrlOrPath.startsWith("http")) {
+    return audioUrlOrPath;
+  }
+  let clean = audioUrlOrPath.replace(/^[/\\]+/, "");
+  if (clean.startsWith("public/") || clean.startsWith("public\\")) {
+    clean = clean.replace(/^public[/\\]+/, "");
+  }
+  return path.join(process.cwd(), "public", clean);
+}
+
+/**
+ * Measures actual audio duration via ffprobe.
+ */
+async function probeAudioDuration(audioPath) {
+  try {
+    const stats = await fs.stat(audioPath);
+    if (stats.size === 0) return 0;
+    const cmd = `ffprobe -v error -show_entries format=duration -of json "${audioPath}"`;
+    const { stdout } = await execAsync(cmd);
+    const data = JSON.parse(stdout);
+    const d = parseFloat(data.format?.duration);
+    return isNaN(d) ? 0 : Math.round(d * 1000) / 1000;
+  } catch (err) {
+    console.warn(`[Audio-First Timeline] ffprobe warning: ${err.message}`);
+    return 0;
+  }
+}
 
 /**
  * Usage:
@@ -27,6 +64,55 @@ async function main() {
     const raw = await fs.readFile(propsFile, "utf-8");
     inputProps = JSON.parse(raw);
     delete inputProps.showSafeZone;
+  }
+
+  // 1. Audio-First Timeline Measurement
+  let audioDurationSec = 0;
+  if (inputProps.voiceoverUrl) {
+    const resolvedPath = resolveAudioPath(inputProps.voiceoverUrl);
+    if (resolvedPath) {
+      audioDurationSec = await probeAudioDuration(resolvedPath);
+      if (audioDurationSec > 0) {
+        inputProps.audioDurationSec = audioDurationSec;
+        inputProps.tailBufferSec = inputProps.tailBufferSec || 0.8;
+
+        const targetTotalSec = audioDurationSec + inputProps.tailBufferSec;
+        const fps = 30;
+        const numScenes = (inputProps.scenes && inputProps.scenes.length) || 3;
+
+        // Synchronize scene durations if they are not already tuned
+        const curHook = inputProps.hook?.durationSec || 3;
+        const curScenes = (inputProps.scenes || []).reduce((s, sc) => s + (sc.durationSec || 4), 0);
+        const curCta = inputProps.cta?.durationSec || 3;
+        const curTotal = curHook + curScenes + curCta;
+
+        if (targetTotalSec > curTotal) {
+          const hookSec = Math.min(4.5, Math.max(3.0, targetTotalSec * 0.18));
+          const ctaSec = Math.min(4.5, Math.max(3.0, targetTotalSec * 0.18));
+          const remainingSec = Math.max(numScenes * 3.5, targetTotalSec - hookSec - ctaSec);
+          const perSceneSec = Math.round((remainingSec / numScenes) * 10) / 10;
+
+          if (inputProps.hook) inputProps.hook.durationSec = Math.round(hookSec * 10) / 10;
+          if (inputProps.cta) inputProps.cta.durationSec = Math.round(ctaSec * 10) / 10;
+          if (inputProps.scenes) {
+            inputProps.scenes.forEach((sc) => {
+              sc.durationSec = perSceneSec;
+            });
+          }
+
+          const synchronizedTotalSec = Math.round((hookSec + perSceneSec * numScenes + ctaSec) * 10) / 10;
+          inputProps.actualDurationFrames = Math.ceil(synchronizedTotalSec * fps);
+
+          console.log(
+            `[Audio-First Timeline] Synchronized to narration (${audioDurationSec.toFixed(2)}s + ${inputProps.tailBufferSec}s buffer): Hook=${hookSec}s, ${numScenes}xScenes=${perSceneSec}s, CTA=${ctaSec}s (Total: ${synchronizedTotalSec}s / ${inputProps.actualDurationFrames} frames)`
+          );
+        } else {
+          console.log(
+            `[Audio-First Timeline] Visual duration (${curTotal}s) already covers narration (${audioDurationSec}s).`
+          );
+        }
+      }
+    }
   }
 
   const outputPath = outputFile
@@ -81,6 +167,33 @@ async function main() {
 
   const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log(`[Remotion Engine] Render completed in ${durationSec}s! Output: ${outputPath}`);
+
+  // 2. Post-Render Validation via ffprobe
+  try {
+    const probeCmd = `ffprobe -v error -show_entries format=duration -of json "${outputPath}"`;
+    const { stdout: probeOut } = await execAsync(probeCmd);
+    const probeData = JSON.parse(probeOut);
+    const renderedDurationSec = parseFloat(probeData.format?.duration);
+
+    if (!isNaN(renderedDurationSec)) {
+      if (audioDurationSec > 0) {
+        const margin = renderedDurationSec - audioDurationSec;
+        if (margin >= -0.05) {
+          console.log(
+            `[Validation PASSED] Video duration (${renderedDurationSec.toFixed(2)}s) covers voiceover (${audioDurationSec.toFixed(2)}s) with margin +${margin.toFixed(2)}s.`
+          );
+        } else {
+          console.warn(
+            `[Validation WARNING] Video duration (${renderedDurationSec.toFixed(2)}s) is shorter than voiceover (${audioDurationSec.toFixed(2)}s) by ${Math.abs(margin).toFixed(2)}s!`
+          );
+        }
+      } else {
+        console.log(`[Validation] Rendered video duration: ${renderedDurationSec.toFixed(2)}s`);
+      }
+    }
+  } catch (valErr) {
+    console.warn("[Validation] Could not run ffprobe on rendered video:", valErr.message);
+  }
 
   // Also copy to root ./renders if rendered inside public/renders
   try {
