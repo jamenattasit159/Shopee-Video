@@ -1,5 +1,164 @@
 [
   {
+    "id": "prod_1791529123039",
+    "name": "Bond Perfume Lotion Aries 200 ml.",
+    "price": "กลิ่นหอมราคาดี",
+    "highlights": "โลชั่นน้ำหอมเนื้อบางเบา, ซึมไว ไม่เหนียว, กลิ่นหอมเย้ายวนติดทนตลอดวัน, บำรุงผิวชุ่มชื้นนุ่มเด้ง, ปลอดภัยไร้สารอันตราย",
+    "tone": "exciting",
+    "cta": "ของดีของเด็ด รีบหาใช้น้า ในตะกร้าด่วนๆ",
+    "images": [
+      "/uploads/1791529123040_0_th-11134207-7ra0h-mb7oc7xbke4h27_resize_w450_nl.webp",
+      "/uploads/1791529123041_1_th-11134207-7ra0h-mc8yht9vj80490_resize_w450_nl.webp",
+      "/uploads/1791529123042_2_th-11134207-7ra0k-mbnhc4tnf32w20_resize_w450_nl.webp",
+      "/uploads/1791529123043_3_th-11134207-7ra0o-mcbshsc1vvubc5_resize_w450_nl.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "POV: เจอของดีราคาโดนใจ",
+        "headlineLines": [
+          "POV: เจอของดี",
+          "ราคาโดนใจ"
+        ],
+        "subheadline": "หอมติดตัวทั้งวัน",
+        "captionLines": [
+          "โลชั่นน้ำหอม",
+          "เนื้อดีเวอร์🔥"
+        ],
+        "badgeText": "✨ ตัวหอมฟุ้ง",
+        "highlightWord": "ราคาโดนใจ",
+        "paperTheme": "kraft",
+        "durationSec": 4.5
+      },
+      "scenes": [
+        {
+          "highlightTitle": "สัมผัสบางเบาซึมไวสุดๆ",
+          "headlineLines": [
+            "สัมผัสบางเบา",
+            "ซึมไวสุดๆ"
+          ],
+          "highlightDesc": "ไม่เหนียวเหนอะหนะ",
+          "captionLines": [
+            "บำรุงล้ำลึก",
+            "ผิวเนียนนุ่ม"
+          ],
+          "stickerText": "💧 ซึมไวไม่เหนอะ",
+          "highlightWord": "บางเบา",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 7.3
+        },
+        {
+          "highlightTitle": "กลิ่นหอมฟุ้งติดทนทั้งวัน",
+          "headlineLines": [
+            "กลิ่นหอมฟุ้งติดทนทั้งวัน"
+          ],
+          "highlightDesc": "เย้ายวนชวนหลง",
+          "captionLines": [
+            "ฟีลน้ำหอมแพง",
+            "คุ้มตาแตกเลย"
+          ],
+          "stickerText": "💖 หอมติดทนนาน",
+          "highlightWord": "หอมฟุ้ง",
+          "layout": "callout-circle",
+          "paperTheme": "cream-grid",
+          "imageIndex": 1,
+          "durationSec": 7.3
+        },
+        {
+          "highlightTitle": "ผิวสวยใส่นุ่มเด้งดึ๋ง",
+          "headlineLines": [
+            "ผิวสวยใส่นุ่ม",
+            "เด้งดึ๋ง"
+          ],
+          "highlightDesc": "ชุ่มชื้นตลอดวัน",
+          "captionLines": [
+            "ไร้สารอันตราย",
+            "ใช้ได้ทุกวัน"
+          ],
+          "stickerText": "💧 ล็อกความชุ่มชื้น",
+          "highlightWord": "นุ่มเด้ง",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 2,
+          "durationSec": 7.3
+        }
+      ],
+      "cta": {
+        "ctaTitle": "ของดีราคาคุ้มรีบกดเลยค้าบ!",
+        "headlineLines": [
+          "ของดีราคาคุ้ม",
+          "รีบกดเลยค้าบ!"
+        ],
+        "ctaSubtitle": "ดีลเดือดลดกระหน่ำ",
+        "captionLines": [
+          "เก็บโค้ดส่งฟรี",
+          "ลดเพิ่มคุ้มสุด"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 4.5
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (supermarket-flyer)"
+      },
+      "audioSuggestion": {
+        "mood": "ตื่นเต้น เร่งเร้า ชวนช้อป",
+        "musicGenre": "TikTok Upbeat Affiliate Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
+      },
+      "narrationScript": "POV: เจอโลชั่นน้ำหอมกลิ่นผู้ดี! ราคาดีแบบตะโกน! เนื้อบางเบา ซึมไว ไม่เหนอะเลยแม่! บำรุงผิวให้เนียนนุ่มด้วยนะ กลิ่นหอมฟุ้งติดทนตลอดวัน ฟีลเหมือนฉีดน้ำหอมแพงๆ เลยอ่ะ! ผิวสวยใส นุ่มเด้ง ชุ่มชื้นทั้งวัน แถมยังปลอดภัยไร้สารอันตรายด้วย ของดีราคาคุ้ม รีบไปตำด่วนๆ เลย! เก็บโค้ดส่งฟรี ลดเพิ่มอีกเพียบ! กดตะกร้าส้มตอนนี้เลยจ้า!",
+      "styleDNA": {
+        "seed": 936072620,
+        "pack": "supermarket-flyer",
+        "palette": "supermarket-flyer-analogous-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "fontPair": "mali-playful",
+        "structure": "price-first",
+        "hookFormula": "pov",
+        "layouts": [
+          "hero-center",
+          "callout-circle",
+          "polaroid-stack"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "page-shuffle"
+        ],
+        "tempo": "hyper",
+        "stickerShape": "cloud",
+        "sfxKit": "tactile-pop"
+      }
+    },
+    "createdAt": "2026-10-09T06:59:44.230Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/Bond-Perfume-Lotion-Aries-200-ml.-i.7880270.41306410059?extraParams=%7B%22display_model_id%22%3A265537819447%2C%22model_selection_logic%22%3A3%7D",
+      "shopId": "7880270",
+      "itemId": "41306410059",
+      "fetchedAt": "2026-10-09T06:56:36.514Z",
+      "confirmedAt": "2026-10-09T06:58:42.790Z"
+    },
+    "category": "Beauty & Personal Care",
+    "facts": {
+      "brand": "Bond",
+      "productType": "Perfume Lotion",
+      "count": "200 ml."
+    },
+    "voiceoverUrl": "/uploads/gemini_1791530106165.wav",
+    "audioDurationSec": 29.96,
+    "actualDurationFrames": 927,
+    "renderedVideoUrl": "/renders/shopee_prod_1791529123039_test_fixed.mp4"
+  },
+  {
     "id": "prod_1791519258792",
     "name": "Bond Shower Gel Head to Toe Active Rush 150 ml",
     "price": "ลดโหดเหมือนโกรธกัน",

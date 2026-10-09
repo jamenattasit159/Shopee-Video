@@ -7,10 +7,6 @@ export const calculateTotalFrames = (
   props: ShopeeProductVideoProps,
   fps: number = 30
 ): number => {
-  if (props.actualDurationFrames && props.actualDurationFrames > 0) {
-    return Math.max(30, Math.round(props.actualDurationFrames));
-  }
-
   const hookDuration = props.hook?.durationSec || 3;
   const scenesDuration = (props.scenes || []).reduce(
     (sum, s) => sum + (s.durationSec || 4),
@@ -24,8 +20,18 @@ export const calculateTotalFrames = (
     ? props.audioDurationSec + (props.tailBufferSec || 0.8)
     : 0;
 
-  const totalSeconds = Math.max(visualTotalSeconds, audioTotalSeconds);
-  return Math.max(30, Math.round(totalSeconds * fps));
+  const minRequiredFrames = Math.max(
+    Math.round(visualTotalSeconds * fps),
+    Math.round(audioTotalSeconds * fps)
+  );
+
+  const explicitFrames =
+    props.actualDurationFrames && props.actualDurationFrames > 0
+      ? Math.round(props.actualDurationFrames)
+      : 0;
+
+  // Audio-First guarantee: Video length must NEVER be shorter than the audio + tail buffer or visual storyboard
+  return Math.max(30, Math.max(explicitFrames, minRequiredFrames));
 };
 
 export const RemotionRoot: React.FC = () => {

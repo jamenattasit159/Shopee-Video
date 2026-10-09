@@ -1,4 +1,5 @@
 import { exec } from "child_process";
+import fsSync from "fs";
 import fs from "fs/promises";
 import path from "path";
 import util from "util";
@@ -36,17 +37,26 @@ export function resolveAudioFilePath(audioUrlOrPath: string): string {
   if (clean.startsWith("http://") || clean.startsWith("https://")) {
     try {
       const parsed = new URL(clean);
-      clean = parsed.pathname;
+      clean = decodeURIComponent(parsed.pathname);
     } catch {
       // fallback
     }
   }
 
-  if (path.isAbsolute(clean)) {
+  // Strip query params or hash if present
+  clean = clean.split("?")[0].split("#")[0];
+
+  // On Windows, paths starting with '/' or '\' are treated as isAbsolute=true by Node,
+  // pointing to root of current drive (e.g., C:\uploads\...), NOT the project folder!
+  // A true disk absolute path on Windows must start with a drive letter (e.g. C:\ or C:/).
+  const isWindowsAbsolute = /^[a-zA-Z]:[/\\]/.test(clean);
+  const isPosixAbsolute = process.platform !== "win32" && clean.startsWith("/");
+
+  if ((isWindowsAbsolute || isPosixAbsolute) && fsSync.existsSync(clean)) {
     return clean;
   }
 
-  // Handle URL like /uploads/voice_123.mp3 or public/uploads/...
+  // Otherwise, treat as path relative to public/
   clean = clean.replace(/^[/\\]+/, "");
   if (clean.startsWith("public/") || clean.startsWith("public\\")) {
     clean = clean.replace(/^public[/\\]+/, "");

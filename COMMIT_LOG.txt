@@ -5,6 +5,37 @@
 โดยระบุ: รหัส Commit (Hash), วันที่/เวลา, ผู้แก้ไข, เรื่อง/หัวข้อ และรายละเอียดสิ่งที่แก้ไข
 ================================================================================
 
+[COMMIT RECORD #015]
+Commit Hash: a2b4d7b1a6a5cc9c8df2356b51f9c3a39a4038b6 (a2b4d7b)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 14:45:49 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     fix(timeline): resolve windows audio path probing and prevent stale frame count truncation
+รายละเอียดสิ่งที่แก้ไข:
+1. แก้ไขปัญหาวิดีโอตัดจบที่ 18 วินาทีทั้งที่เสียงพากย์ยาว 30 วินาที (จากกรณีไฟล์ shopee_prod_1791529123039):
+   - แก้ไข Path Resolution Bug บนระบบ Windows ใน `src/lib/audioTimeline.ts` และ `scripts/render.mjs`:
+     เดิมทีคำสั่ง `path.isAbsolute('/uploads/...')` บน Windows จะประเมินผลเป็น `true` ส่งผลให้ระบบอ้างอิงไปยัง `C:\uploads\...` (ซึ่งไม่มีอยู่จริง) แทนที่จะเป็นโฟลเดอร์ `public/uploads` ในโปรเจกต์ ทำให้ `ffprobe` ล้มเหลวและวัดความยาวเสียงพากย์ได้ 0 วินาทีเสมอ
+     ได้ปรับปรุงฟังก์ชัน `resolveAudioFilePath` และ `resolveAudioPath` ให้ตรวจสอบ drive letter (`^[a-zA-Z]:[/\\]`) และ `fsSync.existsSync` อย่างแม่นยำ รวมถึงตัด query parameter ออก ทำให้ `ffprobe` เข้าถึงไฟล์เสียงจริงได้ถูกต้อง 100%
+2. ป้องกัน Stale Frame Count Truncation ใน `remotion/Root.tsx`:
+   - ปรับปรุง `calculateTotalFrames`: ป้องกันกรณีที่ `actualDurationFrames` จากการสร้างเสียงรอบก่อนหน้า (เช่น 540 เฟรม หรือ 18 วินาที) ค้างอยู่ในฐานข้อมูล แล้วมาตัดความยาววิดีโอให้สั้นกว่าเสียงจริง
+   - บังคับใช้เงื่อนไข Audio-First Safety: ความยาววิดีโอต้องไม่สั้นกว่าความยาวเสียงจริง (`audioTotalSeconds * fps`) และความยาวฉากรวม (`visualTotalSeconds * fps`) เสมอ
+3. เพิ่ม Audio-First Pre-flight Synchronization ใน `src/app/api/render-video/route.ts`:
+   - ก่อนสั่งรัน worker เรนเดอร์ ระบบจะตรวจสอบความยาวเสียงจริงด้วย `ffprobe` และจัดสรรเวลาฉาก Hook, Scenes, CTA และคำนวณ `actualDurationFrames` ใหม่โดยอัตโนมัติ เพื่อป้องกันข้อมูลคลาดเคลื่อนตั้งแต่ระดับ API
+4. เสริมความปลอดภัยใน `scripts/render.mjs`:
+   - บังคับให้ `inputProps.actualDurationFrames` มีค่าครอบคลุมทั้ง `targetTotalSec * fps` และ `curTotal * fps` เสมอ
+5. อัปเดตข้อมูลและเรนเดอร์ทดสอบสินค้า `prod_1791529123039` ใหม่:
+   - ทดสอบเรนเดอร์ได้ผลลัพธ์วิดีโอ 30.95 วินาที ครอบคลุมเสียง Gemini 29.96 วินาทีได้อย่างสมบูรณ์ (+0.99s tail buffer)
+   - ชุดทดสอบทั้งหมด 31 assertions ผ่าน 100%
+ไฟล์ที่เปลี่ยนแปลง (12 files):
+- data/products.json
+- remotion/Root.tsx
+- scripts/render.mjs
+- src/app/api/render-video/route.ts
+- src/lib/audioTimeline.ts
+- public/uploads/ (ไฟล์รูปภาพและเสียงสินค้ารอบล่าสุด)
+
+--------------------------------------------------------------------------------
+
 [COMMIT RECORD #014]
 Commit Hash: 9aa2ae060c08304553f463f0c8a0c49ae0ae613b (9aa2ae0)
 Author:      jamenattasit159 <nattasitdol19@gmail.com>

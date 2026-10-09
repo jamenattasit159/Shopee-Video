@@ -23,6 +23,37 @@ export async function POST(req: NextRequest) {
     // Guarantee that preview guides like showSafeZone are NEVER rendered into the video
     delete props.showSafeZone;
 
+    // Audio-First Pre-flight: Proactively probe and synchronize timeline if voiceover is present
+    if (props.voiceoverUrl) {
+      try {
+        const { measureAudioDuration, synchronizeTimelineToAudio } = await import(
+          "../../../lib/audioTimeline"
+        );
+        const audioMeta = await measureAudioDuration(props.voiceoverUrl);
+        if (audioMeta.isValid && audioMeta.durationSec > 0) {
+          const numScenes = props.scenes?.length || 3;
+          const synced = synchronizeTimelineToAudio({
+            audioDurationSec: audioMeta.durationSec,
+            numScenes,
+            fps: 30,
+            tailBufferSec: props.tailBufferSec || 0.8,
+          });
+
+          props.audioDurationSec = audioMeta.durationSec;
+          props.actualDurationFrames = synced.totalDurationFrames;
+          if (props.hook) props.hook.durationSec = synced.hookDurationSec;
+          if (props.cta) props.cta.durationSec = synced.ctaDurationSec;
+          if (props.scenes) {
+            props.scenes.forEach((sc: any, idx: number) => {
+              sc.durationSec = synced.scenesDurationSec[idx] ?? sc.durationSec ?? 4;
+            });
+          }
+        }
+      } catch (audioErr: any) {
+        console.warn("[Render Video API] Audio pre-probe warning:", audioErr.message);
+      }
+    }
+
     // Write temp props file for the render worker
     const tempDir = path.join(process.cwd(), ".tmp");
     await fs.mkdir(tempDir, { recursive: true });

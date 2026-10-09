@@ -1,6 +1,7 @@
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderMedia } from "@remotion/renderer";
 import { exec } from "child_process";
+import fsSync from "fs";
 import fs from "fs/promises";
 import path from "path";
 import util from "util";
@@ -18,16 +19,23 @@ function resolveAudioPath(audioUrlOrPath) {
   if (clean.startsWith("http://") || clean.startsWith("https://")) {
     try {
       const parsed = new URL(clean);
-      clean = parsed.pathname;
+      clean = decodeURIComponent(parsed.pathname);
     } catch {
       // fallback
     }
   }
 
-  if (path.isAbsolute(clean)) {
+  // Strip query params or hash if present
+  clean = clean.split("?")[0].split("#")[0];
+
+  const isWindowsAbsolute = /^[a-zA-Z]:[/\\]/.test(clean);
+  const isPosixAbsolute = process.platform !== "win32" && clean.startsWith("/");
+
+  if ((isWindowsAbsolute || isPosixAbsolute) && fsSync.existsSync(clean)) {
     return clean;
   }
 
+  // Otherwise, treat as path relative to public/
   clean = clean.replace(/^[/\\]+/, "");
   if (clean.startsWith("public/") || clean.startsWith("public\\")) {
     clean = clean.replace(/^public[/\\]+/, "");
@@ -114,14 +122,24 @@ async function main() {
           }
 
           const synchronizedTotalSec = Math.round((hookSec + perSceneSec * numScenes + ctaSec) * 10) / 10;
-          inputProps.actualDurationFrames = Math.ceil(synchronizedTotalSec * fps);
+          inputProps.actualDurationFrames = Math.max(
+            inputProps.actualDurationFrames || 0,
+            Math.ceil(synchronizedTotalSec * fps)
+          );
 
           console.log(
             `[Audio-First Timeline] Synchronized to narration (${audioDurationSec.toFixed(2)}s + ${inputProps.tailBufferSec}s buffer): Hook=${hookSec}s, ${numScenes}xScenes=${perSceneSec}s, CTA=${ctaSec}s (Total: ${synchronizedTotalSec}s / ${inputProps.actualDurationFrames} frames)`
           );
         } else {
+          const minRequiredFrames = Math.max(
+            Math.ceil(curTotal * fps),
+            Math.ceil(targetTotalSec * fps)
+          );
+          if (!inputProps.actualDurationFrames || inputProps.actualDurationFrames < minRequiredFrames) {
+            inputProps.actualDurationFrames = minRequiredFrames;
+          }
           console.log(
-            `[Audio-First Timeline] Visual duration (${curTotal}s) already covers narration (${audioDurationSec}s).`
+            `[Audio-First Timeline] Visual duration (${curTotal}s) already covers narration (${audioDurationSec}s). Required frames: ${inputProps.actualDurationFrames}`
           );
         }
       }
