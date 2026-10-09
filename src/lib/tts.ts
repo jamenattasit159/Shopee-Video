@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import fs from "fs/promises";
 import path from "path";
 import util from "util";
+import { GoogleGenAI } from "@google/genai";
 import { StoryboardPlan } from "../../remotion/types";
 
 const execAsync = util.promisify(exec);
@@ -208,48 +209,33 @@ export async function synthesizeGeminiVoiceover(
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/interactions?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "gemini-3.8-flash-tts",
-      input: [
-        {
-          type: "user_input",
-          content: [
-            {
-              type: "text",
-              text: text.trim(),
-              annotations: [
-                {
-                  type: "speech_metadata",
-                  style: style,
-                },
-              ],
+  const ai = new GoogleGenAI({ apiKey });
+  const response = await ai.models.generateContent({
+    model: "gemini-3.8-flash-tts",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: text.trim(),
+            speechMetadata: {
+              style: style,
             },
-          ],
-        },
-      ],
-      response_format: {
-        type: "audio",
-        mime_type: "audio/wav",
-      },
-      generation_config: {
-        speech_config: [
-          { voice: voiceName },
+          },
         ],
       },
-    }),
+    ],
+    config: {
+      responseModalities: ["AUDIO"],
+      speechConfig: {
+        voiceConfig: {
+          voice: voiceName,
+        },
+      },
+    },
   });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini TTS API error (${response.status}): ${errText}`);
-  }
-
-  const data = await response.json();
-  const base64Data = data.output_audio?.data;
+  const base64Data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   if (!base64Data) {
     throw new Error("No output_audio received from Gemini TTS");
   }

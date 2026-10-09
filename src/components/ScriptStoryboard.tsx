@@ -16,11 +16,12 @@ import {
   Wand2,
   Zap,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PackId, StoryboardPlan } from "../../remotion/types";
 import { CaptionPackage, generatePostCaptions } from "../lib/captions";
 import { buildNaturalNarrationText } from "../lib/narrationHelper";
 import { ALL_PACK_IDS, PACK_INFO, rerollClientStyleDNA } from "../lib/styleConstants";
+import { VoiceCloningModal, ReplicatedVoiceItem } from "./VoiceCloningModal";
 
 interface ScriptStoryboardProps {
   productName: string;
@@ -50,12 +51,30 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
   const [voiceType, setVoiceType] = useState<"female" | "male">("female");
   const [speechRate, setSpeechRate] = useState<string>("+0%");
   const [geminiVoice, setGeminiVoice] = useState<string>("Puck");
+  const [replicatedVoices, setReplicatedVoices] = useState<ReplicatedVoiceItem[]>([]);
+  const [isCloningModalOpen, setIsCloningModalOpen] = useState<boolean>(false);
   const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [currentVoiceUrl, setCurrentVoiceUrl] = useState<string | null>(
     voiceoverUrl || null
   );
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const fetchReplicatedVoices = async () => {
+    try {
+      const res = await fetch("/api/replicated-voices");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.voices)) {
+        setReplicatedVoices(data.voices);
+      }
+    } catch (err) {
+      console.error("Failed to load replicated voices:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchReplicatedVoices();
+  }, []);
 
   // Editable voiceover script state
   const [narrationText, setNarrationText] = useState<string>(
@@ -457,19 +476,39 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
           <div className="bg-white/90 border border-orange-200/80 rounded-xl p-3.5 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               {/* Gemini Voice Selector */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-bold text-stone-700 whitespace-nowrap">โมเดลเสียง Gemini:</span>
                 <select
                   value={geminiVoice}
                   onChange={(e) => setGeminiVoice(e.target.value)}
                   className="bg-white border border-stone-300 text-xs text-stone-800 rounded-lg px-2.5 py-1.5 shadow-2xs focus:outline-none focus:border-orange-500 font-medium"
                 >
-                  <option value="Puck">🎙️ Puck (สดใส มีเอเนอร์จี้ ชวนช้อป)</option>
-                  <option value="Kore">🎙️ Kore (มั่นใจ สุภาพ พรีเมียม)</option>
-                  <option value="Aoede">🎙️ Aoede (ฟังสบาย เป็นกันเอง)</option>
-                  <option value="Charon">🎙️ Charon (สุขุม น่าเชื่อถือ)</option>
-                  <option value="Fenrir">🎙️ Fenrir (ตื่นเต้น เร้าใจ)</option>
+                  {replicatedVoices.length > 0 && (
+                    <optgroup label="🌟 เสียงโคลนของฉัน (Replicated)">
+                      {replicatedVoices.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          👤 {v.displayName}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <optgroup label="🎙️ เสียงมาตรฐาน Gemini (Prebuilt)">
+                    <option value="Puck">🎙️ Puck (สดใส มีเอเนอร์จี้ ชวนช้อป)</option>
+                    <option value="Kore">🎙️ Kore (มั่นใจ สุภาพ พรีเมียม)</option>
+                    <option value="Aoede">🎙️ Aoede (ฟังสบาย เป็นกันเอง)</option>
+                    <option value="Charon">🎙️ Charon (สุขุม น่าเชื่อถือ)</option>
+                    <option value="Fenrir">🎙️ Fenrir (ตื่นเต้น เร้าใจ)</option>
+                  </optgroup>
                 </select>
+
+                <button
+                  type="button"
+                  onClick={() => setIsCloningModalOpen(true)}
+                  className="btn btn-primary btn-xs rounded-lg gap-1.5 font-medium shadow-2xs"
+                >
+                  <Mic className="w-3.5 h-3.5" />
+                  โคลนเสียงของฉัน
+                </button>
               </div>
 
               <div className="text-[11px] text-stone-500">
@@ -756,6 +795,16 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Gemini 3.8 Voice Replication Modal */}
+      <VoiceCloningModal
+        isOpen={isCloningModalOpen}
+        onClose={() => setIsCloningModalOpen(false)}
+        onVoiceSelected={(voiceId, voiceName) => {
+          setGeminiVoice(voiceId);
+          fetchReplicatedVoices();
+        }}
+      />
     </div>
   );
 };
