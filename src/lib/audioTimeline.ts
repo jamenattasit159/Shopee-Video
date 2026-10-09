@@ -29,12 +29,25 @@ export interface SynchronizedTimeline {
  * Resolves a public URL or relative path into an absolute filesystem path.
  */
 export function resolveAudioFilePath(audioUrlOrPath: string): string {
-  if (path.isAbsolute(audioUrlOrPath) && !audioUrlOrPath.startsWith("http")) {
-    return audioUrlOrPath;
+  if (!audioUrlOrPath) return "";
+  let clean = audioUrlOrPath.trim();
+
+  // If it's a URL (http:// or https://), extract pathname
+  if (clean.startsWith("http://") || clean.startsWith("https://")) {
+    try {
+      const parsed = new URL(clean);
+      clean = parsed.pathname;
+    } catch {
+      // fallback
+    }
+  }
+
+  if (path.isAbsolute(clean)) {
+    return clean;
   }
 
   // Handle URL like /uploads/voice_123.mp3 or public/uploads/...
-  let clean = audioUrlOrPath.replace(/^[/\\]+/, "");
+  clean = clean.replace(/^[/\\]+/, "");
   if (clean.startsWith("public/") || clean.startsWith("public\\")) {
     clean = clean.replace(/^public[/\\]+/, "");
   }

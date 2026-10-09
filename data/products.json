@@ -1,5 +1,169 @@
 [
   {
+    "id": "prod_1791519258792",
+    "name": "Bond Shower Gel Head to Toe Active Rush 150 ml",
+    "price": "ลดโหดเหมือนโกรธกัน",
+    "highlights": "อาบสะอาด สระผมสดชื่น, เจลอาบน้ำและสระผมในขวดเดียว, ใช้ได้ทุกวัน, สะดวกสุดๆ",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791519258792_0_th-11134207-81zte-mhriaa2gj1ttbc_resize_w450_nl.webp",
+      "/uploads/1791519258794_1_th-11134207-81ztg-mjdsycmeb11e21_resize_w450_nl.webp",
+      "/uploads/1791519258795_2_th-11134207-81ztj-mjduhzcl55hh48_resize_w450_nl.webp",
+      "/uploads/1791519258796_3_th-11134207-81zto-mjdsyipuaiv8f9_resize_w450_nl.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "เหตุผลดี๊ดี ที่ต้องมีติดบ้าน!",
+        "headlineLines": [
+          "เหตุผลดี๊ดี",
+          "ที่ต้องมีติดบ้าน!"
+        ],
+        "subheadline": "คุ้มเกินราคา อาบสะอาด สระสดชื่น",
+        "captionLines": [
+          "เจลอาบน้ำตัวดัง",
+          "ที่ต้องลองเลย!"
+        ],
+        "badgeText": "🛁 อาบสระจบในขวดเดียว",
+        "highlightWord": "ดี๊ดี",
+        "paperTheme": "kraft",
+        "durationSec": 4.5
+      },
+      "scenes": [
+        {
+          "highlightTitle": "💥 รวมในขวดเดียวจบ!",
+          "headlineLines": [
+            "💥 รวมใน",
+            "ขวดเดียวจบ!"
+          ],
+          "highlightDesc": "ไม่ต้องพกหลายขวด พกพาสะดวก",
+          "captionLines": [
+            "ไม่ต้องพกหลายขวด",
+            "พกพาสะดวก"
+          ],
+          "stickerText": "✨ เนื้อสัมผัสบางเบา",
+          "highlightWord": "รวม",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 1,
+          "durationSec": 5.8
+        },
+        {
+          "highlightTitle": "🚿 อาบสะอาด สระผมสดชื่น",
+          "headlineLines": [
+            "🚿 อาบสะอาด",
+            "สระผมสดชื่น"
+          ],
+          "highlightDesc": "ฟองนุ่มละมุน ผิวและผมไม่แห้งตึง",
+          "captionLines": [
+            "ฟองนุ่มละมุน",
+            "ผิวและผมไม่แห้งตึง"
+          ],
+          "stickerText": "💧 ล็อกความชุ่มชื้น",
+          "highlightWord": "สดชื่น",
+          "layout": "product-focus",
+          "paperTheme": "halftone-blue",
+          "imageIndex": 2,
+          "durationSec": 5.8
+        },
+        {
+          "highlightTitle": "🗓️ ใช้ได้ทุกวันเลย",
+          "headlineLines": [
+            "🗓️ ใช้ได้",
+            "ทุกวันเลย"
+          ],
+          "highlightDesc": "สูตรอ่อนโยน เหมาะกับทุกสภาพผิว",
+          "captionLines": [
+            "สะดวกในขวดเดียว",
+            "ของมันต้องมี!"
+          ],
+          "stickerText": "🛡️ ปลอดภัยไร้สารเคมี",
+          "highlightWord": "ทุกวัน",
+          "layout": "flat-lay",
+          "paperTheme": "pastel-pink",
+          "imageIndex": 3,
+          "durationSec": 5.8
+        }
+      ],
+      "cta": {
+        "ctaTitle": "จิ้มตะกร้าส้มซ้ายล่างเลย!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างเลย!"
+        ],
+        "ctaSubtitle": "ลดโหดเหมือนโกรธกัน",
+        "captionLines": [
+          "ลดโหดเหมือนโกรธกัน",
+          "รีบกดก่อนโค้ดหมด!"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 4.5
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (comic-popart)"
+      },
+      "audioSuggestion": {
+        "mood": "ตื่นเต้น เร่งเร้า ชวนช้อป",
+        "musicGenre": "TikTok Upbeat Affiliate Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
+      },
+      "narrationScript": "สวัสดีค่า! วันนี้มาเปิดวาร์ปไอเทมเด็ดที่ต้องมีติดบ้าน! เจลอาบน้ำ Bond Head to Toe Active Rush ตัวนี้บอกเลยว่าปังมาก! ทำไมต้องมีน่ะเหรอ? ข้อแรกเลยนะ! เค้าเป็นเจลอาบน้ำและสระผมในขวดเดียว! สะดวกสุดๆ พกพาง่าย ประหยัดเวลาไปอี๊ก! ข้อสอง! อาบสะอาด สระผมก็สดชื่นสุดๆ กลิ่นหอมติดทนทั้งวัน ผิวและผมไม่แห้งตึง มันดีงามมาก! และข้อสุดท้าย! ใช้ได้ทุกวันเลยนะทุกคน! สูตรอ่อนโยน เหมาะกับทุกสภาพผิว บอกเลยว่าของมันต้องมีจริงๆ! ตอนนี้มีโปรลดโหดเหมือนโกรธกัน! คุ้มไม่ไหวแล้ว! ใครอยากได้ฟิลอาบน้ำแบบ Active Rush รีบเลยนะ! กดตะกร้าส้มซ้ายล่างด่วน! โค้ดส่งฟรีมีจำนวนจำกัด รีบกดก่อนหมดนะทุกคน!",
+      "styleDNA": {
+        "seed": 1118200258,
+        "pack": "comic-popart",
+        "palette": "comic-popart-analogous-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "fontPair": "prompt-heavy",
+        "structure": "price-first",
+        "hookFormula": "listicle-number",
+        "layouts": [
+          "hero-center",
+          "callout-circle",
+          "polaroid-stack"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "page-shuffle"
+        ],
+        "tempo": "chill",
+        "stickerShape": "wavy-circle",
+        "sfxKit": "playful-cartoon"
+      }
+    },
+    "createdAt": "2026-10-09T04:15:27.850Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/Bond-Shower-Gel-Head-to-Toe-Active-Rush-150-ml-i.7880270.45402102407",
+      "shopId": "7880270",
+      "itemId": "45402102407",
+      "fetchedAt": "2026-10-09T02:13:30.166Z",
+      "confirmedAt": "2026-10-09T04:14:18.630Z"
+    },
+    "category": "Personal Care",
+    "facts": {
+      "brand": "Bond",
+      "productType": "Shower Gel",
+      "count": "150 ml",
+      "claimsInTitle": [
+        "Head to Toe",
+        "Active Rush"
+      ]
+    },
+    "renderedVideoUrl": "/renders/shopee_prod_1791519258792_1791521020884.mp4",
+    "voiceoverUrl": "/uploads/gemini_1791519789727.wav",
+    "audioDurationSec": 25.76,
+    "actualDurationFrames": 798
+  },
+  {
     "id": "prod_1791512125859",
     "name": "Bond Shower Gel Head to Toe Active Rush 150 ml",
     "price": "ราคาดี",

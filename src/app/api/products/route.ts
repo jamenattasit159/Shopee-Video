@@ -155,3 +155,45 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    await ensureStorageDirectories();
+    const body = await req.json();
+    const { id, voiceoverUrl, storyboard, audioDurationSec, actualDurationFrames } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Product ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const products = await getProducts();
+    const target = products.find((p) => p.id === id);
+    if (!target) {
+      return NextResponse.json(
+        { success: false, error: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    if (voiceoverUrl !== undefined) target.voiceoverUrl = voiceoverUrl;
+    if (storyboard !== undefined) target.storyboard = storyboard;
+    if (audioDurationSec !== undefined) (target as any).audioDurationSec = audioDurationSec;
+    if (actualDurationFrames !== undefined) (target as any).actualDurationFrames = actualDurationFrames;
+
+    await saveProduct(target);
+
+    return NextResponse.json({
+      success: true,
+      product: target,
+    });
+  } catch (error: any) {
+    console.error("Error updating product:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to update product" },
+      { status: 500 }
+    );
+  }
+}

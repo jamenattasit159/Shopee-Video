@@ -32,7 +32,7 @@ interface ScriptStoryboardProps {
   onRegenerate: () => Promise<void>;
   isRegenerating: boolean;
   voiceoverUrl?: string;
-  onVoiceoverGenerated?: (url: string) => void;
+  onVoiceoverGenerated?: (url: string, durationSec?: number, timeline?: any) => void;
 }
 
 export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
@@ -206,7 +206,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
         }
 
         if (onVoiceoverGenerated) {
-          onVoiceoverGenerated(resData.audioUrl);
+          onVoiceoverGenerated(resData.audioUrl, resData.durationSec, resData.timeline);
         }
       } else {
         alert("ไม่สามารถสร้างเสียงพากย์ได้: " + (resData.error || ""));

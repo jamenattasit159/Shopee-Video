@@ -56,6 +56,12 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     setError(null);
 
     let activeVoiceUrl = videoProps.voiceoverUrl;
+    let activeAudioDuration = videoProps.audioDurationSec;
+    let activeActualDurationFrames = videoProps.actualDurationFrames;
+    let activeHook = videoProps.hook;
+    let activeScenes = videoProps.scenes;
+    let activeCta = videoProps.cta;
+
     if (!activeVoiceUrl && videoProps.hook) {
       setRenderMessage("กำลังบันทึกเสียงพากย์ AI อัตโนมัติ (Edge TTS)...");
       try {
@@ -76,6 +82,16 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
         const voiceData = await voiceRes.json();
         if (voiceData.success && voiceData.audioUrl) {
           activeVoiceUrl = voiceData.audioUrl;
+          activeAudioDuration = voiceData.durationSec;
+          activeActualDurationFrames = voiceData.timeline?.totalDurationFrames;
+          if (voiceData.timeline) {
+            activeHook = { ...activeHook, durationSec: voiceData.timeline.hookDurationSec };
+            activeScenes = (activeScenes || []).map((s, idx) => ({
+              ...s,
+              durationSec: voiceData.timeline.scenesDurationSec[idx] ?? s.durationSec ?? 4,
+            }));
+            activeCta = { ...activeCta, durationSec: voiceData.timeline.ctaDurationSec };
+          }
         }
       } catch (voiceErr) {
         console.warn("Auto-synthesizing voice failed, continuing with BGM only:", voiceErr);
@@ -93,7 +109,13 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           productId: productId || `prod_${Date.now()}`,
           props: {
             ...videoProps,
+            hook: activeHook,
+            scenes: activeScenes,
+            cta: activeCta,
             voiceoverUrl: activeVoiceUrl,
+            audioDurationSec: activeAudioDuration,
+            actualDurationFrames: activeActualDurationFrames,
+            tailBufferSec: videoProps.tailBufferSec || 0.8,
           },
         }),
       });

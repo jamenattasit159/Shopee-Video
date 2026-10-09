@@ -1,6 +1,14 @@
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import React from "react";
-import { Audio, continueRender, delayRender, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
+import {
+  Audio,
+  continueRender,
+  delayRender,
+  interpolate,
+  Sequence,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { AbsoluteFill } from "./components/AbsoluteFill";
 import { CTAScene } from "./components/CTAScene";
 import { FeatureScene } from "./components/FeatureScene";
@@ -250,7 +258,14 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
       {bgmUrl && (
         <Audio
           src={resolveMediaSrc(bgmUrl)}
-          volume={0.22}
+          volume={(f) =>
+            interpolate(
+              f,
+              [0, 15, Math.max(16, durationInFrames - 30), durationInFrames],
+              [0, 0.22, 0.22, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+            )
+          }
           loop
         />
       )}
@@ -259,7 +274,14 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
       {voiceoverUrl && (
         <Audio
           src={resolveMediaSrc(voiceoverUrl)}
-          volume={1.0}
+          volume={(f) =>
+            interpolate(
+              f,
+              [Math.max(0, durationInFrames - 15), durationInFrames],
+              [1.0, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+            )
+          }
         />
       )}
 

@@ -12,10 +12,23 @@ const execAsync = util.promisify(exec);
  */
 function resolveAudioPath(audioUrlOrPath) {
   if (!audioUrlOrPath) return null;
-  if (path.isAbsolute(audioUrlOrPath) && !audioUrlOrPath.startsWith("http")) {
-    return audioUrlOrPath;
+  let clean = audioUrlOrPath.trim();
+
+  // If it's a URL (http:// or https://), extract pathname
+  if (clean.startsWith("http://") || clean.startsWith("https://")) {
+    try {
+      const parsed = new URL(clean);
+      clean = parsed.pathname;
+    } catch {
+      // fallback
+    }
   }
-  let clean = audioUrlOrPath.replace(/^[/\\]+/, "");
+
+  if (path.isAbsolute(clean)) {
+    return clean;
+  }
+
+  clean = clean.replace(/^[/\\]+/, "");
   if (clean.startsWith("public/") || clean.startsWith("public\\")) {
     clean = clean.replace(/^public[/\\]+/, "");
   }
