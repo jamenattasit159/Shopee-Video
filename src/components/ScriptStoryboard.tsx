@@ -18,10 +18,10 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { PackId, StoryboardPlan } from "../../remotion/types";
-import { CaptionPackage, generatePostCaptions } from "../lib/captions";
 import { buildNaturalNarrationText } from "../lib/narrationHelper";
 import { ALL_PACK_IDS, PACK_INFO, rerollClientStyleDNA } from "../lib/styleConstants";
 import { VoiceCloningModal, ReplicatedVoiceItem } from "./VoiceCloningModal";
+import { ShopeeCaptionBox } from "./ShopeeCaptionBox";
 
 interface ScriptStoryboardProps {
   productName: string;
@@ -58,7 +58,6 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
   const [currentVoiceUrl, setCurrentVoiceUrl] = useState<string | null>(
     voiceoverUrl || null
   );
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const fetchReplicatedVoices = async () => {
     try {
@@ -219,8 +218,6 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
     }
   };
 
-  const captions = generatePostCaptions(productName, price, highlights, data.cta.ctaTitle);
-
   const handleRerollStyle = (forcedPack?: PackId) => {
     const newDna = rerollClientStyleDNA(data.styleDNA, forcedPack);
     const updated: StoryboardPlan = {
@@ -236,12 +233,6 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
     };
     setData(updated);
     onUpdateStoryboard(updated);
-  };
-
-  const copyToClipboard = (text: string, index: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 3000);
   };
 
   return (
@@ -767,58 +758,14 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
       </div>
 
       {/* 4. 📋 READY-TO-COPY POST CAPTIONS & HASHTAGS */}
-      <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 space-y-4 shadow-2xs">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-              <span>📋 แคปชั่นและแฮชแท็กพร้อมโพสต์ (Post Captions & Hashtags)</span>
-            </h3>
-            <p className="text-xs text-stone-500 mt-0.5">
-              กดปุ่มก็อปปี้เพื่อนำไปวางในช่องแคปชั่นตอนโพสต์คลิปบน Shopee Video / TikTok ได้ทันที
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {captions.map((cap, i) => (
-            <div
-              key={i}
-              className="bg-white border border-stone-200 rounded-xl p-4 space-y-2.5 shadow-2xs"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-orange-600">
-                  {cap.styleName}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(cap.fullPost, i)}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition ${
-                    copiedIndex === i
-                      ? "bg-emerald-600 text-white shadow-xs"
-                      : "bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-300 shadow-2xs"
-                  }`}
-                >
-                  {copiedIndex === i ? (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>คัดลอกแล้ว!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>คัดลอกแคปชั่นนี้</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <div className="text-xs text-stone-800 whitespace-pre-line leading-relaxed bg-stone-50 p-3 rounded-lg border border-stone-200 font-mono shadow-inner">
-                {cap.fullPost}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ShopeeCaptionBox
+        productName={productName}
+        price={price}
+        highlights={highlights}
+        ctaText={data.cta.ctaTitle}
+        originalUrl={data.cta.buttonText}
+        category={data.theme?.styleName}
+      />
 
       {/* Gemini 3.8 Voice Replication Modal */}
       <VoiceCloningModal

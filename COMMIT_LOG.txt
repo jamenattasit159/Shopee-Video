@@ -5,6 +5,40 @@
 โดยระบุ: รหัส Commit (Hash), วันที่/เวลา, ผู้แก้ไข, เรื่อง/หัวข้อ และรายละเอียดสิ่งที่แก้ไข
 ================================================================================
 
+[COMMIT RECORD #016]
+Commit Hash: d2c51eccfcc9aadb056c2c4e05f2fceae0769634 (d2c51ec)
+Author:      jamenattasit159 <nattasitdol19@gmail.com>
+Date/Time:   Fri Oct 9 15:37:05 2026 +0700
+Branch:      feat/audio-first-diverse-motion
+Subject:     feat(captions): add Shopee 100-word limited caption engine with AI generator and reroll variations
+รายละเอียดสิ่งที่แก้ไข:
+1. แก้ไขปัญหาแคปชั่นสำหรับโพสต์คลิปซ้ำซากจำเจ และแก้ปัญหาขีดจำกัดความยาวของ Shopee Video (ไม่เกิน 100 คำ):
+   - พัฒนาระบบ Shopee Video Caption Engine ใหม่ใน `src/lib/captions.ts`:
+     - เพิ่มฟังก์ชันนับคำภาษาไทย/อังกฤษอย่างแม่นยำด้วย `Intl.Segmenter` (`countWords`, `countChars`)
+     - เพิ่มระบบตัดคำอัตโนมัติ (`enforceWordLimit`) บังคับไม่ให้ข้อความเกินขีดจำกัด 90-100 คำเด็ดขาด
+     - เพิ่มพูลสำนวนภาษาและสไตล์แคปชั่น 5 หมวดหมู่ใหม่ (ฮุกไวสั้นกระชับ, ฟีลเพื่อนป้ายยา, ล่าดีลโค้ดส่งฟรี, แก้ปัญหาตรงจุด, มินิมอลสวยตรงปก)
+     - มีระบบสุ่มตัวเลือก (Variation Pools & Dynamic Hashtags) ตามหมวดหมู่สินค้า ทำให้การสร้างแต่ละครั้งได้ข้อความที่ไม่ซ้ำกัน
+2. สร้างคอมโพเนนต์ reusable `src/components/ShopeeCaptionBox.tsx`:
+   - แสดงตัวนับคำแบบ Real-time (เช่น `45/100 คำ`) พร้อม Badge สถานะปลอดภัย (Shopee 100 คำ Safe)
+   - มีปุ่ม "🎲 สุ่มสำนวนใหม่" (Reroll) สลับคำพูดได้ทันทีโดยไม่ต้องโหลดหน้าใหม่
+   - มีปุ่ม "✨ ให้ AI คิดแคปชั่นใหม่" เชื่อมต่อกับ Gemini 2.5 Flash สร้างไอเดียสดใหม่เฉพาะสินค้า
+   - มีกล่องข้อความที่สามารถพิมพ์แก้ไขปรับแต่งได้เอง (Editable Textarea) ก่อนกดคัดลอก
+   - มีปุ่ม "ตัดให้พอดี 100 คำ" อัตโนมัติหากผู้ใช้พิมพ์เกิน
+3. เพิ่ม API Route `src/app/api/generate-captions/route.ts`:
+   - ใช้ Gemini 2.5 Flash ในการสร้างแคปชั่น 4 สไตล์ที่เน้นขายดีบน Shopee Video โดยกำกับความยาวไม่ให้เกิน 70-80 คำ
+4. ผสานการทำงานเข้ากับ `src/components/ScriptStoryboard.tsx` และ `src/components/RenderExportModal.tsx`:
+   - แทนที่โค้ดเดิมทั้งสองหน้าด้วยคอมโพเนนต์ `ShopeeCaptionBox` เพื่อประสบการณ์ใช้งานที่ต่อเนื่องและสอดคล้องกันตาม Design System
+ไฟล์ที่เปลี่ยนแปลง (11 files):
+- src/lib/captions.ts
+- src/app/api/generate-captions/route.ts
+- src/components/ShopeeCaptionBox.tsx
+- src/components/RenderExportModal.tsx
+- src/components/ScriptStoryboard.tsx
+- data/products.json
+- public/uploads/ (รูปภาพและเสียงรอบล่าสุด)
+
+--------------------------------------------------------------------------------
+
 [COMMIT RECORD #015]
 Commit Hash: a2b4d7b1a6a5cc9c8df2356b51f9c3a39a4038b6 (a2b4d7b)
 Author:      jamenattasit159 <nattasitdol19@gmail.com>
