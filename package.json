@@ -21,6 +21,7 @@
     "@remotion/renderer": "4.0.260",
     "@remotion/shapes": "4.0.260",
     "@remotion/transitions": "4.0.260",
+    "archiver": "^8.0.0",
     "clsx": "^2.1.1",
     "daisyui": "^4.12.24",
     "lucide-react": "^0.475.0",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@remotion/cli": "^4.0.260",
+    "@types/archiver": "^8.0.0",
     "@types/node": "^22.13.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",

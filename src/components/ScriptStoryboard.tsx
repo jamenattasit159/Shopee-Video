@@ -22,6 +22,9 @@ import { CaptionPackage, generatePostCaptions } from "../lib/captions";
 import { buildNaturalNarrationText } from "../lib/narrationHelper";
 import { ALL_PACK_IDS, PACK_INFO, rerollClientStyleDNA } from "../lib/styleConstants";
 import { VoiceCloningModal, ReplicatedVoiceItem } from "./VoiceCloningModal";
+import { VoiceStylePicker } from "./VoiceStylePicker";
+import { VoiceIntensity } from "@/lib/voicePresets";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface ScriptStoryboardProps {
   productName: string;
@@ -32,7 +35,7 @@ interface ScriptStoryboardProps {
   onRegenerate: () => Promise<void>;
   isRegenerating: boolean;
   voiceoverUrl?: string;
-  onVoiceoverGenerated?: (url: string) => void;
+  onVoiceoverGenerated?: (url: string, duration?: number) => void;
 }
 
 export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
@@ -51,6 +54,14 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
   const [voiceType, setVoiceType] = useState<"female" | "male">("female");
   const [speechRate, setSpeechRate] = useState<string>("+0%");
   const [geminiVoice, setGeminiVoice] = useState<string>("Puck");
+  const [voicePresetId, setVoicePresetId] = useState<string>(
+    storyboard.voicePresetId || "vendor-live"
+  );
+  const [voiceIntensity, setVoiceIntensity] = useState<VoiceIntensity>(
+    (storyboard.voiceIntensity as VoiceIntensity) || "mid"
+  );
+  const [polishVoice, setPolishVoice] = useState<boolean>(true);
+  const [aiVoiceDisclaimer, setAiVoiceDisclaimer] = useState<boolean>(true);
   const [replicatedVoices, setReplicatedVoices] = useState<ReplicatedVoiceItem[]>([]);
   const [isCloningModalOpen, setIsCloningModalOpen] = useState<boolean>(false);
   const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
@@ -62,9 +73,8 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
 
   const fetchReplicatedVoices = async () => {
     try {
-      const res = await fetch("/api/replicated-voices");
-      const data = await res.json();
-      if (data.success && Array.isArray(data.voices)) {
+      const data = await apiFetch<any>("/api/replicated-voices", undefined, { silent: true });
+      if (data && data.success && Array.isArray(data.voices)) {
         setReplicatedVoices(data.voices);
       }
     } catch (err) {
@@ -162,40 +172,87 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
     setIsGeneratingVoice(true);
     setFallbackNotice(null);
     try {
-      const res = await fetch("/api/synthesize-voice", {
+      const payload: any = {
+        productName,
+        price,
+        customText: narrationText,
+        ttsEngine,
+        voiceType,
+        rate: speechRate,
+        geminiVoice,
+        presetId: voicePresetId,
+        intensity: voiceIntensity,
+        polish: polishVoice,
+      };
+
+      if (data.voiceLines && data.voiceLines.length > 0) {
+        payload.lines = data.voiceLines.map((vl) => ({
+          id: vl.sceneId,
+          text: vl.text,
+          role: vl.role,
+          style: vl.styleOverride,
+        }));
+      }
+
+      const resData = await apiFetch<any>("/api/synthesize-voice", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productName,
-          price,
-          customText: narrationText,
-          ttsEngine,
-          voiceType,
-          rate: speechRate,
-          geminiVoice,
-        }),
+        body: payload,
       });
-      const resData = await res.json();
-      if (resData.success && resData.audioUrl) {
-        setCurrentVoiceUrl(resData.audioUrl);
-        if (resData.fallbackNotice) {
-          setFallbackNotice(resData.fallbackNotice);
+
+      if (resData && resData.success) {
+        const primaryAudio = resData.audioUrl || (resData.files && resData.files[0]?.url);
+        if (primaryAudio) {
+          setCurrentVoiceUrl(primaryAudio);
+          if (resData.fallbackNotice) {
+            setFallbackNotice(resData.fallbackNotice);
+          }
+
+          let updatedVoiceLines = data.voiceLines;
+          if (Array.isArray(resData.files) && updatedVoiceLines && updatedVoiceLines.length > 0) {
+            updatedVoiceLines = updatedVoiceLines.map((vl) => {
+              const fileMatch = resData.files.find((f: any) => f.id === vl.sceneId);
+              if (fileMatch) {
+                return {
+                  ...vl,
+                  audioUrl: fileMatch.url,
+                  rawAudioUrl: fileMatch.rawUrl,
+                  durationSec: fileMatch.durationSec,
+                  polished: fileMatch.polished,
+                };
+              }
+              return vl;
+            });
+          }
+
+          const updatedStoryboard: StoryboardPlan = {
+            ...data,
+            voicePresetId,
+            voiceIntensity,
+            voiceLines: updatedVoiceLines,
+          };
+          setData(updatedStoryboard);
+          onUpdateStoryboard(updatedStoryboard);
+
+          if (onVoiceoverGenerated) {
+            onVoiceoverGenerated(primaryAudio, resData.duration);
+          }
         }
-        if (onVoiceoverGenerated) {
-          onVoiceoverGenerated(resData.audioUrl);
-        }
-      } else {
-        alert("ไม่สามารถสร้างเสียงพากย์ได้: " + (resData.error || ""));
       }
     } catch (err: any) {
-      console.error(err);
-      alert("เกิดข้อผิดพลาดในการสร้างเสียงพากย์: " + err.message);
+      console.error("Generate voice error:", err);
     } finally {
       setIsGeneratingVoice(false);
     }
   };
 
-  const captions = generatePostCaptions(productName, price, highlights, data.cta.ctaTitle);
+  const captions = generatePostCaptions(
+    productName,
+    price,
+    highlights,
+    data.cta.ctaTitle,
+    undefined,
+    aiVoiceDisclaimer
+  );
 
   const handleRerollStyle = (forcedPack?: PackId) => {
     const newDna = rerollClientStyleDNA(data.styleDNA, forcedPack);
@@ -524,6 +581,38 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             </div>
           </div>
         )}
+
+        {/* 🎙️ Voice Style Presets Picker */}
+        <VoiceStylePicker
+          category={storyboard.theme?.styleName}
+          hookText={data.hook?.headline || ""}
+          selectedPresetId={voicePresetId}
+          onSelectPreset={(pId) => {
+            setVoicePresetId(pId);
+            const updated = { ...data, voicePresetId: pId };
+            setData(updated);
+            onUpdateStoryboard(updated);
+          }}
+          intensity={voiceIntensity}
+          onChangeIntensity={(lvl) => {
+            setVoiceIntensity(lvl);
+            const updated = { ...data, voiceIntensity: lvl };
+            setData(updated);
+            onUpdateStoryboard(updated);
+          }}
+          polish={polishVoice}
+          onTogglePolish={setPolishVoice}
+          aiDisclaimer={aiVoiceDisclaimer}
+          onToggleAiDisclaimer={setAiVoiceDisclaimer}
+          geminiVoice={geminiVoice}
+          ttsEngine={ttsEngine}
+          voiceLines={data.voiceLines}
+          onVoiceLinesUpdated={(lines) => {
+            const updated = { ...data, voiceLines: lines };
+            setData(updated);
+            onUpdateStoryboard(updated);
+          }}
+        />
 
         {/* Fallback Notice Alert */}
         {fallbackNotice && (

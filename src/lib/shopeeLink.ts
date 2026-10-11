@@ -109,8 +109,8 @@ export function extractShopeeIds(url: string): { shopId: string | null; itemId: 
     if (qItemId) {
       return { shopId: qShopId || null, itemId: qItemId };
     }
-  } catch {
-    // ignore URL parse errors
+  } catch (err: any) {
+    console.debug(`[shopeeLink] URL parse error for ${url}:`, err?.message);
   }
 
   return { shopId: null, itemId: null };
@@ -159,8 +159,8 @@ export function extractTitleFromUrl(url: string): { title: string | null; promoT
         if (res.title && res.title.length > 3) return res;
       }
     }
-  } catch {
-    // ignore URI decode error
+  } catch (err: any) {
+    console.debug(`[shopeeLink] URI decode error for slug:`, err?.message);
   }
 
   return { title: null, promoTag: null };

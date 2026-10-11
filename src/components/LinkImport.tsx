@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ProductDraft } from "../lib/types";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface LinkImportProps {
   onDraftLoaded: (draft: ProductDraft) => void;
@@ -70,27 +71,25 @@ export const LinkImport: React.FC<LinkImportProps> = ({
     setErrorMsg(null);
 
     try {
-      const res = await fetch("/api/import-link", {
+      const data = await apiFetch<any>("/api/import-link", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           input: singleInput.trim(),
           bypassCache: forceBypass,
-        }),
+        },
       });
 
-      const data = await res.json();
-      if (data.ok && data.draft) {
+      if (data && data.ok && data.draft) {
         onDraftLoaded(data.draft);
       } else {
         setErrorMsg(
-          data.error?.message ||
+          data?.error?.message ||
             "ไม่สามารถดึงข้อมูลได้ กรุณาลองใหม่อีกครั้ง หรือเลือกกรอกข้อมูลเอง"
         );
       }
     } catch (err: any) {
       console.error("Link import error:", err);
-      setErrorMsg("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
+      setErrorMsg(err?.messageTh || err?.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(false);
     }
@@ -118,16 +117,14 @@ export const LinkImport: React.FC<LinkImportProps> = ({
     setBatchResults([]);
 
     try {
-      const res = await fetch("/api/import-link", {
+      const data = await apiFetch<any>("/api/import-link", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           inputs: lines,
-        }),
+        },
       });
 
-      const data = await res.json();
-      if (data.ok && Array.isArray(data.batch)) {
+      if (data && data.ok && Array.isArray(data.batch)) {
         const mapped = data.batch.map((item: any, idx: number) => ({
           url: lines[idx],
           success: item.success,
@@ -142,11 +139,11 @@ export const LinkImport: React.FC<LinkImportProps> = ({
           onDraftLoaded(firstSuccess.draft);
         }
       } else {
-        setErrorMsg(data.error?.message || "เกิดข้อผิดพลาดในการดึงข้อมูลหลายรายการ");
+        setErrorMsg(data?.error?.message || "เกิดข้อผิดพลาดในการดึงข้อมูลหลายรายการ");
       }
     } catch (err: any) {
       console.error("Batch import error:", err);
-      setErrorMsg("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
+      setErrorMsg(err?.messageTh || err?.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(false);
     }

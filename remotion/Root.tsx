@@ -1,21 +1,10 @@
 import React from "react";
-import { Composition } from "remotion";
+import { Composition, Still } from "remotion";
 import { defaultShopeeVideoProps, ShopeeProductVideo } from "./ShopeeProductVideo";
+import { CoverStill } from "./CoverStill";
 import { ShopeeProductVideoProps } from "./types";
-
-export const calculateTotalFrames = (
-  props: ShopeeProductVideoProps,
-  fps: number = 30
-): number => {
-  const hookDuration = props.hook?.durationSec || 3;
-  const scenesDuration = (props.scenes || []).reduce(
-    (sum, s) => sum + (s.durationSec || 4),
-    0
-  );
-  const ctaDuration = props.cta?.durationSec || 3;
-  const totalSeconds = hookDuration + scenesDuration + ctaDuration;
-  return Math.max(30, Math.round(totalSeconds * fps));
-};
+export { calculateTotalFrames } from "./lib/duration";
+import { calculateTotalFrames } from "./lib/duration";
 
 export const RemotionRoot: React.FC = () => {
   const defaultDurationInFrames = calculateTotalFrames(defaultShopeeVideoProps, 30);
@@ -37,6 +26,14 @@ export const RemotionRoot: React.FC = () => {
           };
         }}
       />
+      <Still
+        id="CoverStill"
+        component={CoverStill}
+        width={1080}
+        height={1920}
+        defaultProps={defaultShopeeVideoProps}
+      />
     </>
   );
 };
+

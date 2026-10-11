@@ -51,6 +51,19 @@ export interface StyleDNA {
   tempo: TempoType;
   stickerShape: StickerShape;
   sfxKit: SfxKitId;
+  voicePresetId?: string;
+}
+
+export interface VoiceLine {
+  sceneId: string;
+  role: 'hook' | 'body' | 'cta';
+  text: string;
+  textForSpeech?: string;
+  styleOverride?: string;
+  audioUrl?: string;
+  rawAudioUrl?: string;
+  durationSec?: number;
+  polished?: boolean;
 }
 
 export interface HookData {
@@ -129,6 +142,9 @@ export interface StoryboardPlan {
   audioSuggestion: AudioSuggestion;
   narrationScript?: string;
   styleDNA?: StyleDNA;
+  voiceLines?: VoiceLine[];
+  voicePresetId?: string;
+  voiceIntensity?: "low" | "mid" | "high";
 }
 
 export interface ShopeeProductVideoProps {
@@ -143,6 +159,8 @@ export interface ShopeeProductVideoProps {
   theme?: Partial<ThemeData>;
   styleDNA?: StyleDNA;
   voiceoverUrl?: string;
+  voiceoverDurationSec?: number;
+  voiceLines?: VoiceLine[];
   bgmUrl?: string;
   showSafeZone?: boolean;
 }
@@ -158,10 +176,15 @@ export interface ProductRecord {
   cutoutImages?: string[];
   dominantColors?: string[];
   storyboard: StoryboardPlan;
+  voiceoverUrl?: string;
+  voiceoverDurationSec?: number;
+  voiceLines?: VoiceLine[];
+  voicePresetId?: string;
+  voiceIntensity?: "low" | "mid" | "high";
+  aiVoiceDisclaimer?: boolean;
   styleDNA?: StyleDNA;
   createdAt: string;
   renderedVideoUrl?: string;
-  voiceoverUrl?: string;
   import?: {
     originalUrl: string;
     shopId?: string | null;

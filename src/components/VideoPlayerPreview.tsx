@@ -7,6 +7,8 @@ import { SafeZoneOverlay } from "../../remotion/components/SafeZoneOverlay";
 import { calculateTotalFrames } from "../../remotion/Root";
 import { ShopeeProductVideo } from "../../remotion/ShopeeProductVideo";
 import { ShopeeProductVideoProps } from "../../remotion/types";
+import { dispatchError } from "@/lib/errorStore";
+import { toAppError } from "@/lib/errors";
 
 interface VideoPlayerPreviewProps {
   props: ShopeeProductVideoProps;
@@ -112,6 +114,30 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
             compositionHeight={1920}
             fps={30}
             acknowledgeRemotionLicense
+            errorFallback={({ error }) => {
+              dispatchError(
+                toAppError(error, "RENDER_REMOTION_CRASH", {
+                  productName: props.productName,
+                  imageCount: props.images?.length,
+                })
+              );
+              return (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-stone-900 text-white text-center">
+                  <ShieldAlert className="w-10 h-10 text-red-500 mb-3" />
+                  <h3 className="text-sm font-bold text-red-400 mb-1">เกิดข้อผิดพลาดในการแสดงผล</h3>
+                  <p className="text-xs text-stone-400 mb-4 max-w-[240px]">
+                    {error.message || "ไม่สามารถเล่นพรีวิววิดีโอได้"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="btn btn-xs btn-outline btn-error"
+                  >
+                    โหลดหน้าเว็บใหม่
+                  </button>
+                </div>
+              );
+            }}
             style={{
               width: "100%",
               height: "100%",

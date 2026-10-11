@@ -1,29 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { humanizeProductCopy } from "../../../lib/humanizer";
+import { humanizeProductCopy } from "@/lib/humanizer";
+import { withErrorHandling } from "@/lib/serverError";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { rawText } = body;
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  const body = await req.json();
+  const { rawText } = body;
 
-    if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
-      return NextResponse.json(
-        { success: false, error: "กรุณาระบุข้อความสินค้าที่ต้องการปรับปรุง" },
-        { status: 400 }
-      );
-    }
-
-    const result = await humanizeProductCopy(rawText);
-
-    return NextResponse.json({
-      success: true,
-      data: result,
-    });
-  } catch (error: any) {
-    console.error("Error humanizing text:", error);
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to humanize text" },
-      { status: 500 }
-    );
+  if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
+    const err: any = new Error("กรุณาระบุข้อความสินค้าที่ต้องการปรับปรุง");
+    err.code = "UPLOAD_INVALID";
+    err.status = 400;
+    throw err;
   }
-}
+
+  const result = await humanizeProductCopy(rawText);
+
+  return NextResponse.json({
+    ok: true,
+    success: true,
+    data: result,
+  });
+});

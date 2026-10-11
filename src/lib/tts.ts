@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 import fs from "fs/promises";
 import path from "path";
 import util from "util";
@@ -21,9 +21,13 @@ export interface VoiceoverRequestParams {
 
 export interface VoiceoverResult {
   audioUrl: string | null;
+  duration?: number;
   engineUsed: TTSEngine;
   fallbackNotice?: string;
 }
+
+import { getAudioDurationInSeconds } from "./ffmpeg";
+export { getAudioDurationInSeconds };
 
 const VOICE_MAP: Record<string, string> = {
   female: "th-TH-PremwadeeNeural", // Female Thai energetic voice
@@ -202,27 +206,29 @@ export async function generateThaiVoiceover(
 export async function synthesizeGeminiVoiceover(
   text: string,
   voiceName: string = "Puck",
-  style: string = "cheerful and friendly influencer review"
+  style?: string,
+  targetOutputPath?: string
 ): Promise<string | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey.trim() === "" || apiKey.includes("your_gemini_api_key")) {
-    throw new Error("GEMINI_API_KEY is not configured");
+    const err: any = new Error("GEMINI_API_KEY is not configured");
+    err.code = "GEMINI_NO_KEY";
+    err.status = 400;
+    throw err;
   }
 
   const ai = new GoogleGenAI({ apiKey });
+  const textPart: any = { text: text.trim() };
+  if (style && style.trim()) {
+    textPart.speechMetadata = { style: style.trim() };
+  }
+
   const response = await ai.models.generateContent({
     model: "gemini-3.8-flash-tts",
     contents: [
       {
         role: "user",
-        parts: [
-          {
-            text: text.trim(),
-            speechMetadata: {
-              style: style,
-            },
-          },
-        ],
+        parts: [textPart],
       },
     ],
     config: {
@@ -237,18 +243,22 @@ export async function synthesizeGeminiVoiceover(
 
   const base64Data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   if (!base64Data) {
-    throw new Error("No output_audio received from Gemini TTS");
+    const err: any = new Error("No output_audio received from Gemini TTS");
+    err.code = "TTS_TIMEOUT";
+    err.status = 500;
+    throw err;
   }
 
-  const audioDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(audioDir, { recursive: true });
-  const filename = `gemini_${Date.now()}.wav`;
-  const outputPath = path.join(audioDir, filename);
+  const outputPath =
+    targetOutputPath ||
+    path.join(process.cwd(), "public", "uploads", `gemini_${Date.now()}.wav`);
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
   const audioBuffer = Buffer.from(base64Data, "base64");
   await fs.writeFile(outputPath, audioBuffer);
 
-  return `/uploads/${filename}`;
+  const relative = "/" + path.relative(path.join(process.cwd(), "public"), outputPath).replace(/\\/g, "/");
+  return relative;
 }
 
 /**
@@ -260,6 +270,7 @@ export async function synthesizeGeminiVoiceover(
 export async function generateSmartVoiceover(
   params: VoiceoverRequestParams
 ): Promise<VoiceoverResult> {
+  const defaultRate = params.rate && params.rate.trim() ? params.rate : "+15%";
   const engine = params.engine || "free";
 
   if (engine === "gemini") {
@@ -270,7 +281,10 @@ export async function generateSmartVoiceover(
         params.geminiStyle || "cheerful and friendly"
       );
       if (audioUrl) {
-        return { audioUrl, engineUsed: "gemini" };
+        const duration = getAudioDurationInSeconds(
+          path.join(process.cwd(), "public", audioUrl.replace(/^\//, ""))
+        );
+        return { audioUrl, duration, engineUsed: "gemini" };
       }
     } catch (err: any) {
       console.warn(
@@ -280,10 +294,16 @@ export async function generateSmartVoiceover(
         params.text,
         params.voiceType || "female",
         "voice_fallback",
-        params.rate || "+0%"
+        defaultRate
       );
+      const duration = fallbackUrl
+        ? getAudioDurationInSeconds(
+            path.join(process.cwd(), "public", fallbackUrl.replace(/^\//, ""))
+          )
+        : 0;
       return {
         audioUrl: fallbackUrl,
+        duration,
         engineUsed: "free",
         fallbackNotice: "สลับมาใช้เสียงฟรีอัตโนมัติ เนื่องจากโควตา Gemini API หมดหรือเครดิตไม่เพียงพอ",
       };
@@ -295,10 +315,16 @@ export async function generateSmartVoiceover(
     params.text,
     params.voiceType || "female",
     "voice_free",
-    params.rate || "+0%"
+    defaultRate
   );
+  const duration = audioUrl
+    ? getAudioDurationInSeconds(
+        path.join(process.cwd(), "public", audioUrl.replace(/^\//, ""))
+      )
+    : 0;
   return {
     audioUrl,
+    duration,
     engineUsed: "free",
   };
 }

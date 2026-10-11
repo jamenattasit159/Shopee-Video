@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
+import { apiFetch } from "@/lib/apiFetch";
 
 export interface ReplicatedVoiceItem {
   id: string;
@@ -35,6 +36,9 @@ interface VoiceCloningModalProps {
 const MANDATORY_CONSENT_TEXT_TH =
   "ฉันเป็นเจ้าของเสียงนี้ และฉันยินยอมให้ Google ใช้เสียงนี้เพื่อสร้างแบบจำลองเสียงสังเคราะห์";
 
+const MANDATORY_CONSENT_TEXT_EN =
+  "I am the owner of this voice and I consent to Google using this voice to create a synthetic voice model.";
+
 const SAMPLE_REFERENCE_SCRIPT_TH =
   "สวัสดีครับทุกคน วันนี้เจอของดีบอกต่อ เป็นไอเทมเด็ดที่ต้องมีติดบ้านไว้เลย คุณภาพดีงามมาก คุ้มค่าคุ้มราคา ใช้จริงแล้วชอบสุดๆ บอกเลยว่าไม่ผิดหวังแน่นอนครับ";
 
@@ -47,6 +51,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
   const [voices, setVoices] = useState<ReplicatedVoiceItem[]>([]);
   const [isLoadingVoices, setIsLoadingVoices] = useState<boolean>(false);
   const [voiceName, setVoiceName] = useState<string>("เสียงของฉัน (My Voice)");
+  const [consentLang, setConsentLang] = useState<"th" | "en">("th");
 
   // Step 1: Reference Audio
   const [sourceAudioBlob, setSourceAudioBlob] = useState<Blob | null>(null);
@@ -74,9 +79,8 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
   const fetchVoices = async () => {
     setIsLoadingVoices(true);
     try {
-      const res = await fetch("/api/replicated-voices");
-      const data = await res.json();
-      if (data.success && Array.isArray(data.voices)) {
+      const data = await apiFetch<any>("/api/replicated-voices", undefined, { silent: true });
+      if (data && data.success && Array.isArray(data.voices)) {
         setVoices(data.voices);
       }
     } catch (err: any) {
@@ -214,14 +218,13 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
       formData.append("sourceAudio", sourceAudioBlob, "source.webm");
       formData.append("consentAudio", consentAudioBlob, "consent.webm");
 
-      const res = await fetch("/api/replicated-voices", {
+      const data = await apiFetch<any>("/api/replicated-voices", {
         method: "POST",
         body: formData,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "เกิดข้อผิดพลาดในการโคลนเสียง");
+      if (!data || !data.success) {
+        throw new Error(data?.error || "เกิดข้อผิดพลาดในการโคลนเสียง");
       }
 
       setSubmitSuccess(`🎉 โคลนเสียงสำเร็จแล้ว! สร้างโมเดล: ${data.voice.displayName}`);
@@ -242,7 +245,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
       }, 1500);
     } catch (err: any) {
       console.error("Voice creation failed:", err);
-      setSubmitError(err.message || "เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง Gemini API");
+      setSubmitError(err?.messageTh || err?.message || "เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง Gemini API");
     } finally {
       setIsSubmitting(false);
     }
@@ -253,18 +256,14 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
     if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโมเดลเสียงนี้?")) return;
 
     try {
-      const res = await fetch(`/api/replicated-voices?id=${encodeURIComponent(voiceId)}`, {
+      const data = await apiFetch<any>(`/api/replicated-voices?id=${encodeURIComponent(voiceId)}`, {
         method: "DELETE",
       });
-      const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         setVoices((prev) => prev.filter((v) => v.id !== voiceId));
-      } else {
-        alert(data.error || "ไม่สามารถลบเสียงได้");
       }
     } catch (err) {
       console.error("Delete voice error:", err);
-      alert("เกิดข้อผิดพลาดในการลบเสียง");
     }
   };
 
@@ -429,12 +428,41 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
                   </span>
                 </div>
 
-                <div className="bg-base-100 border border-warning/30 rounded-xl p-3.5 space-y-1">
-                  <p className="text-[11px] text-base-content/70 font-medium">
-                    ผู้พูดต้องอ่านประโยคนี้ให้ชัดถ้อยชัดคำ (Google จะตรวจสอบว่าเป็นเสียงคนเดียวกัน):
+                <div className="bg-base-100 border border-warning/30 rounded-xl p-3.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] text-base-content/70 font-medium">
+                      ผู้พูดต้องอ่านประโยคนี้คำต่อคำอย่างชัดเจน (Google AI จะตรวจจับคำพูด):
+                    </p>
+                    <div className="flex items-center gap-1 bg-base-200 p-0.5 rounded-lg border border-base-300">
+                      <button
+                        type="button"
+                        onClick={() => setConsentLang("th")}
+                        className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all ${
+                          consentLang === "th"
+                            ? "bg-warning text-warning-content shadow-xs"
+                            : "text-base-content/60 hover:text-base-content"
+                        }`}
+                      >
+                        ไทย
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConsentLang("en")}
+                        className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all ${
+                          consentLang === "en"
+                            ? "bg-warning text-warning-content shadow-xs"
+                            : "text-base-content/60 hover:text-base-content"
+                        }`}
+                      >
+                        EN
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-sm font-bold text-base-content tracking-wide bg-warning/10 p-2.5 rounded-lg border border-warning/20 leading-relaxed select-all">
+                    &ldquo;{consentLang === "th" ? MANDATORY_CONSENT_TEXT_TH : MANDATORY_CONSENT_TEXT_EN}&rdquo;
                   </p>
-                  <p className="text-sm font-bold text-base-content tracking-wide bg-warning/10 p-2 rounded-lg border border-warning/20">
-                    &ldquo;{MANDATORY_CONSENT_TEXT_TH}&rdquo;
+                  <p className="text-[11px] text-warning/90 font-medium">
+                    ⚠️ คำเตือน: ห้ามพูดคำอื่น ห้ามสรุปความ และต้องเป็นผู้พูดคนเดียวกันกับขั้นตอนที่ 1
                   </p>
                 </div>
 
@@ -482,8 +510,8 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
 
               {/* Status & Error Display */}
               {submitError && (
-                <div className="alert alert-error text-xs rounded-xl py-2 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
+                <div className="alert alert-error text-xs rounded-xl py-3 flex items-start gap-2.5 whitespace-pre-line leading-relaxed shadow-sm">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{submitError}</span>
                 </div>
               )}

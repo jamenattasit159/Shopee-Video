@@ -20,6 +20,9 @@ import { ProductForm } from "../components/ProductForm";
 import { RenderExportModal } from "../components/RenderExportModal";
 import { ScriptStoryboard } from "../components/ScriptStoryboard";
 import { VideoPlayerPreview } from "../components/VideoPlayerPreview";
+import { SystemStatusBar } from "../components/SystemStatusBar";
+import { ErrorCenterButton } from "../components/ErrorCenterButton";
+import { apiFetch } from "@/lib/apiFetch";
 
 export default function DashboardPage() {
   const [products, setProducts] = useState<ProductRecord[]>([]);
@@ -33,17 +36,18 @@ export default function DashboardPage() {
   const [notification, setNotification] = useState<string | null>(null);
   const [showSafeZone, setShowSafeZone] = useState<boolean>(false);
   const [voiceoverUrl, setVoiceoverUrl] = useState<string | undefined>(undefined);
+  const [voiceoverDurationSec, setVoiceoverDurationSec] = useState<number | undefined>(undefined);
 
   // Fetch saved products on mount
   const fetchProducts = async () => {
     try {
-      const res = await fetch("/api/products");
-      const data = await res.json();
-      if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+      const data = await apiFetch<any>("/api/products", undefined, { silent: true });
+      if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
         setProducts(data.products);
         if (!activeProduct) {
           setActiveProduct(data.products[0]);
           setVoiceoverUrl(data.products[0]?.voiceoverUrl || undefined);
+          setVoiceoverDurationSec(data.products[0]?.voiceoverDurationSec || undefined);
         }
       }
     } catch (err) {
@@ -64,6 +68,7 @@ export default function DashboardPage() {
   const handleStartNewProduct = () => {
     setActiveProduct(null);
     setVoiceoverUrl(undefined);
+    setVoiceoverDurationSec(undefined);
     setActiveTab("create");
     setFormKey((prev) => prev + 1);
     showNotification("✨ เปิดฟอร์มว่างพร้อมสร้างคลิปใหม่แล้ว! กรอกข้อมูลสินค้าได้เลย");
@@ -73,27 +78,32 @@ export default function DashboardPage() {
     setProducts((prev) => [newProduct, ...prev.filter((p) => p.id !== newProduct.id)]);
     setActiveProduct(newProduct);
     setVoiceoverUrl(newProduct.voiceoverUrl || undefined);
+    setVoiceoverDurationSec(newProduct.voiceoverDurationSec || undefined);
     setActiveTab("storyboard");
     showNotification("🎉 สร้าง AI Storyboard สำเร็จแล้ว! กำลังเตรียมเสียงพากย์ AI...");
 
     // Auto-synthesize voiceover in background so video is never silent
     const script = newProduct.storyboard?.narrationScript;
     if (script && script.trim() && !newProduct.voiceoverUrl) {
-      fetch("/api/synthesize-voice", {
+      apiFetch<any>("/api/synthesize-voice", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           productName: newProduct.name,
           price: newProduct.price,
           customText: script,
           voiceType: "female",
-        }),
+          rate: "+15%",
+        },
       })
-        .then((r) => r.json())
         .then((data) => {
-          if (data.success && data.audioUrl) {
+          if (data && data.success && data.audioUrl) {
             setVoiceoverUrl(data.audioUrl);
-            const updated = { ...newProduct, voiceoverUrl: data.audioUrl };
+            setVoiceoverDurationSec(data.duration || undefined);
+            const updated = {
+              ...newProduct,
+              voiceoverUrl: data.audioUrl,
+              voiceoverDurationSec: data.duration || undefined,
+            };
             setActiveProduct(updated);
             setProducts((prev) =>
               prev.map((p) => (p.id === updated.id ? updated : p))
@@ -121,26 +131,23 @@ export default function DashboardPage() {
     if (!activeProduct) return;
     setIsRegenerating(true);
     try {
-      const res = await fetch("/api/generate-script", {
+      const data = await apiFetch<any>("/api/generate-script", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           productName: activeProduct.name,
           price: activeProduct.price,
           highlights: activeProduct.highlights,
           tone: activeProduct.tone,
           imageCount: activeProduct.images.length,
           ctaText: activeProduct.cta,
-        }),
+        },
       });
-      const data = await res.json();
-      if (data.success && data.storyboard) {
+      if (data && data.success && data.storyboard) {
         handleUpdateStoryboard(data.storyboard);
         showNotification("✨ อัปเดตสคริปต์ใหม่ด้วย Gemini AI เรียบร้อยแล้ว!");
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to regenerate script");
     } finally {
       setIsRegenerating(false);
     }
@@ -158,6 +165,7 @@ export default function DashboardPage() {
         theme: activeProduct.storyboard.theme,
         styleDNA: activeProduct.storyboard.styleDNA,
         voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
+        voiceoverDurationSec: voiceoverDurationSec || activeProduct.voiceoverDurationSec,
         bgmUrl: "/audio/bgm-upbeat.mp3",
         imageWarning: (activeProduct as any).imageWarning || undefined,
         originalUrl: activeProduct.import?.originalUrl,
@@ -198,8 +206,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Product Switcher & New Button */}
-          <div className="flex items-center gap-3">
+          {/* Product Switcher, Status Bar, Error Center & New Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <SystemStatusBar />
+            <ErrorCenterButton />
             {products.length > 0 && (
               <select
                 value={activeProduct?.id || "new"}
@@ -211,6 +221,7 @@ export default function DashboardPage() {
                     if (found) {
                       setActiveProduct(found);
                       setVoiceoverUrl(found.voiceoverUrl || undefined);
+                      setVoiceoverDurationSec(found.voiceoverDurationSec || undefined);
                       setActiveTab("storyboard");
                     }
                   }
@@ -318,10 +329,15 @@ export default function DashboardPage() {
                 onRegenerate={handleRegenerateScript}
                 isRegenerating={isRegenerating}
                 voiceoverUrl={voiceoverUrl}
-                onVoiceoverGenerated={(url) => {
+                onVoiceoverGenerated={(url, duration) => {
                   setVoiceoverUrl(url);
+                  setVoiceoverDurationSec(duration);
                   if (activeProduct) {
-                    const updated = { ...activeProduct, voiceoverUrl: url };
+                    const updated = {
+                      ...activeProduct,
+                      voiceoverUrl: url,
+                      voiceoverDurationSec: duration,
+                    };
                     setActiveProduct(updated);
                     setProducts((prev) =>
                       prev.map((p) => (p.id === updated.id ? updated : p))
@@ -341,6 +357,7 @@ export default function DashboardPage() {
                 highlights={activeProduct?.highlights}
                 videoProps={currentVideoProps}
                 initialVideoUrl={activeProduct?.renderedVideoUrl}
+                onNavigateToTab={setActiveTab}
                 onVideoRendered={(url) => {
                   if (activeProduct) {
                     const updated = { ...activeProduct, renderedVideoUrl: url };

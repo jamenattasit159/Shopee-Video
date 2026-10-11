@@ -94,8 +94,8 @@ export function fitHeadline(
         fontWeight: 800,
       });
       measuredWidth = Math.round(measured.width);
-    } catch {
-      // Fallback to estimation below if canvas is unavailable
+    } catch (err: any) {
+      console.debug("[textFit] Canvas measureText unavailable, using estimation fallback:", err?.message);
     }
   } else {
     // SSR / Node.js fallback estimation
@@ -161,8 +161,8 @@ export function fitSubtitle(
         fontWeight: 800,
       });
       measuredWidth = Math.round(measured.width);
-    } catch {
-      // Fallback to estimation below
+    } catch (err: any) {
+      console.debug("[textFit] Canvas fitText/measureText unavailable, using estimation fallback:", err?.message);
     }
   } else {
     const estimated = longest.length * (baseFontSize * 0.56);

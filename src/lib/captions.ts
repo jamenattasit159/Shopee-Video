@@ -11,7 +11,8 @@ export function generatePostCaptions(
   price: string,
   highlights: string,
   ctaText?: string,
-  originalUrl?: string
+  originalUrl?: string,
+  aiDisclaimer: boolean = true
 ): CaptionPackage[] {
   const cleanHighlights = highlights
     .split(/[,.\n]+/)
@@ -61,27 +62,29 @@ ${linkSuffix}
 🎟️ โค้ดส่วนลด + ส่งฟรีมีจำนวนจำกัด!
 🛒 รีบจิ้มตะกร้าส้มซ้ายล่างแล้วกดสั่งซื้อด่วนเลย 👇`;
 
+  const disclaimerSuffix = aiDisclaimer ? "\n\n🎙️ คลิปนี้ใช้เสียงสังเคราะห์ด้วย AI" : "";
+
   return [
     {
       styleName: "🔥 สายป้ายยาตื่นเต้น (Viral Hype)",
       styleDescription: "กระตุ้นความอยากได้ ใช้ภาษาวัยรุ่น อีโมจิจัดเต็ม เหมาะกับ TikTok/Shopee Video",
       captionText: viralCaption,
       hashtags: commonHashtags,
-      fullPost: `${viralCaption}\n\n${commonHashtags.join(" ")}`,
+      fullPost: `${viralCaption}${disclaimerSuffix}\n\n${commonHashtags.join(" ")}`,
     },
     {
       styleName: "✨ รีวิวป้ายยาจริงใจ (Authentic Review)",
       styleDescription: "ฟีลเพื่อนบอกเพื่อน เล่าความประทับใจ น่าเชื่อถือ ลูกค้าตัดสินใจซื้อง่าย",
       captionText: reviewCaption,
       hashtags: commonHashtags,
-      fullPost: `${reviewCaption}\n\n${commonHashtags.join(" ")}`,
+      fullPost: `${reviewCaption}${disclaimerSuffix}\n\n${commonHashtags.join(" ")}`,
     },
     {
       styleName: "⚡ จัดโปร Flash Sale เร่งด่วน (Urgency Deal)",
       styleDescription: "เน้นราคาพิเศษ จำกัดเวลา กระตุ้นให้คนดูรีบกดสั่งซื้อทันทีเพื่อไม่ให้พลาดสิทธิ์",
       captionText: flashSaleCaption,
       hashtags: commonHashtags,
-      fullPost: `${flashSaleCaption}\n\n${commonHashtags.join(" ")}`,
+      fullPost: `${flashSaleCaption}${disclaimerSuffix}\n\n${commonHashtags.join(" ")}`,
     },
   ];
 }

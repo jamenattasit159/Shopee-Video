@@ -15,15 +15,21 @@ export async function ensureStorageDirectories(): Promise<void> {
   for (const dir of dirs) {
     try {
       await fs.mkdir(dir, { recursive: true });
-    } catch {
-      // Ignore if directory already exists
+    } catch (mkdirErr: any) {
+      if (mkdirErr?.code !== 'EEXIST') {
+        console.warn(`[storage] Could not create directory ${dir}:`, mkdirErr?.message);
+      }
     }
   }
 
   try {
     await fs.access(DATA_FILE);
-  } catch {
-    await fs.writeFile(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
+  } catch (accessErr: any) {
+    if (accessErr?.code === 'ENOENT') {
+      await fs.writeFile(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
+    } else {
+      console.warn(`[storage] Access error on ${DATA_FILE}:`, accessErr?.message);
+    }
   }
 }
 

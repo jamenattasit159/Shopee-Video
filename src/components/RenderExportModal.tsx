@@ -1,13 +1,18 @@
 "use client";
 
 import {
+  Archive,
   Check,
   CheckCircle2,
   Copy,
   Download,
+  FileCode,
+  FileText,
   Film,
-  Music,
+  FolderOpen,
+  Image as ImageIcon,
   Play,
+  ShieldCheck,
   Sparkles,
   Video,
   Volume2,
@@ -15,6 +20,10 @@ import {
 import React, { useState } from "react";
 import { ShopeeProductVideoProps } from "../../remotion/types";
 import { generatePostCaptions } from "../lib/captions";
+import { apiFetch } from "@/lib/apiFetch";
+import { PreflightCheckCard } from "./PreflightCheckCard";
+import { PreflightSummary } from "@/lib/preflight";
+import { ExportBundleResult } from "@/lib/exportBundle";
 
 interface RenderExportModalProps {
   productId?: string;
@@ -24,6 +33,7 @@ interface RenderExportModalProps {
   videoProps: ShopeeProductVideoProps;
   initialVideoUrl?: string;
   onVideoRendered?: (url: string) => void;
+  onNavigateToTab?: (tab: "create" | "storyboard" | "render") => void;
 }
 
 export const RenderExportModal: React.FC<RenderExportModalProps> = ({
@@ -34,16 +44,21 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   videoProps,
   initialVideoUrl,
   onVideoRendered,
+  onNavigateToTab,
 }) => {
   const [isRendering, setIsRendering] = useState(false);
-  const [renderedUrl, setRenderedUrl] = useState<string | null>(
-    initialVideoUrl || null
-  );
+  const [renderedUrl, setRenderedUrl] = useState<string | null>(initialVideoUrl || null);
   const [renderMessage, setRenderMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [copiedCaptionIndex, setCopiedCaptionIndex] = useState<number | null>(null);
-
   const [renderTimestamp, setRenderTimestamp] = useState<number>(Date.now());
+
+  // Preflight and Export Bundle states
+  const [preflightSummary, setPreflightSummary] = useState<PreflightSummary | null>(null);
+  const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([]);
+  const [exportBundle, setExportBundle] = useState<ExportBundleResult | null>(null);
+  const [isOpeningFolder, setIsOpeningFolder] = useState<boolean>(false);
+  const [folderOpenFeedback, setFolderOpenFeedback] = useState<string | null>(null);
 
   // Sync if initialVideoUrl changes or product changes
   React.useEffect(() => {
@@ -51,31 +66,51 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     setRenderTimestamp(Date.now());
   }, [initialVideoUrl, productId]);
 
+  const handleFixNavigation = (where?: { sceneId?: string; field?: string }) => {
+    if (!onNavigateToTab) return;
+    if (where?.field === "confirmedAt" || where?.field === "price" || where?.field === "images") {
+      onNavigateToTab("create");
+    } else {
+      onNavigateToTab("storyboard");
+    }
+  };
+
   const handleRender = async () => {
+    // Check if preflight has blocking errors
+    if (preflightSummary && preflightSummary.blockCount > 0) {
+      setError(`ไม่สามารถเรนเดอร์ได้: พบรายการบล็อก ${preflightSummary.blockCount} ข้อ กรุณาแก้ไขให้ผ่านก่อน`);
+      return;
+    }
+
     setIsRendering(true);
     setError(null);
 
     let activeVoiceUrl = videoProps.voiceoverUrl;
+    let activeVoiceDuration = videoProps.voiceoverDurationSec;
     if (!activeVoiceUrl && videoProps.hook) {
       setRenderMessage("กำลังบันทึกเสียงพากย์ AI อัตโนมัติ (Edge TTS)...");
       try {
-        const voiceRes = await fetch("/api/synthesize-voice", {
+        const voiceData = await apiFetch<any>("/api/synthesize-voice", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+          body: {
             productName: videoProps.productName || productName,
             price: videoProps.price || price,
             storyboard: {
               hook: videoProps.hook,
               scenes: videoProps.scenes,
               cta: videoProps.cta,
+              narrationScript: (videoProps as any).narrationScript,
             },
+            customText: (videoProps as any).narrationScript,
             voiceType: "female",
-          }),
+            rate: "+15%",
+          },
         });
-        const voiceData = await voiceRes.json();
-        if (voiceData.success && voiceData.audioUrl) {
+        if (voiceData && voiceData.success && voiceData.audioUrl) {
           activeVoiceUrl = voiceData.audioUrl;
+          if (voiceData.duration) {
+            activeVoiceDuration = voiceData.duration;
+          }
         }
       } catch (voiceErr) {
         console.warn("Auto-synthesizing voice failed, continuing with BGM only:", voiceErr);
@@ -86,34 +121,59 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
     try {
       setRenderMessage("กำลังเรนเดอร์ภาพและแทร็กเสียง (Rendering 1080x1920 MP4 + Audio)...");
-      const res = await fetch("/api/render-video", {
+      const data = await apiFetch<any>("/api/render-video", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           productId: productId || `prod_${Date.now()}`,
+          preflightResults: preflightSummary?.results || [],
+          acknowledgedWarnings,
           props: {
             ...videoProps,
             voiceoverUrl: activeVoiceUrl,
+            voiceoverDurationSec: activeVoiceDuration,
           },
-        }),
+        },
       });
 
-      const data = await res.json();
-      if (data.success && data.videoUrl) {
+      if (data && data.success && data.videoUrl) {
         setRenderedUrl(data.videoUrl);
         setRenderTimestamp(Date.now());
-        setRenderMessage("เรนเดอร์วิดีโอสำเร็จ!");
+        setRenderMessage("เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ!");
+        if (data.exportBundle) {
+          setExportBundle(data.exportBundle);
+        }
         if (onVideoRendered) {
           onVideoRendered(data.videoUrl);
         }
       } else {
-        throw new Error(data.error || "เกิดข้อผิดพลาดในการเรนเดอร์");
+        throw new Error(data?.error || "เกิดข้อผิดพลาดในการเรนเดอร์");
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Failed to render video");
+      setError(err?.messageTh || err?.message || "Failed to render video");
     } finally {
       setIsRendering(false);
+    }
+  };
+
+  const handleOpenFolder = async () => {
+    if (!exportBundle) return;
+    setIsOpeningFolder(true);
+    setFolderOpenFeedback(null);
+    try {
+      await apiFetch<any>("/api/exports/open-folder", {
+        method: "POST",
+        body: {
+          date: exportBundle.dateStr,
+          slug: exportBundle.slug,
+        },
+      });
+      setFolderOpenFeedback("เปิดโฟลเดอร์ใน Windows Explorer แล้ว!");
+      setTimeout(() => setFolderOpenFeedback(null), 3000);
+    } catch (err: any) {
+      setFolderOpenFeedback("ไม่สามารถเปิดโฟลเดอร์ได้อัตโนมัติ");
+    } finally {
+      setIsOpeningFolder(false);
     }
   };
 
@@ -131,47 +191,61 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     setTimeout(() => setCopiedCaptionIndex(null), 3000);
   };
 
+  const isBlocked = Boolean(preflightSummary && preflightSummary.blockCount > 0);
+
   return (
-    <div className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-sm space-y-6 relative">
+    <div className="bg-base-100 border border-base-300/70 rounded-2xl p-6 shadow-xs space-y-6 relative">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-stone-200/80">
+      <div className="flex items-center justify-between pb-4 border-b border-base-300/60">
         <div>
-          <span className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Step 4: One-Click Render & Export
+          <span className="badge badge-primary badge-outline text-xs font-semibold tracking-wider">
+            Step 4: Preflight Check & Export Bundle
           </span>
-          <h2 className="text-xl font-extrabold text-stone-900 mt-1.5 flex items-center gap-2">
-            <span>🎬 เรนเดอร์และส่งออกไฟล์วิดีโอ (MP4 1080x1920 พร้อมเสียง)</span>
+          <h2 className="text-xl font-bold text-base-content mt-1.5 flex items-center gap-2">
+            <span>🎬 ตรวจสอบคุณภาพ เรนเดอร์ และส่งออกไฟล์ (Export Bundle)</span>
           </h2>
         </div>
       </div>
 
-      {/* Render Trigger Section */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-stone-50/80 p-5 rounded-xl border border-stone-200 shadow-2xs">
+      {/* 1. Preflight Check Gate */}
+      <PreflightCheckCard
+        projectProps={videoProps}
+        productId={productId}
+        onPreflightComplete={(sum) => setPreflightSummary(sum)}
+        onNavigateToFix={handleFixNavigation}
+        acknowledgedWarnings={acknowledgedWarnings}
+        setAcknowledgedWarnings={setAcknowledgedWarnings}
+      />
+
+      {/* 2. Render Trigger Section */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-base-200/50 p-5 rounded-2xl border border-base-300/60 shadow-xs">
         <div>
-          <h3 className="font-bold text-stone-900 text-base flex items-center gap-2">
-            <Film className="w-5 h-5 text-orange-600" />
-            <span>สร้างไฟล์วิดีโอระดับมืออาชีพสำหรับ Shopee / TikTok</span>
+          <h3 className="font-semibold text-base-content text-base flex items-center gap-2">
+            <Film className="w-5 h-5 text-primary" />
+            <span>สร้าง Export Bundle สำหรับ Shopee / TikTok (MP4 + Cover + SRT + Caption)</span>
           </h3>
-          <p className="text-xs text-stone-500 mt-1">
-            รวมภาพเคลื่อนไหว Paper Collage, เสียงเพลง BGM, เสียงเอฟเฟกต์ SFX, เสียงพากย์ AI และจัดเลย์เอาต์หลบ Red Zone
+          <p className="text-xs text-base-content/60 mt-1">
+            รวมภาพเคลื่อนไหว Paper Collage, เสียง BGM + SFX + AI Voice และส่งออก Bundle ครบ 6 ไฟล์
           </p>
         </div>
 
         <button
           type="button"
           onClick={handleRender}
-          disabled={isRendering}
-          className="w-full md:w-auto shopee-gradient-btn text-white font-bold py-3.5 px-7 rounded-xl flex items-center justify-center gap-2.5 shadow-md disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
+          disabled={isRendering || isBlocked}
+          className={`btn btn-primary btn-md rounded-xl font-semibold gap-2 shadow-sm whitespace-nowrap cursor-pointer ${
+            isBlocked ? "btn-disabled opacity-50" : ""
+          }`}
         >
           {isRendering ? (
             <>
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>กำลังเรนเดอร์ MP4 + เสียง...</span>
+              <span className="loading loading-spinner loading-sm" />
+              <span>กำลังเรนเดอร์ MP4 + สร้าง Bundle...</span>
             </>
           ) : (
             <>
               <Video className="w-5 h-5" />
-              <span>เริ่มเรนเดอร์วิดีโอ (Render MP4)</span>
+              <span>เริ่มเรนเดอร์วิดีโอ (Render & Export)</span>
             </>
           )}
         </button>
@@ -179,11 +253,11 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
       {/* Status / Error feedback */}
       {isRendering && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-3 shadow-2xs">
-          <div className="w-6 h-6 border-2 border-orange-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-          <div className="text-xs text-orange-950">
+        <div className="alert alert-info rounded-xl p-4 text-xs shadow-xs">
+          <span className="loading loading-spinner loading-sm shrink-0" />
+          <div>
             <span className="font-bold block">{renderMessage}</span>
-            <span className="text-orange-700/80">
+            <span className="opacity-80">
               การเรนเดอร์ใช้เวลาประมาณ 15 - 25 วินาที ผ่าน Remotion Headless Chromium + FFMPEG
             </span>
           </div>
@@ -191,25 +265,189 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-xs text-red-900 shadow-2xs">
-          <span className="font-bold">เกิดข้อผิดพลาดในการเรนเดอร์:</span> {error}
+        <div className="alert alert-error rounded-xl p-4 text-xs shadow-xs">
+          <span className="font-bold">เกิดข้อผิดพลาด:</span> {error}
         </div>
       )}
 
-      {/* Rendered Output Display */}
+      {/* 3. Export Bundle Package Display */}
+      {exportBundle && !isRendering && (
+        <div className="bg-base-100 border border-success/40 rounded-2xl p-5 space-y-5 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300/60">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-success/10 text-success">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-base text-base-content">
+                  Export Bundle เสร็จสมบูรณ์แล้ว! (6 รายการ)
+                </h4>
+                <p className="text-xs text-base-content/60 font-mono">
+                  exports/{exportBundle.dateStr}/{exportBundle.slug}/
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleOpenFolder}
+                disabled={isOpeningFolder}
+                className="btn btn-outline btn-sm rounded-xl gap-1.5 cursor-pointer"
+              >
+                <FolderOpen className="w-4 h-4 text-primary" />
+                <span>{isOpeningFolder ? "กำลังเปิด..." : "เปิดโฟลเดอร์ในเครื่อง"}</span>
+              </button>
+              <a
+                href={exportBundle.relativeDownloadPaths.zip}
+                download
+                className="btn btn-primary btn-sm rounded-xl gap-1.5 shadow-xs"
+              >
+                <Archive className="w-4 h-4" />
+                <span>ดาวน์โหลด ZIP (Bundle)</span>
+              </a>
+            </div>
+          </div>
+
+          {folderOpenFeedback && (
+            <div className="text-xs text-success font-medium bg-success/10 px-3 py-1.5 rounded-lg inline-block">
+              {folderOpenFeedback}
+            </div>
+          )}
+
+          {/* Files Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {/* 1. video.mp4 */}
+            <div className="bg-base-200/50 border border-base-300/60 rounded-xl p-3 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2.5 truncate">
+                <Film className="w-4 h-4 text-primary shrink-0" />
+                <div className="truncate">
+                  <span className="font-semibold block truncate">video.mp4</span>
+                  <span className="text-[11px] text-base-content/60">วิดีโอ 1080x1920 @ 30fps</span>
+                </div>
+              </div>
+              <a
+                href={exportBundle.relativeDownloadPaths.video}
+                download
+                className="btn btn-ghost btn-xs shrink-0"
+                title="ดาวน์โหลด video.mp4"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* 2. cover.jpg */}
+            <div className="bg-base-200/50 border border-base-300/60 rounded-xl p-3 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2.5 truncate">
+                <ImageIcon className="w-4 h-4 text-secondary shrink-0" />
+                <div className="truncate">
+                  <span className="font-semibold block truncate">cover.jpg</span>
+                  <span className="text-[11px] text-base-content/60">ภาพปก 1080x1920 Paper Collage</span>
+                </div>
+              </div>
+              <a
+                href={exportBundle.relativeDownloadPaths.cover}
+                download
+                className="btn btn-ghost btn-xs shrink-0"
+                title="ดาวน์โหลด cover.jpg"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* 3. captions.srt */}
+            <div className="bg-base-200/50 border border-base-300/60 rounded-xl p-3 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2.5 truncate">
+                <FileText className="w-4 h-4 text-info shrink-0" />
+                <div className="truncate">
+                  <span className="font-semibold block truncate">captions.srt</span>
+                  <span className="text-[11px] text-base-content/60">ซับไตเติลเวลาตรงกับเสียง ±0.2s</span>
+                </div>
+              </div>
+              <a
+                href={exportBundle.relativeDownloadPaths.srt}
+                download
+                className="btn btn-ghost btn-xs shrink-0"
+                title="ดาวน์โหลด captions.srt"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* 4. caption.txt */}
+            <div className="bg-base-200/50 border border-base-300/60 rounded-xl p-3 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2.5 truncate">
+                <FileText className="w-4 h-4 text-accent shrink-0" />
+                <div className="truncate">
+                  <span className="font-semibold block truncate">caption.txt</span>
+                  <span className="text-[11px] text-base-content/60">ข้อความโพสต์ + ลิงก์ affiliate เต็ม</span>
+                </div>
+              </div>
+              <a
+                href={exportBundle.relativeDownloadPaths.caption}
+                download
+                className="btn btn-ghost btn-xs shrink-0"
+                title="ดาวน์โหลด caption.txt"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* 5. meta.json */}
+            <div className="bg-base-200/50 border border-base-300/60 rounded-xl p-3 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2.5 truncate">
+                <FileCode className="w-4 h-4 text-warning shrink-0" />
+                <div className="truncate">
+                  <span className="font-semibold block truncate">meta.json</span>
+                  <span className="text-[11px] text-base-content/60">Style DNA, Preflight, Assets</span>
+                </div>
+              </div>
+              <a
+                href={exportBundle.relativeDownloadPaths.meta}
+                download
+                className="btn btn-ghost btn-xs shrink-0"
+                title="ดาวน์โหลด meta.json"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* 6. bundle.zip */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2.5 truncate">
+                <Archive className="w-4 h-4 text-primary shrink-0" />
+                <div className="truncate">
+                  <span className="font-semibold block truncate">bundle.zip</span>
+                  <span className="text-[11px] text-base-content/60">รวมครบ 5 ไฟล์ใน ZIP เดียว</span>
+                </div>
+              </div>
+              <a
+                href={exportBundle.relativeDownloadPaths.zip}
+                download
+                className="btn btn-ghost btn-xs text-primary shrink-0"
+                title="ดาวน์โหลด bundle.zip"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Rendered Output Video Preview */}
       {renderedUrl && !isRendering && (
-        <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-5 space-y-6 shadow-2xs">
+        <div className="bg-base-200/40 border border-base-300/60 rounded-2xl p-5 space-y-6 shadow-xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <span className="font-bold text-emerald-800 text-sm">
-                ไฟล์ MP4 พร้อมเสียงเสร็จสมบูรณ์แล้ว!
+              <CheckCircle2 className="w-5 h-5 text-success" />
+              <span className="font-semibold text-base-content text-sm">
+                พรีวิวผลงานวิดีโอสำเร็จ (MP4 1080x1920)
               </span>
             </div>
             <a
               href={renderedUrl}
               download
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center gap-1.5 shadow-sm transition"
+              className="btn btn-success btn-sm text-white rounded-xl gap-1.5 shadow-xs"
             >
               <Download className="w-4 h-4" />
               <span>ดาวน์โหลดไฟล์ MP4</span>
@@ -218,7 +456,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
           {/* Video Preview */}
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-48 aspect-[9/16] bg-black rounded-xl overflow-hidden border-2 border-white shadow-md">
+            <div className="w-48 aspect-[9/16] bg-black rounded-2xl overflow-hidden border-2 border-base-100 shadow-md">
               <video
                 key={`${renderedUrl}_${renderTimestamp}`}
                 src={`${renderedUrl}?t=${renderTimestamp}`}
@@ -229,21 +467,21 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
               />
             </div>
 
-            <div className="space-y-3 text-xs text-stone-700 flex-1">
+            <div className="space-y-3 text-xs text-base-content/80 flex-1">
               <div>
-                <span className="text-stone-500 block">ตำแหน่งไฟล์ในเครื่อง:</span>
-                <code className="text-emerald-800 bg-white border border-emerald-200 px-2 py-1 rounded block mt-1 break-all font-mono shadow-2xs">
-                  {renderedUrl} (บันทึกไว้ที่ ./public{renderedUrl} และ ./renders/)
+                <span className="text-base-content/50 block">ตำแหน่งไฟล์ในเครื่อง:</span>
+                <code className="text-primary bg-base-100 border border-base-300/60 px-2.5 py-1 rounded-lg block mt-1 break-all font-mono shadow-xs">
+                  {renderedUrl}
                 </code>
               </div>
               <div>
-                <span className="text-stone-500 block">สเปคไฟล์:</span>
-                <span className="font-semibold text-stone-900">
+                <span className="text-base-content/50 block">สเปคไฟล์:</span>
+                <span className="font-semibold text-base-content">
                   1080 x 1920 (Vertical 9:16), 30 FPS, H.264 Video + AAC Audio
                 </span>
               </div>
-              <div className="flex items-center gap-2 pt-1 text-emerald-700 font-medium">
-                <Volume2 className="w-4 h-4 text-emerald-600" />
+              <div className="flex items-center gap-2 pt-1 text-primary font-medium">
+                <Volume2 className="w-4 h-4 text-primary" />
                 <span>
                   {videoProps.voiceoverUrl
                     ? "บรรจุเสียงพากย์ AI + เพลง BGM + ซาวด์เอฟเฟกต์เรียบร้อย"
@@ -255,7 +493,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
                   href={renderedUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-orange-600 hover:underline font-semibold"
+                  className="inline-flex items-center gap-1.5 text-primary hover:underline font-semibold"
                 >
                   <Play className="w-3.5 h-3.5" />
                   <span>เปิดดูในแท็บใหม่เต็มจอ</span>
@@ -264,12 +502,12 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
             </div>
           </div>
 
-          {/* 📋 Quick-Copy Post Captions & Hashtags */}
-          <div className="pt-4 border-t border-emerald-200/80 space-y-3">
+          {/* 📋 Quick-Copy Post Captions */}
+          <div className="pt-4 border-t border-base-300/60 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-orange-600" />
-                <span>แคปชั่นสำหรับก๊อปปี้ไปวางตอนลงคลิป (เลือกสไตล์ที่ชอบ):</span>
+              <span className="text-xs font-semibold text-base-content flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span>แคปชั่นพร้อมโพสต์ (เลือกลุคที่เหมาะกับสินค้า):</span>
               </span>
             </div>
 
@@ -277,13 +515,13 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
               {captions.map((cap, idx) => (
                 <div
                   key={idx}
-                  className="bg-white border border-stone-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs"
+                  className="bg-base-100 border border-base-300/60 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs"
                 >
                   <div className="flex-1 pr-2 truncate">
-                    <span className="font-bold text-orange-600 block mb-0.5">
+                    <span className="font-semibold text-primary block mb-0.5">
                       {cap.styleName}
                     </span>
-                    <span className="text-stone-600 block truncate font-mono text-[11px]">
+                    <span className="text-base-content/60 block truncate font-mono text-[11px]">
                       {cap.captionText.split("\n")[0]}...
                     </span>
                   </div>
@@ -291,10 +529,10 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
                   <button
                     type="button"
                     onClick={() => copyCaption(cap.fullPost, idx)}
-                    className={`text-xs px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition flex-shrink-0 ${
+                    className={`btn btn-xs rounded-lg gap-1.5 transition shrink-0 ${
                       copiedCaptionIndex === idx
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-300 shadow-2xs"
+                        ? "btn-success text-white"
+                        : "btn-outline btn-ghost"
                     }`}
                   >
                     {copiedCaptionIndex === idx ? (

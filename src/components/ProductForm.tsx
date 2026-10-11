@@ -22,6 +22,7 @@ import { PackId, ProductRecord } from "../../remotion/types";
 import { ALL_PACK_IDS, PACK_INFO, rerollClientStyleDNA } from "../lib/styleConstants";
 import { FieldSource, FieldStatus, ProductDraft } from "../lib/types";
 import { LinkImport } from "./LinkImport";
+import { apiFetch } from "@/lib/apiFetch";
 
 interface ProductFormProps {
   onProductCreated: (product: ProductRecord) => void;
@@ -98,14 +99,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
     setIsHumanizing(true);
     try {
-      const res = await fetch("/api/humanize-text", {
+      const json = await apiFetch<any>("/api/humanize-text", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawText: textToClean }),
+        body: { rawText: textToClean },
       });
 
-      const json = await res.json();
-      if (json.success && json.data) {
+      if (json && json.success && json.data) {
         setHumanizeHistory({
           originalHighlights: highlights,
           originalName: name,
@@ -125,12 +124,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             setChecklist((p) => ({ ...p, nameOk: true }));
           }
         }
-      } else {
-        alert(json.error || "ไม่สามารถปรับสำนวนได้");
       }
     } catch (err: any) {
       console.error("Humanize error:", err);
-      alert("เกิดข้อผิดพลาดในการปรับสำนวน: " + err.message);
     } finally {
       setIsHumanizing(false);
     }
@@ -318,13 +314,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const fd = new FormData();
       fd.append("file", file);
 
-      const res = await fetch("/api/ocr-screenshot", {
+      const data = await apiFetch<any>("/api/ocr-screenshot", {
         method: "POST",
         body: fd,
       });
 
-      const data = await res.json();
-      if (data.ok && data.data) {
+      if (data && data.ok && data.data) {
         if (!name.trim() && data.data.productName) {
           setName(data.data.productName);
           setFieldSources((p) => ({ ...p, name: "screenshot" }));
@@ -335,13 +330,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           setFieldSources((p) => ({ ...p, price: "screenshot" }));
           setFieldStatuses((p) => ({ ...p, price: "review" }));
         }
-        alert("✨ อ่านข้อมูลจากภาพหน้าจอเรียบร้อยแล้ว กรุณาตรวจสอบความถูกต้องในฟอร์มครับ");
-      } else {
-        alert(data.error || "ไม่สามารถอ่านข้อมูลจากภาพหน้าจอได้");
       }
     } catch (err: any) {
       console.error("OCR error:", err);
-      alert("เกิดข้อผิดพลาดในการอ่านภาพหน้าจอ: " + err.message);
     } finally {
       setIsOcrLoading(false);
     }
@@ -416,20 +407,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         });
       }
 
-      const res = await fetch("/api/products", {
+      const data = await apiFetch<any>("/api/products", {
         method: "POST",
         body: formData,
       });
 
-      const data = await res.json();
-      if (data.success && data.product) {
+      if (data && data.success && data.product) {
         onProductCreated(data.product);
-      } else {
-        alert(data.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       }
     } catch (err: any) {
-      console.error(err);
-      alert("เกิดข้อผิดพลาด: " + err.message);
+      console.error("Product submit error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -874,6 +861,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       src={url}
                       alt={`Preview ${idx + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.warn(`Preview image load error for ${url}`);
+                        (e.currentTarget as HTMLImageElement).src = "/samples/tumbler-1.svg";
+                      }}
                     />
                     <div className="absolute top-1 left-1 bg-stone-900/80 text-[10px] font-bold text-white px-1.5 py-0.5 rounded shadow-xs">
                       #{idx + 1}

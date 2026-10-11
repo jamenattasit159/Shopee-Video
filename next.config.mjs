@@ -7,6 +7,8 @@ const nextConfig = {
       "@remotion/bundler",
       "@imgly/background-removal-node",
       "onnxruntime-node",
+      "sharp",
+      "archiver",
     ],
   },
   webpack: (config, { isServer }) => {

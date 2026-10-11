@@ -1,5 +1,6 @@
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderMedia } from "@remotion/renderer";
+import { execSync } from "child_process";
 import fs from "fs/promises";
 import path from "path";
 
@@ -27,6 +28,35 @@ async function main() {
     const raw = await fs.readFile(propsFile, "utf-8");
     inputProps = JSON.parse(raw);
     delete inputProps.showSafeZone;
+  }
+
+  // Ensure voiceover duration is accurately calculated if voiceoverUrl exists
+  if (inputProps.voiceoverUrl && !inputProps.voiceoverDurationSec) {
+    try {
+      const audioPath = path.resolve("public", inputProps.voiceoverUrl.replace(/^\//, ""));
+      const ffprobeCandidates = [
+        path.resolve("node_modules/@remotion/compositor-win32-x64-msvc/ffprobe.exe"),
+        "ffprobe",
+      ];
+      for (const bin of ffprobeCandidates) {
+        try {
+          const out = execSync(
+            `"${bin}" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioPath}"`,
+            { stdio: ["ignore", "pipe", "ignore"] }
+          );
+          const sec = parseFloat(out.toString().trim());
+          if (!isNaN(sec) && sec > 0) {
+            inputProps.voiceoverDurationSec = sec;
+            console.log(`[Remotion Engine] Detected voiceover duration: ${sec}s`);
+            break;
+          }
+        } catch (candidateErr) {
+          console.debug(`[Remotion Engine] ffprobe candidate '${bin}' failed:`, candidateErr?.message);
+        }
+      }
+    } catch (probeErr) {
+      console.warn("[Remotion Engine] Audio duration probe warning:", probeErr);
+    }
   }
 
   const outputPath = outputFile

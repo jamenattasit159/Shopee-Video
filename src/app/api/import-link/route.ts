@@ -13,6 +13,7 @@ import {
   resolveShortLink,
 } from '../../../lib/shopeeLink';
 import { ProductDraft } from '../../../lib/types';
+import { withErrorHandling } from '@/lib/serverError';
 
 const CACHE_FILE = path.join(process.cwd(), 'data', 'import-cache.json');
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 ชั่วโมง
@@ -40,8 +41,10 @@ async function getCachedDraft(itemId: string): Promise<ProductDraft | null> {
     if (entry && Date.now() - entry.cachedAt < CACHE_TTL_MS) {
       return entry.draft;
     }
-  } catch {
-    // Cache miss or file doesn't exist yet
+  } catch (err: any) {
+    if (err?.code !== 'ENOENT') {
+      console.warn(`[import-cache] Read cache error: ${err?.message}`);
+    }
   }
   return null;
 }
@@ -288,78 +291,52 @@ async function processSingleInput(
   return draft;
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const ip = req.headers.get('x-forwarded-for') || req.ip || '127.0.0.1';
-    if (!checkRateLimit(ip)) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: {
-            code: 'rate_limited',
-            message: 'คุณทำรายการบ่อยเกินไป กรุณารอประมาณ 1 นาทีแล้วลองใหม่อีกครั้งครับ',
-          },
-        },
-        { status: 429 }
-      );
-    }
-
-    const body = await req.json();
-    const { input, inputs, bypassCache } = body;
-
-    // Single input
-    if (typeof input === 'string') {
-      const draft = await processSingleInput(input, !!bypassCache);
-      return NextResponse.json({ ok: true, draft });
-    }
-
-    // Multiple inputs (Batch mode: สูงสุด 10 รายการ, concurrency 2)
-    if (Array.isArray(inputs) && inputs.length > 0) {
-      const limitedInputs = inputs.slice(0, 10);
-      const results: { success: boolean; draft?: ProductDraft; error?: string }[] = [];
-
-      // Concurrency 2 pool
-      for (let i = 0; i < limitedInputs.length; i += 2) {
-        const chunk = limitedInputs.slice(i, i + 2);
-        const chunkPromises = chunk.map(async (inp) => {
-          try {
-            const draft = await processSingleInput(inp, !!bypassCache);
-            return { success: true, draft };
-          } catch (err: any) {
-            return {
-              success: false,
-              error: err?.message || 'ไม่สามารถดึงข้อมูลรายการนี้ได้',
-            };
-          }
-        });
-        const chunkResults = await Promise.all(chunkPromises);
-        results.push(...chunkResults);
-      }
-
-      return NextResponse.json({ ok: true, batch: results });
-    }
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: {
-          code: 'invalid_request',
-          message: 'กรุณาระบุฟิลด์ input หรือ inputs ในคำขอ',
-        },
-      },
-      { status: 400 }
-    );
-  } catch (error: any) {
-    console.error('Error in /api/import-link:', error);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: {
-          code: error.code || 'internal_error',
-          message: error.message || 'เกิดข้อผิดพลาดในการนำเข้าลิงก์ กรุณาลองใหม่อีกครั้ง',
-        },
-      },
-      { status: 500 }
-    );
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  const ip = req.headers.get('x-forwarded-for') || (req as any).ip || '127.0.0.1';
+  if (!checkRateLimit(ip)) {
+    const err: any = new Error('คุณทำรายการบ่อยเกินไป กรุณารอประมาณ 1 นาทีแล้วลองใหม่อีกครั้งครับ');
+    err.code = 'GEMINI_QUOTA';
+    err.status = 429;
+    throw err;
   }
-}
+
+  const body = await req.json();
+  const { input, inputs, bypassCache } = body;
+
+  // Single input
+  if (typeof input === 'string') {
+    const draft = await processSingleInput(input, !!bypassCache);
+    return NextResponse.json({ ok: true, success: true, draft });
+  }
+
+  // Multiple inputs (Batch mode: สูงสุด 10 รายการ, concurrency 2)
+  if (Array.isArray(inputs) && inputs.length > 0) {
+    const limitedInputs = inputs.slice(0, 10);
+    const results: { success: boolean; draft?: ProductDraft; error?: string }[] = [];
+
+    // Concurrency 2 pool
+    for (let i = 0; i < limitedInputs.length; i += 2) {
+      const chunk = limitedInputs.slice(i, i + 2);
+      const chunkPromises = chunk.map(async (inp) => {
+        try {
+          const draft = await processSingleInput(inp, !!bypassCache);
+          return { success: true, draft };
+        } catch (err: any) {
+          return {
+            success: false,
+            error: err?.message || 'ไม่สามารถดึงข้อมูลรายการนี้ได้',
+          };
+        }
+      });
+      const chunkResults = await Promise.all(chunkPromises);
+      results.push(...chunkResults);
+    }
+
+    return NextResponse.json({ ok: true, success: true, batch: results });
+  }
+
+  const badReqErr: any = new Error('กรุณาระบุฟิลด์ input หรือ inputs ในคำขอ');
+  badReqErr.code = 'NO_URL';
+  badReqErr.status = 400;
+  throw badReqErr;
+});

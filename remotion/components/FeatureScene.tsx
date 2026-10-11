@@ -35,9 +35,12 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
 }) => {
   const frame = useCurrentFrame();
 
-  // Layouts: strictly alternate
+  // Layouts: strictly alternate and validate against supported layouts
   const layoutList: SceneLayout[] = ["hero-center", "polaroid-stack", "callout-circle"];
-  const currentLayout: SceneLayout = scene.layout || layoutList[sceneIndex % layoutList.length];
+  const currentLayout: SceneLayout =
+    scene.layout && layoutList.includes(scene.layout as SceneLayout)
+      ? (scene.layout as SceneLayout)
+      : layoutList[sceneIndex % layoutList.length];
 
   // Alternating themes: ensure adjacent scenes have different backgrounds
   const themeList: PaperTheme[] = ["cream-grid", "pastel-mint", "kraft"];

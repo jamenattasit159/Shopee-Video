@@ -1,0 +1,37 @@
+{
+  "_notice": "ค่าข้อกำหนดแพลตฟอร์มเริ่มต้นเป็น null ผู้ใช้ต้องตรวจสอบและกรอกข้อมูลจากเอกสารทางการของแต่ละแพลตฟอร์มด้วยตนเอง ห้ามเดา หากค่าเป็น null ระบบจะข้ามการตรวจและแสดงข้อความ 'ยังไม่ได้ตั้งค่า'",
+  "platforms": {
+    "tiktok": {
+      "name": "TikTok",
+      "maxDurationSec": null,
+      "maxFileSizeBytes": null,
+      "aspectRatio": "9:16",
+      "captionTemplate": null,
+      "officialDocUrl": "https://ads.tiktok.com/help/article/video-creation-specifications"
+    },
+    "shopee_video": {
+      "name": "Shopee Video",
+      "maxDurationSec": null,
+      "maxFileSizeBytes": null,
+      "aspectRatio": "9:16",
+      "captionTemplate": null,
+      "officialDocUrl": "https://seller.shopee.co.th/edu/article/18973"
+    },
+    "instagram_reels": {
+      "name": "Instagram Reels",
+      "maxDurationSec": null,
+      "maxFileSizeBytes": null,
+      "aspectRatio": "9:16",
+      "captionTemplate": null,
+      "officialDocUrl": "https://help.instagram.com/"
+    },
+    "youtube_shorts": {
+      "name": "YouTube Shorts",
+      "maxDurationSec": null,
+      "maxFileSizeBytes": null,
+      "aspectRatio": "9:16",
+      "captionTemplate": null,
+      "officialDocUrl": "https://support.google.com/youtube/answer/10059070"
+    }
+  }
+}

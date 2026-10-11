@@ -1,6 +1,6 @@
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import React from "react";
-import { Audio, continueRender, delayRender, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
+import { Audio, continueRender, delayRender, interpolate, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
 import { AbsoluteFill } from "./components/AbsoluteFill";
 import { CTAScene } from "./components/CTAScene";
 import { FeatureScene } from "./components/FeatureScene";
@@ -100,6 +100,8 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
   theme = defaultShopeeVideoProps.theme,
   styleDNA,
   voiceoverUrl,
+  voiceoverDurationSec,
+  voiceLines,
   bgmUrl = "/audio/bgm-upbeat.mp3",
 }) => {
   const { fps, durationInFrames } = useVideoConfig();
@@ -159,15 +161,60 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
   // Transition parameters (fast 8 frames = ~0.26s stop-motion slap/tear)
   const TRANSITION_FRAMES = 8;
 
-  // Calculate durations with transition overlap compensation
-  // Hook sequence
-  const hookDurationFrames = Math.max(1, Math.round((hook?.durationSec || 3) * fps));
-
   // Feature scenes
   const safeScenes = scenes && scenes.length > 0 ? scenes : defaultShopeeVideoProps.scenes;
 
-  // CTA duration
-  const ctaDurationFrames = Math.max(1, Math.round((cta?.durationSec || 3) * fps));
+  // Resolve voice lines if present
+  const hookVoiceLine = voiceLines?.find((l) => l.role === "hook");
+  const ctaVoiceLine = voiceLines?.find((l) => l.role === "cta");
+  const bodyVoiceLines = voiceLines?.filter((l) => l.role === "body") || [];
+
+  // Dynamically scale hook, scenes, and CTA so their total duration in TransitionSeries equals durationInFrames exactly!
+  // In TransitionSeries, total duration = hookDurationFrames + sum(sceneDurationFrames) + ctaDurationFrames
+  const rawHookSec = (hookVoiceLine?.durationSec && hookVoiceLine.durationSec > 0)
+    ? hookVoiceLine.durationSec + 0.3
+    : (hook?.durationSec || 3);
+
+  const rawCtaSec = (ctaVoiceLine?.durationSec && ctaVoiceLine.durationSec > 0)
+    ? ctaVoiceLine.durationSec + 0.5
+    : (cta?.durationSec || 3);
+
+  const rawScenesSumSec = safeScenes.reduce((sum, s, idx) => {
+    const bLine = bodyVoiceLines[idx];
+    const sSec = (bLine?.durationSec && bLine.durationSec > 0) ? bLine.durationSec + 0.3 : (s.durationSec || 4);
+    return sum + sSec;
+  }, 0);
+  const rawTotalSec = Math.max(1, rawHookSec + rawCtaSec + rawScenesSumSec);
+
+  // Proportional allocation of durationInFrames
+  const hookDurationFrames = Math.max(
+    Math.round(2 * fps),
+    Math.round((rawHookSec / rawTotalSec) * durationInFrames)
+  );
+  const ctaDurationFrames = Math.max(
+    Math.round(2.5 * fps),
+    Math.round((rawCtaSec / rawTotalSec) * durationInFrames)
+  );
+
+  const availableSceneFrames = Math.max(
+    safeScenes.length * 30,
+    durationInFrames - hookDurationFrames - ctaDurationFrames
+  );
+
+  // Distribute availableSceneFrames across safeScenes proportionally
+  const sceneDurationFramesList: number[] = [];
+  let allocatedSceneFrames = 0;
+  safeScenes.forEach((s, idx) => {
+    if (idx === safeScenes.length - 1) {
+      sceneDurationFramesList.push(availableSceneFrames - allocatedSceneFrames);
+    } else {
+      const bLine = bodyVoiceLines[idx];
+      const sSec = (bLine?.durationSec && bLine.durationSec > 0) ? bLine.durationSec + 0.3 : (s.durationSec || 4);
+      const sFrames = Math.round((sSec / rawScenesSumSec) * availableSceneFrames);
+      sceneDurationFramesList.push(sFrames);
+      allocatedSceneFrames += sFrames;
+    }
+  });
 
   // Transition presentation selector from styleDNA
   const getTransitionForIndex = (idx: number) => {
@@ -191,8 +238,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
   let currentCueFrame = hookDurationFrames;
   const transitionCueFrames: number[] = [hookDurationFrames];
 
-  safeScenes.forEach((s) => {
-    const d = Math.max(1, Math.round((s.durationSec || 4) * fps));
+  sceneDurationFramesList.forEach((d) => {
     currentCueFrame += d;
     transitionCueFrames.push(currentCueFrame);
   });
@@ -235,21 +281,58 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
         ✦ DAILY FINDS
       </div>
 
-      {/* 🎵 2. AUDIO LAYER: Background Music (BGM) */}
+      {/* 🎵 2. AUDIO LAYER: Background Music (BGM) with smooth fade-in and fade-out */}
       {bgmUrl && (
         <Audio
           src={resolveMediaSrc(bgmUrl)}
-          volume={0.22}
+          volume={interpolate(
+            frame,
+            [0, 15, Math.max(16, durationInFrames - 24), durationInFrames],
+            [0, 0.22, 0.22, 0],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+          )}
           loop
         />
       )}
 
       {/* 🗣️ 3. AUDIO LAYER: AI Voiceover Narration */}
-      {voiceoverUrl && (
-        <Audio
-          src={resolveMediaSrc(voiceoverUrl)}
-          volume={1.0}
-        />
+      {voiceLines && voiceLines.some((l) => l.audioUrl) ? (
+        <>
+          {hookVoiceLine?.audioUrl && (
+            <Sequence from={0} durationInFrames={Math.round(((hookVoiceLine.durationSec || 3) + 0.3) * fps)}>
+              <Audio src={resolveMediaSrc(hookVoiceLine.audioUrl)} volume={1.0} />
+            </Sequence>
+          )}
+          {safeScenes.map((_s, idx) => {
+            const bLine = bodyVoiceLines[idx];
+            if (!bLine?.audioUrl) return null;
+            const startFrame = idx === 0 ? hookDurationFrames : (transitionCueFrames[idx] || 0);
+            return (
+              <Sequence
+                key={`voice-scene-${idx}`}
+                from={startFrame}
+                durationInFrames={Math.round(((bLine.durationSec || 3) + 0.3) * fps)}
+              >
+                <Audio src={resolveMediaSrc(bLine.audioUrl)} volume={1.0} />
+              </Sequence>
+            );
+          })}
+          {ctaVoiceLine?.audioUrl && (
+            <Sequence
+              from={transitionCueFrames[transitionCueFrames.length - 1] || 0}
+              durationInFrames={Math.round(((ctaVoiceLine.durationSec || 3) + 0.5) * fps)}
+            >
+              <Audio src={resolveMediaSrc(ctaVoiceLine.audioUrl)} volume={1.0} />
+            </Sequence>
+          )}
+        </>
+      ) : (
+        voiceoverUrl && (
+          <Audio
+            src={resolveMediaSrc(voiceoverUrl)}
+            volume={1.0}
+          />
+        )
       )}
 
       {/* 💥 4. SOUND EFFECTS (SFX) SYNCHRONIZED WITH PAPER SLAPS & POPS */}
@@ -296,10 +379,8 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
 
         {/* Feature Scenes with alternating transitions */}
         {safeScenes.map((scene, idx) => {
-          const isLastScene = idx === safeScenes.length - 1;
-          const sceneDuration =
-            Math.max(1, Math.round((scene.durationSec || 4) * fps)) +
-            (isLastScene ? TRANSITION_FRAMES : TRANSITION_FRAMES);
+          const sFrames = sceneDurationFramesList[idx] || Math.round((scene.durationSec || 4) * fps);
+          const sceneDuration = sFrames + TRANSITION_FRAMES;
 
           return (
             <React.Fragment key={`series-scene-${idx}`}>

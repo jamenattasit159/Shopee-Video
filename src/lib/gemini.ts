@@ -7,10 +7,12 @@ import {
   SceneLayout,
   StoryboardPlan,
   StyleDNA,
+  VoiceLine,
 } from "../../remotion/types";
 import { loadStyleHistory, pickStyleDNA } from "./styleDirector";
 import { buildNaturalNarrationText } from "./narrationHelper";
 import { splitSafeThaiLines, validateLine } from "../../remotion/lib/thaiKeep";
+import { getRecommendedPresetForCategory } from "./voicePresets";
 
 export { buildNaturalNarrationText };
 
@@ -165,7 +167,7 @@ Return ONLY a valid JSON object matching this schema:
     "paperTheme": "halftone-orange",
     "durationSec": 3
   },
-  "narrationScript": "Full spoken voiceover in continuous, natural Thai."
+  "narrationScript": "Full spoken voiceover in continuous natural Thai (STRICT LENGTH: 160-220 Thai characters for optimal 14-16s tempo. Fast-paced, punchy, ending with basket CTA)"
 }`;
 
       const userContent = `Product Name: ${params.productName}
@@ -210,8 +212,8 @@ ${params.category ? `Product Category: ${params.category}\n` : ""}${params.promo
 The previous response had lines that violated character length or phrase boundary rules:
 ${violations.map((v) => `- ${v}`).join("\n")}
 Please rewrite these lines shorter (headlineLines <= 14 chars/line, captionLines <= 18 chars/line) without cutting middle of words or separating phrases. Return full JSON.`;
-        } catch {
-          // JSON parse failed, try next attempt
+        } catch (jsonErr: any) {
+          console.warn(`[gemini] JSON parse failed on attempt ${attempt}:`, jsonErr?.message);
         }
       }
 
@@ -848,7 +850,11 @@ function validateAndNormalizeStoryboard(
       captionLines = splitSafeThaiLines(desc, 18, 4);
     }
 
-    let layout: SceneLayout = s.layout || layouts[idx % layouts.length];
+    const validLayouts: SceneLayout[] = ["hero-center", "polaroid-stack", "callout-circle"];
+    let layout: SceneLayout =
+      s.layout && validLayouts.includes(s.layout)
+        ? s.layout
+        : layouts[idx % layouts.length];
     if (layout === prevLayout) {
       layout = layouts[(layouts.indexOf(layout) + 1) % layouts.length];
     }
@@ -953,7 +959,53 @@ function validateAndNormalizeStoryboard(
     narrationScript = buildNaturalNarrationText(params.productName, params.price, scenes, cta);
   }
 
-  return { hook, scenes, cta, theme, audioSuggestion, narrationScript, styleDNA };
+  const recommendedPreset = getRecommendedPresetForCategory(params.category);
+  const voicePresetId = data.voicePresetId || recommendedPreset.id;
+
+  let voiceLines: VoiceLine[] = [];
+  if (Array.isArray(data.voiceLines) && data.voiceLines.length > 0) {
+    voiceLines = data.voiceLines
+      .map((vl: any) => ({
+        sceneId: String(vl.sceneId || "scene"),
+        role: ((vl.role === "hook" || vl.role === "cta") ? vl.role : "body") as "hook" | "body" | "cta",
+        text: String(vl.text || "").trim(),
+        styleOverride: vl.styleOverride ? String(vl.styleOverride) : undefined,
+      }))
+      .filter((vl: VoiceLine) => vl.text.length > 0);
+  }
+
+  if (voiceLines.length === 0) {
+    voiceLines = [
+      {
+        sceneId: "hook",
+        role: "hook",
+        text: `ทุกคนนน เจอของเด็ดอีกแล้ว! ${hook.headline}`,
+      },
+      ...scenes.map((s, idx) => ({
+        sceneId: `scene_${idx}`,
+        role: "body" as const,
+        text: idx === 0 ? `${s.highlightTitle} ${s.highlightDesc}` : `แถมยัง${s.highlightTitle}`,
+      })),
+      {
+        sceneId: "cta",
+        role: "cta",
+        text: `ตอนนี้จัดโปรพิเศษเพียง ${params.price} พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!`,
+      },
+    ];
+  }
+
+  return {
+    hook,
+    scenes,
+    cta,
+    theme,
+    audioSuggestion,
+    narrationScript,
+    styleDNA,
+    voiceLines,
+    voicePresetId,
+    voiceIntensity: "mid",
+  };
 }
 
 interface HookPhraseItem {
@@ -1354,6 +1406,59 @@ function generateFallbackStoryboard(
 
   const narrationScript = buildNaturalNarrationText(params.productName, params.price, scenes, cta);
 
+  const hookVoiceOptions = [
+    `ทุกคนนน เจอของเด็ดอีกแล้ว! ${pickedHook.title}`,
+    `พี่ๆ ดูตรงนี้เลย ${pickedHook.title} ไอเทมตัวดัง`,
+    `บอกเลยว่าห้ามพลาด ${pickedHook.title} ใครยังไม่มีต้องรีบดู`,
+    `มาป้ายยาของดีรอบดึก ${pickedHook.title} ตรงปกไม่จกตา`,
+    `เปิดพิกัดของแท้ ${pickedHook.title} คุ้มค่าที่สุดในตอนนี้`,
+  ];
+  const pickedHookVoice = hookVoiceOptions[Math.floor(Math.random() * hookVoiceOptions.length)];
+
+  const ctaVoiceOptions = [
+    `ตอนนี้จัดโปรพิเศษเพียง ${params.price} พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า`,
+    `คุ้มตาแตกเหลือแค่ ${params.price} จิ้มตะกร้าส้มมุมซ้ายล่าง มีคูปองส่งฟรีด้วยนะ`,
+    `ราคาดีขนาดนี้แค่ ${params.price} เท่านั้น พิกัดตะกร้าส้มซ้ายล่าง ด่วนของมีจำนวนจำกัด`,
+    `กดสั่งได้เลยที่ตะกร้าส้มซ้ายล่าง วันนี้มีส่วนลดพิเศษเหลือ ${params.price} เท่านั้น`,
+    `ของแท้ส่งตรงจากร้าน จิ้มตะกร้าส้มมุมซ้ายล่างรับโปร ${params.price} ด่วนเลย`,
+  ];
+  const pickedCtaVoice = ctaVoiceOptions[Math.floor(Math.random() * ctaVoiceOptions.length)];
+
+  const bodyVoiceLines: VoiceLine[] = scenes.map((s, idx) => {
+    const bodyOptions = [
+      idx === 0 ? `${s.highlightTitle} ${s.highlightDesc}` : `แถมยัง${s.highlightTitle} ตอบโจทย์สุดๆ`,
+      idx === 0 ? `ตัวนี้คือ${s.highlightTitle} ใช้งานง่ายจริง` : `ที่สำคัญคือ${s.highlightTitle} คุ้มเกินราคา`,
+      idx === 0 ? `ชอบมากตรงที่${s.highlightTitle} ${s.highlightDesc}` : `ยังไม่พอน้า ${s.highlightTitle} สะดวกสบายทุกวัน`,
+      idx === 0 ? `ออกแบบมาดี ${s.highlightTitle} ไม่ผิดหวังแน่นอน` : `อีกข้อดีคือ${s.highlightTitle} ตรงปกมาก`,
+      idx === 0 ? `จุดเด่นแรกเลยคือ ${s.highlightTitle}` : `ฟังก์ชันแน่น ${s.highlightTitle} ใช้แล้วรักเลย`,
+    ];
+    return {
+      sceneId: `scene_${idx}`,
+      role: "body" as const,
+      text: bodyOptions[(idx + Math.floor(Math.random() * 5)) % bodyOptions.length],
+    };
+  });
+
+  const fallbackVoiceLines: VoiceLine[] = [
+    {
+      sceneId: "hook",
+      role: "hook",
+      text: pickedHookVoice,
+    },
+    ...bodyVoiceLines,
+    {
+      sceneId: "cta",
+      role: "cta",
+      text: pickedCtaVoice,
+    },
+  ];
+
+  const fallbackPreset = isBaby || isSleepOrToy
+    ? "friendly-trust"
+    : isGadget
+    ? "calm-reviewer"
+    : "vendor-live";
+
   return {
     hook: {
       headline: pickedHook.title,
@@ -1385,5 +1490,8 @@ function generateFallbackStoryboard(
     },
     narrationScript,
     styleDNA,
+    voiceLines: fallbackVoiceLines,
+    voicePresetId: fallbackPreset,
+    voiceIntensity: "mid",
   };
 }
