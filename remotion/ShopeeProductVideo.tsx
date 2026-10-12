@@ -1,4 +1,7 @@
-import { linearTiming, TransitionSeries } from "@remotion/transitions";
+import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
 import { Audio, continueRender, delayRender, interpolate, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
 import { AbsoluteFill } from "./components/AbsoluteFill";
@@ -6,11 +9,19 @@ import { CTAScene } from "./components/CTAScene";
 import { FeatureScene } from "./components/FeatureScene";
 import { HookScene } from "./components/HookScene";
 import { FONTS, PALETTE, waitForFonts } from "./lib/palette";
-import { useBoil, useStepFrame } from "./lib/stopMotion";
+import { useBoil } from "./lib/stopMotion";
 import { PaperFilters } from "./paper/PaperFilters";
-import { pageShuffle, slapStrip, tornWipe } from "./paper/PaperTransitions";
 import { ShopeeProductVideoProps } from "./types";
 import { resolveMediaSrc } from "./utils";
+import { THEME } from "./theme";
+import captionConfig from "./captions.json";
+import { buildCaptionPages, CaptionSegmentInput } from "./lib/captionTiming";
+import { TikTokCaptions } from "./components/TikTokCaptions";
+
+type CaptionText = { th: string; en?: string };
+type ManualCaptions = { productName: string; hook?: CaptionText; scenes?: CaptionText[]; cta?: CaptionText };
+
+const normalize = (t?: string) => (t || "").replace(/\s+/g, "").trim();
 
 export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
   productName: "แก้วเก็บความเย็น Tyeso สแตนเลส 304",
@@ -124,9 +135,10 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
   const rootBoil = useBoil("root-master", 3, { rot: 0.5, pos: 1, scale: 0.005 });
 
   const packId = styleDNA?.pack || "kraft-scrapbook";
-  const primaryColor = styleDNA?.primaryColor || theme?.primaryColor || PALETTE.shopeeOrange;
-  const accentColor = styleDNA?.accentColor || theme?.accentColor || PALETTE.sunnyYellow;
-  const bgColor = styleDNA?.bgColor || theme?.bgColor || "#FFF4E0";
+  const useProductColors = THEME.respectProductColors;
+  const primaryColor = (useProductColors && (styleDNA?.primaryColor || theme?.primaryColor)) || THEME.colors.accent;
+  const accentColor = (useProductColors && (styleDNA?.accentColor || theme?.accentColor)) || THEME.colors.accent;
+  const bgColor = (useProductColors && (styleDNA?.bgColor || theme?.bgColor)) || THEME.colors.bg;
 
   let chosenFont = FONTS.heading;
   if (styleDNA?.fontPair?.includes("kanit")) {
@@ -158,8 +170,9 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
     return safeCutouts[nextIdx] || safeCutouts[0];
   };
 
-  // Transition parameters (fast 8 frames = ~0.26s stop-motion slap/tear)
-  const TRANSITION_FRAMES = 8;
+  // Transition length (edit in theme.ts)
+  const TRANSITION_FRAMES = THEME.motion.transitionFrames;
+  const transitionTiming = springTiming({ config: { damping: 200 }, durationInFrames: TRANSITION_FRAMES });
 
   // Feature scenes
   const safeScenes = scenes && scenes.length > 0 ? scenes : defaultShopeeVideoProps.scenes;
@@ -225,12 +238,12 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
     const tType = tList[idx % tList.length];
     switch (tType) {
       case "torn-wipe":
-        return tornWipe();
+        return wipe({ direction: "from-left" }) as any;
       case "page-shuffle":
-        return pageShuffle();
+        return slide({ direction: "from-bottom" }) as any;
       case "slap-strip":
       default:
-        return slapStrip();
+        return slide({ direction: "from-right" }) as any;
     }
   };
 
@@ -245,9 +258,65 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
 
   const ctaCueFrame = currentCueFrame - Math.max(1, Math.round((safeScenes[safeScenes.length - 1]?.durationSec || 4) * fps));
 
-  // Stepped progress bar for stop-motion aesthetic
-  const stepFrame = useStepFrame(3);
-  const progressPercent = Math.min(100, (stepFrame / durationInFrames) * 100);
+  const progressPercent = Math.min(100, (frame / durationInFrames) * 100);
+
+  // ── Captions: manual (captions.json) → voice script → on-screen subtitle ──
+  const manual = (captionConfig.manual as ManualCaptions[]).find((m) => m.productName === productName);
+  const language = captionConfig.language as "th" | "en" | "both";
+  const ctaStartFrame = transitionCueFrames[transitionCueFrames.length - 1] || 0;
+
+  const sceneSubtitle = (idx: number) => {
+    const s = safeScenes[idx];
+    return s.highlightDesc && s.highlightDesc.trim() !== s.highlightTitle.trim() ? s.highlightDesc : "";
+  };
+  const pick = (manualText?: CaptionText, voiceText?: string, subtitle?: string): CaptionText | undefined =>
+    manualText || (voiceText ? { th: voiceText } : subtitle ? { th: subtitle } : undefined);
+  const speechFrames = (voiceSec: number | undefined, segmentFrames: number) =>
+    voiceSec && voiceSec > 0 ? Math.min(segmentFrames, Math.round(voiceSec * fps) + 6) : segmentFrames;
+
+  const captionPlan: Array<{ text?: CaptionText; subtitle?: string; from: number; frames: number }> = [
+    {
+      text: pick(manual?.hook, hookVoiceLine?.text, hook?.subheadline),
+      subtitle: hook?.subheadline,
+      from: 0,
+      frames: speechFrames(hookVoiceLine?.durationSec, hookDurationFrames),
+    },
+    ...safeScenes.map((_s, idx) => ({
+      text: pick(manual?.scenes?.[idx], bodyVoiceLines[idx]?.text, sceneSubtitle(idx)),
+      subtitle: sceneSubtitle(idx),
+      from: transitionCueFrames[idx] || 0,
+      frames: speechFrames(bodyVoiceLines[idx]?.durationSec, sceneDurationFramesList[idx] || 0),
+    })),
+    {
+      text: pick(manual?.cta, ctaVoiceLine?.text, cta?.ctaSubtitle),
+      subtitle: cta?.ctaSubtitle,
+      from: ctaStartFrame,
+      frames: speechFrames(ctaVoiceLine?.durationSec, ctaDurationFrames),
+    },
+  ];
+
+  const captionsOn = captionConfig.enabled;
+  // Hide the in-scene subtitle when the caption track already says the same thing
+  const hideSubtitle = captionPlan.map(
+    (c) => captionsOn && !!c.text && normalize(c.text.th) === normalize(c.subtitle)
+  );
+  const captionKey = JSON.stringify(captionPlan);
+  const captionPages = React.useMemo(() => {
+    if (!captionsOn) return [];
+    const segments: CaptionSegmentInput[] = captionPlan
+      .filter((c) => c.text)
+      .map((c) => ({
+        th: language === "en" ? c.text!.en || c.text!.th : c.text!.th,
+        en: language === "both" ? c.text!.en : undefined,
+        from: c.from,
+        durationFrames: c.frames,
+      }));
+    return buildCaptionPages(segments, captionConfig.maxCharsPerPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [captionKey, captionsOn, language]);
+
+  const hasVoice = !!voiceoverUrl || !!voiceLines?.some((l) => l.audioUrl);
+  const bgmLevel = hasVoice ? THEME.audio.bgmVolumeUnderVoice : THEME.audio.bgmVolume;
 
   return (
     <AbsoluteFill
@@ -266,14 +335,14 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
           position: "absolute",
           top: "42px",
           right: "36px",
-          backgroundColor: "rgba(27, 27, 27, 0.88)",
-          color: "#FFFFFF",
+          backgroundColor: THEME.colors.surface,
+          border: `1px solid ${THEME.colors.border}`,
+          color: THEME.colors.textMuted,
           padding: "6px 16px",
-          borderRadius: "6px",
+          borderRadius: "12px",
           fontSize: "22px",
-          fontWeight: 800,
+          fontWeight: 700,
           letterSpacing: "1px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
           zIndex: 70,
           pointerEvents: "none",
         }}
@@ -288,7 +357,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
           volume={interpolate(
             frame,
             [0, 15, Math.max(16, durationInFrames - 24), durationInFrames],
-            [0, 0.22, 0.22, 0],
+            [0, bgmLevel, bgmLevel, 0],
             { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
           )}
           loop
@@ -337,28 +406,24 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
 
       {/* 💥 4. SOUND EFFECTS (SFX) SYNCHRONIZED WITH PAPER SLAPS & POPS */}
       {/* Hook entrance pop */}
-      <Sequence from={2} durationInFrames={14}>
-        <Audio src={resolveMediaSrc("/sfx/sfx-pop.mp3")} volume={0.65} />
+      <Sequence from={0} durationInFrames={14}>
+        <Audio src={resolveMediaSrc(THEME.audio.hookSfx)} volume={THEME.audio.sfxVolume} />
       </Sequence>
 
-      {/* Scene transition sound effects */}
-      {transitionCueFrames.map((cueFrame, idx) => {
-        const sfxFile =
-          idx % 2 === 0 ? "/sfx/sfx-slap.mp3" : "/sfx/sfx-tear.mp3";
-        return (
-          <Sequence
-            key={`sfx-transition-${idx}`}
-            from={Math.max(0, cueFrame - 4)}
-            durationInFrames={16}
-          >
-            <Audio src={resolveMediaSrc(sfxFile)} volume={0.6} />
-          </Sequence>
-        );
-      })}
+      {/* Scene transition whooshes */}
+      {transitionCueFrames.map((cueFrame, idx) => (
+        <Sequence
+          key={`sfx-transition-${idx}`}
+          from={Math.max(0, cueFrame - Math.round(TRANSITION_FRAMES / 2))}
+          durationInFrames={20}
+        >
+          <Audio src={resolveMediaSrc(THEME.audio.transitionSfx)} volume={THEME.audio.sfxVolume * 0.8} />
+        </Sequence>
+      ))}
 
       {/* CTA Starburst Price Reveal Cash Ding */}
       <Sequence from={Math.max(0, transitionCueFrames[transitionCueFrames.length - 2] || 360)} durationInFrames={25}>
-        <Audio src={resolveMediaSrc("/sfx/sfx-cash.mp3")} volume={0.75} />
+        <Audio src={resolveMediaSrc(THEME.audio.ctaSfx)} volume={THEME.audio.sfxVolume} />
       </Sequence>
 
       {/* 🎬 5. TRANSITION SERIES FOR SEAMLESS PAPER TRANSITIONS */}
@@ -374,6 +439,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             accentColor={accentColor}
             packId={packId}
             bgColor={bgColor}
+            hideSubtitle={hideSubtitle[0]}
           />
         </TransitionSeries.Sequence>
 
@@ -386,7 +452,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             <React.Fragment key={`series-scene-${idx}`}>
               <TransitionSeries.Transition
                 presentation={getTransitionForIndex(idx)}
-                timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
+                timing={transitionTiming}
               />
               <TransitionSeries.Sequence durationInFrames={sceneDuration}>
                 <FeatureScene
@@ -399,6 +465,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
                   accentColor={accentColor}
                   packId={packId}
                   bgColor={bgColor}
+                  hideSubtitle={hideSubtitle[idx + 1]}
                 />
               </TransitionSeries.Sequence>
             </React.Fragment>
@@ -407,8 +474,8 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
 
         {/* Transition into CTA */}
         <TransitionSeries.Transition
-          presentation={slapStrip()}
-          timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
+          presentation={fade() as any}
+          timing={transitionTiming}
         />
 
         {/* Scene Final: CTA */}
@@ -420,9 +487,13 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             productName={productName}
             primaryColor={primaryColor}
             accentColor={accentColor}
+            hideSubtitle={hideSubtitle[hideSubtitle.length - 1]}
           />
         </TransitionSeries.Sequence>
       </TransitionSeries>
+
+      {/* 💬 7. WORD-BY-WORD CAPTIONS (text: captions.json, style: theme.ts) */}
+      <TikTokCaptions pages={captionPages} showEnglish={language === "both"} />
 
       {/* ⏱️ 6. TOP PROGRESS BAR (Paper Tape Style) */}
       <div
@@ -431,11 +502,10 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
           top: "18px",
           left: "24px",
           right: "24px",
-          height: "8px",
-          background: "rgba(0, 0, 0, 0.18)",
-          borderRadius: "4px",
+          height: "6px",
+          background: THEME.colors.surfaceRaised,
+          borderRadius: "999px",
           overflow: "hidden",
-          boxShadow: "inset 0 1px 3px rgba(0,0,0,0.2)",
           zIndex: 60,
         }}
       >
@@ -443,8 +513,8 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
           style={{
             height: "100%",
             width: `${progressPercent}%`,
-            background: `repeating-linear-gradient(45deg, ${primaryColor}, ${primaryColor} 10px, ${accentColor} 10px, ${accentColor} 20px)`,
-            borderRadius: "4px",
+            background: THEME.colors.accent,
+            borderRadius: "999px",
           }}
         />
       </div>

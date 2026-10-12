@@ -1,6 +1,7 @@
 import { loadFont as loadKanit } from "@remotion/google-fonts/Kanit";
 import { loadFont as loadMali } from "@remotion/google-fonts/Mali";
 import { loadFont as loadPrompt } from "@remotion/google-fonts/Prompt";
+import { loadFont as loadSarabun } from "@remotion/google-fonts/Sarabun";
 
 // Preload fonts for Thai typography in Remotion
 // RULE V2: Prompt (700-800), Kanit (600-700, FORBID 900), Mali (700)
@@ -19,10 +20,17 @@ const maliData = loadMali("normal", {
   subsets: ["thai", "latin"],
 });
 
+// Captions: Sarabun bold for maximum legibility
+const sarabunData = loadSarabun("normal", {
+  weights: ["700", "800"],
+  subsets: ["thai", "latin"],
+});
+
 export const FONTS = {
   heading: `${promptData.fontFamily}, ${kanitData.fontFamily}, sans-serif`,
   body: `${kanitData.fontFamily}, sans-serif`,
   handwriting: `${maliData.fontFamily}, cursive, sans-serif`,
+  caption: `${sarabunData.fontFamily}, ${kanitData.fontFamily}, sans-serif`,
 };
 
 export const waitForFonts = async () => {
@@ -31,6 +39,7 @@ export const waitForFonts = async () => {
       promptData.waitUntilDone?.(),
       kanitData.waitUntilDone?.(),
       maliData.waitUntilDone?.(),
+      sarabunData.waitUntilDone?.(),
     ]);
   } catch (err) {
     console.warn("[waitForFonts] Font loading warning:", err);

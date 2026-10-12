@@ -1,14 +1,19 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { FONTS, PALETTE } from "../lib/palette";
+import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { FONTS } from "../lib/palette";
 import { CutoutImage } from "../paper/CutoutImage";
-import { Doodle } from "../paper/Doodle";
-import { PaperBackground, PaperTheme } from "../paper/PaperBackground";
-import { StickerText } from "../paper/StickerText";
 import { TornStrip } from "../paper/TornStrip";
-import { WashiTape } from "../paper/WashiTape";
 import { PackId, SceneData, SceneLayout } from "../types";
-import { renderKeep, splitSafeThaiLines } from "../lib/thaiKeep";
+import { splitSafeThaiLines } from "../lib/thaiKeep";
+import { THEME } from "../theme";
+import {
+  HighlightFrame,
+  LineReveal,
+  PRODUCT_CARD_STYLE,
+  SceneBackground,
+  SceneShell,
+  SlowZoom,
+} from "./SceneMotion";
 
 interface FeatureSceneProps {
   scene: SceneData;
@@ -20,7 +25,19 @@ interface FeatureSceneProps {
   accentColor?: string;
   packId?: PackId;
   bgColor?: string;
+  /** Description is already shown by the word-by-word captions */
+  hideSubtitle?: boolean;
 }
+
+const CONTENT_PADDING: React.CSSProperties = {
+  paddingTop: "260px",
+  paddingBottom: "400px",
+  paddingLeft: "70px",
+  paddingRight: "140px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+};
 
 export const FeatureScene: React.FC<FeatureSceneProps> = ({
   scene,
@@ -28,26 +45,21 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
   secondaryImageSrc,
   sceneIndex,
   totalScenes,
-  primaryColor = PALETTE.shopeeOrange,
-  accentColor = PALETTE.sunnyYellow,
-  packId,
-  bgColor,
+  primaryColor = THEME.colors.accent,
+  accentColor = THEME.colors.accent,
+  hideSubtitle,
 }) => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
-  // Layouts: strictly alternate and validate against supported layouts
   const layoutList: SceneLayout[] = ["hero-center", "polaroid-stack", "callout-circle"];
   const currentLayout: SceneLayout =
     scene.layout && layoutList.includes(scene.layout as SceneLayout)
       ? (scene.layout as SceneLayout)
       : layoutList[sceneIndex % layoutList.length];
 
-  // Alternating themes: ensure adjacent scenes have different backgrounds
-  const themeList: PaperTheme[] = ["cream-grid", "pastel-mint", "kraft"];
-  const paperTheme: PaperTheme = scene.paperTheme || themeList[sceneIndex % themeList.length];
-
-  // Sub-beat every 1.2s (at frame 36 of 30fps)
-  const isSubBeat = frame >= 36;
+  // Sticker pops in at the 1.2s sub-beat
+  const stickerPop = spring({ frame: frame - 36, fps, config: { damping: 10, stiffness: 200 } });
 
   // RULE A2: Headline ≠ Caption (Never duplicate identical text in same scene)
   let cleanDesc = scene.highlightDesc || "";
@@ -59,349 +71,189 @@ export const FeatureScene: React.FC<FeatureSceneProps> = ({
         ? "พกพาสะดวก คุมโทนเข้าได้ทุกไลฟ์สไตล์"
         : "จัดโปรพิเศษ คุ้มค่าที่สุดใน Shopee";
   }
+  const descLines =
+    scene.captionLines && scene.captionLines.length > 0 ? scene.captionLines : splitSafeThaiLines(cleanDesc, 18, 4);
+
+  const headline = (
+    <div style={{ position: "relative", zIndex: 25 }}>
+      <TornStrip
+        id={`feat-${sceneIndex}-strip`}
+        text={scene.highlightTitle}
+        lines={scene.headlineLines}
+        bg={accentColor}
+        textColor={THEME.colors.text}
+        fontSize={88}
+        rotate={sceneIndex % 2 === 0 ? -1.5 : 1.5}
+        delay={2}
+        padding="16px 36px"
+        style={{ maxWidth: "880px" }}
+      />
+    </div>
+  );
+
+  const sticker = scene.stickerText && frame >= 36 && (
+    <div
+      style={{
+        position: "absolute",
+        top: "10%",
+        right: "8px",
+        backgroundColor: primaryColor,
+        color: THEME.colors.text,
+        fontFamily: FONTS.heading,
+        fontWeight: 700,
+        fontSize: "44px",
+        padding: "10px 24px",
+        borderRadius: "16px",
+        transform: `rotate(4deg) scale(${stickerPop})`,
+        boxShadow: "0 10px 24px rgba(2,6,23,0.5)",
+        whiteSpace: "nowrap",
+        zIndex: 28,
+      }}
+    >
+      {scene.stickerText}
+    </div>
+  );
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      {/* 📜 1. Paper Background */}
-      <PaperBackground theme={paperTheme} packId={packId} bg={bgColor} overlayOpacity={0.11} />
+      <SceneBackground />
 
-      {/* 🏷️ Step Tag Badge (Rule A2: >= 40px) */}
-      <div
-        style={{
-          position: "absolute",
-          top: "190px",
-          left: "70px",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          background: PALETTE.ink,
-          color: PALETTE.white,
-          fontFamily: FONTS.heading,
-          fontWeight: 800,
-          fontSize: "40px", // Rule A2: Tag >= 40px
-          padding: "8px 18px",
-          borderRadius: "8px",
-          transform: "rotate(-3deg)",
-          boxShadow: "3px 5px 0px rgba(0,0,0,0.35)",
-          zIndex: 30,
-        }}
-      >
-        <span>POINT {sceneIndex + 1}/{totalScenes}</span>
-      </div>
-
-      {/* 🌟 LAYOUT A: Hero Center */}
-      {currentLayout === "hero-center" && (
-        <AbsoluteFill
+      <SceneShell>
+        {/* Step tag */}
+        <div
           style={{
-            paddingTop: "240px",
-            paddingBottom: "400px",
-            paddingLeft: "70px",
-            paddingRight: "140px",
+            position: "absolute",
+            top: "180px",
+            left: "70px",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
+            gap: "12px",
+            fontFamily: FONTS.heading,
+            fontWeight: 700,
+            fontSize: "40px",
+            color: THEME.colors.textMuted,
+            zIndex: 30,
           }}
         >
-          {/* Top Headline on Torn Strip (Rule A2: >= 88px) */}
-          <TornStrip
-            id={`feat-${sceneIndex}-strip`}
-            text={scene.highlightTitle}
-            lines={scene.headlineLines}
-            bg={accentColor}
-            textColor={PALETTE.ink}
-            fontSize={88} // Rule A2: >= 88px
-            rotate={-2}
-            delay={2}
-            padding="16px 36px"
-            style={{ maxWidth: "880px" }}
-          />
-
-          {/* Subtitle / Description (Rule A2: >= 56px with solid backing) */}
-          {cleanDesc && (
-            <div style={{ marginTop: "16px" }}>
-              <StickerText
-                id={`feat-${sceneIndex}-desc`}
-                text={cleanDesc}
-                lines={scene.captionLines}
-                highlightWord={scene.highlightWord}
-                fontSize={56} // Rule A2: >= 56px
-                color={PALETTE.white}
-                strokeColor={PALETTE.ink}
-                withSolidBacking={true}
-                delay={6}
-                rotate={1}
-              />
-            </div>
-          )}
-
-          {/* Center Product Cutout (Scale 1.4x, centered at ~55% height) */}
-          <CutoutImage
-            id={`feat-${sceneIndex}-hero-img`}
-            src={imageSrc}
-            delay={4}
-            baseRotate={-2}
-            width={840} // Scaled up 1.4x
-            x={0}
-            y={50}
-            showTape={true}
+          <span
+            style={{
+              backgroundColor: THEME.colors.accent,
+              color: THEME.colors.text,
+              padding: "4px 18px",
+              borderRadius: "12px",
+            }}
           >
-            {/* Sub-beat 1.2s: Fun Sticker Tag Badge (contained within image boundaries) */}
-            {scene.stickerText && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "10%",
-                  right: "8px", // Clamped within product image boundary
-                  backgroundColor: primaryColor,
-                  color: PALETTE.white,
-                  fontFamily: FONTS.heading,
-                  fontWeight: 800,
-                  fontSize: "44px",
-                  padding: "10px 24px",
-                  borderRadius: "14px",
-                  transform: `rotate(${isSubBeat ? 8 : 4}deg)`,
-                  boxShadow: "6px 8px 0px rgba(0,0,0,0.4)",
-                  border: `3px solid ${PALETTE.white}`,
-                  whiteSpace: "nowrap",
-                  zIndex: 28,
-                  transition: "transform 0.1s ease",
-                }}
+            POINT {sceneIndex + 1}/{totalScenes}
+          </span>
+        </div>
+
+        {currentLayout === "hero-center" && (
+          <>
+            <SlowZoom>
+              <CutoutImage
+                id={`feat-${sceneIndex}-hero-img`}
+                src={imageSrc}
+                delay={4}
+                baseRotate={-2}
+                width={840}
+                x={0}
+                y={50}
+                style={PRODUCT_CARD_STYLE}
               >
-                {scene.stickerText}
-              </div>
-            )}
-          </CutoutImage>
-
-          {/* Doodles */}
-          <Doodle
-            id={`feat-${sceneIndex}-arrow`}
-            type="arrow"
-            color={PALETTE.shopeeOrange}
-            strokeWidth={8}
-            width={150}
-            height={150}
-            x={-10}
-            y={880}
-            rotate={20}
-            delay={10}
-          />
-
-          <Doodle
-            id={`feat-${sceneIndex}-sparkle`}
-            type="sparkle"
-            color={PALETTE.sunnyYellow}
-            width={90}
-            height={90}
-            x={750}
-            y={700}
-            delay={12}
-          />
-        </AbsoluteFill>
-      )}
-
-      {/* 📸 LAYOUT B: Polaroid Stack */}
-      {currentLayout === "polaroid-stack" && (
-        <AbsoluteFill
-          style={{
-            paddingTop: "240px",
-            paddingBottom: "400px",
-            paddingLeft: "70px",
-            paddingRight: "140px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          {/* Top Headline Strip (Rule A2: >= 88px) */}
-          <TornStrip
-            id={`feat-${sceneIndex}-polaroid-title`}
-            text={scene.highlightTitle}
-            lines={scene.headlineLines}
-            bg={PALETTE.sunnyYellow}
-            textColor={PALETTE.ink}
-            fontSize={88} // Rule A2: >= 88px
-            rotate={1.5}
-            delay={2}
-          />
-
-          {/* Back Polaroid Card (Delay 4f) */}
-          <CutoutImage
-            id={`feat-${sceneIndex}-pol-back`}
-            src={secondaryImageSrc || imageSrc}
-            isPolaroid={true}
-            polaroidCaption="มุมมองการใช้งานจริง"
-            baseRotate={-6}
-            width={430}
-            x={-120}
-            y={10}
-            delay={4}
-            showTape={true}
-          />
-
-          {/* Front Main Polaroid Card (Delay 7f, higher z-index to avoid collision) */}
-          <CutoutImage
-            id={`feat-${sceneIndex}-pol-front`}
-            src={imageSrc}
-            isPolaroid={true}
-            polaroidCaption="ของจริงสวยมาก ✨"
-            baseRotate={isSubBeat ? 4 : 2}
-            width={460}
-            x={80}
-            y={110}
-            delay={7}
-            showTape={true}
-          />
-
-          {/* Bottom Subtitle / Description (Rule A2: >= 56px with solid backing) */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: "400px",
-              left: "80px",
-              right: "150px",
-              textAlign: "center",
-            }}
-          >
-            <StickerText
-              id={`feat-${sceneIndex}-pol-desc`}
-              text={cleanDesc}
-              lines={scene.captionLines}
-              highlightWord={scene.highlightWord}
-              fontSize={56} // Rule A2: >= 56px
-              color={PALETTE.white}
-              strokeColor={PALETTE.ink}
-              withSolidBacking={true}
-              delay={10}
-            />
-          </div>
-
-          <WashiTape
-            id={`feat-${sceneIndex}-tape-corner`}
-            x={640}
-            y={620}
-            rotate={-15}
-            width={120}
-            pattern="dots"
-          />
-        </AbsoluteFill>
-      )}
-
-      {/* 🎯 LAYOUT C: Callout Circle */}
-      {currentLayout === "callout-circle" && (
-        <AbsoluteFill
-          style={{
-            paddingTop: "240px",
-            paddingBottom: "400px",
-            paddingLeft: "70px",
-            paddingRight: "140px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          {/* Top Title Strip (Rule A2: >= 88px) */}
-          <TornStrip
-            id={`feat-${sceneIndex}-callout-title`}
-            text={scene.highlightTitle}
-            lines={scene.headlineLines}
-            bg={accentColor}
-            textColor={PALETTE.ink}
-            fontSize={88} // Rule A2: >= 88px
-            rotate={-1.5}
-            delay={2}
-          />
-
-          {/* Cutout Product Image centered-right (Scale 1.4x) */}
-          <CutoutImage
-            id={`feat-${sceneIndex}-callout-img`}
-            src={imageSrc}
-            delay={4}
-            baseRotate={-2}
-            width={820}
-            x={30}
-            y={50}
-            showTape={true}
-          />
-
-          {/* Hand-Drawn Highlight Circle (Delay 8f, expands slightly at sub-beat) */}
-          <Doodle
-            id={`feat-${sceneIndex}-circle-doodle`}
-            type="circle"
-            color={PALETTE.shopeeOrange}
-            strokeWidth={10}
-            width={isSubBeat ? 360 : 340}
-            height={isSubBeat ? 360 : 340}
-            x={260}
-            y={660}
-            rotate={-8}
-            delay={8}
-          />
-
-          {/* Callout Speech Bubble / Torn Note (Rule A2: >= 56px) with pre-split lines */}
-          <div
-            style={{
-              position: "absolute",
-              top: "980px",
-              left: "80px",
-              maxWidth: "680px",
-              backgroundColor: PALETTE.cream,
-              border: `4px solid ${PALETTE.ink}`,
-              padding: "20px 28px",
-              borderRadius: "20px",
-              boxShadow: "8px 10px 0px rgba(0,0,0,0.38)",
-              transform: `rotate(${isSubBeat ? -4 : -2}deg)`,
-              filter: "url(#torn)",
-              zIndex: 29,
-            }}
-          >
-            <div
-              style={{
-                fontFamily: FONTS.heading,
-                fontWeight: 800,
-                fontSize: "56px", // Rule A2: >= 56px
-                color: PALETTE.ink,
-                lineHeight: 1.3,
-                letterSpacing: "0.01em",
-                whiteSpace: "nowrap",
-                wordBreak: "keep-all",
-                overflowWrap: "normal",
-              }}
-            >
-              {(scene.captionLines && scene.captionLines.length > 0
-                ? scene.captionLines
-                : splitSafeThaiLines(cleanDesc, 18, 4)
-              ).map((l, li) => (
-                <div key={li} style={{ whiteSpace: "nowrap" }}>
-                  {li === 0 ? `👉 ` : ""}
-                  {renderKeep(l)}
+                {sticker}
+              </CutoutImage>
+            </SlowZoom>
+            <HighlightFrame x={160} y={760} width={700} height={560} delay={12} />
+            <AbsoluteFill style={CONTENT_PADDING}>
+              {headline}
+              {!hideSubtitle && (
+                <div style={{ marginTop: "16px", zIndex: 25 }}>
+                  <LineReveal lines={descLines} delay={8} />
                 </div>
-              ))}
-            </div>
-          </div>
+              )}
+            </AbsoluteFill>
+          </>
+        )}
 
-          {/* Sparkles */}
-          <Doodle
-            id={`feat-${sceneIndex}-sparkle-c`}
-            type="sparkle"
-            color={PALETTE.sunnyYellow}
-            width={90}
-            height={90}
-            x={100}
-            y={520}
-            delay={8}
-          />
-          <Doodle
-            id={`feat-${sceneIndex}-star-c`}
-            type="star"
-            color={PALETTE.pink}
-            width={80}
-            height={80}
-            x={760}
-            y={1060}
-            delay={12}
-          />
-        </AbsoluteFill>
-      )}
+        {currentLayout === "polaroid-stack" && (
+          <>
+            <SlowZoom direction={-1}>
+              <CutoutImage
+                id={`feat-${sceneIndex}-pol-back`}
+                src={secondaryImageSrc || imageSrc}
+                isPolaroid={true}
+                polaroidCaption="มุมมองการใช้งานจริง"
+                baseRotate={-6}
+                width={430}
+                x={-120}
+                y={-60}
+                delay={4}
+                style={{ background: THEME.colors.text, borderRadius: 24 }}
+              />
+              <CutoutImage
+                id={`feat-${sceneIndex}-pol-front`}
+                src={imageSrc}
+                isPolaroid={true}
+                polaroidCaption="ของจริงสวยมาก ✨"
+                baseRotate={frame >= 36 ? 4 : 2}
+                width={460}
+                x={80}
+                y={40}
+                delay={7}
+                style={{ background: THEME.colors.text, borderRadius: 24 }}
+              />
+            </SlowZoom>
+            <AbsoluteFill style={CONTENT_PADDING}>
+              {headline}
+              {!hideSubtitle && (
+                <div style={{ position: "absolute", bottom: "420px", left: "80px", right: "150px", textAlign: "center" }}>
+                  <LineReveal lines={descLines} delay={10} />
+                </div>
+              )}
+            </AbsoluteFill>
+          </>
+        )}
+
+        {currentLayout === "callout-circle" && (
+          <>
+            <SlowZoom>
+              <CutoutImage
+                id={`feat-${sceneIndex}-callout-img`}
+                src={imageSrc}
+                delay={4}
+                baseRotate={-2}
+                width={820}
+                x={30}
+                y={50}
+                style={PRODUCT_CARD_STYLE}
+              />
+            </SlowZoom>
+            {/* Capture-style focus box replaces the hand-drawn circle */}
+            <HighlightFrame
+              x={300}
+              y={640}
+              width={460}
+              height={420}
+              delay={8}
+              label={scene.highlightWord || undefined}
+            />
+            <AbsoluteFill style={CONTENT_PADDING}>
+              {headline}
+              {!hideSubtitle && (
+                <div style={{ position: "absolute", top: "1100px", left: "80px", zIndex: 29 }}>
+                  <LineReveal
+                    lines={descLines.map((l, li) => (li === 0 ? `👉 ${l}` : l))}
+                    delay={10}
+                    fontSize={56}
+                    style={{ alignItems: "flex-start", color: THEME.colors.text }}
+                  />
+                </div>
+              )}
+            </AbsoluteFill>
+          </>
+        )}
+      </SceneShell>
     </AbsoluteFill>
   );
 };
+

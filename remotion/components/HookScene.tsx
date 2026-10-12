@@ -1,15 +1,21 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { FONTS, PALETTE } from "../lib/palette";
-import { useStepFrame } from "../lib/stopMotion";
+import { FONTS } from "../lib/palette";
+import { splitSafeThaiLines } from "../lib/thaiKeep";
 import { CutoutImage } from "../paper/CutoutImage";
 import { Doodle } from "../paper/Doodle";
-import { PaperBackground } from "../paper/PaperBackground";
-import { StickerText } from "../paper/StickerText";
 import { TornStrip } from "../paper/TornStrip";
-import { WashiTape } from "../paper/WashiTape";
 import { HookData, PackId } from "../types";
 import { PACK_MAP } from "../packs";
+import { THEME } from "../theme";
+import {
+  HighlightFrame,
+  LineReveal,
+  PRODUCT_CARD_STYLE,
+  SceneBackground,
+  SceneShell,
+  SlowZoom,
+} from "./SceneMotion";
 
 interface HookSceneProps {
   hook: HookData;
@@ -18,19 +24,19 @@ interface HookSceneProps {
   accentColor?: string;
   packId?: PackId;
   bgColor?: string;
+  /** Subheadline is already shown by the word-by-word captions */
+  hideSubtitle?: boolean;
 }
 
 export const HookScene: React.FC<HookSceneProps> = ({
   hook,
   imageSrc,
-  primaryColor = PALETTE.shopeeOrange,
-  accentColor = PALETTE.sunnyYellow,
+  primaryColor = THEME.colors.accent,
+  accentColor = THEME.colors.accent,
   packId,
-  bgColor,
+  hideSubtitle,
 }) => {
   const frame = useCurrentFrame();
-  const stepFrame = useStepFrame(3);
-  const paperTheme = hook.paperTheme || "kraft";
 
   // Sub-beat at ~1.2s (frame 36) - playful shake/pulse
   const isSubBeat = frame >= 36;
@@ -39,165 +45,123 @@ export const HookScene: React.FC<HookSceneProps> = ({
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      {/* 📜 1. Paper Background (Kraft Brown Texture or Pack background) */}
-      <PaperBackground theme={paperTheme} packId={packId} bg={bgColor} overlayOpacity={0.12} />
+      <SceneBackground />
 
-      {/* Main Content Area */}
-      <AbsoluteFill
-        style={{
-          paddingTop: "200px",
-          paddingBottom: "400px",
-          paddingLeft: "70px",
-          paddingRight: "140px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {/* 🏷️ Top Badge Tag (Delay 2f) */}
-        {hook.badgeText && (
-          <div style={{ position: "relative", marginBottom: "16px" }}>
-            {pack?.renderBadge ? (
-              pack.renderBadge(hook.badgeText, primaryColor)
-            ) : (
-              <>
-                <WashiTape
-                  id="hook-badge-tape"
-                  x={-20}
-                  y={-14}
-                  rotate={-6}
-                  width={120}
-                  height={34}
-                  pattern="striped"
-                />
+      <SceneShell punch>
+        {/* Product with slow zoom + capture-style highlight frame */}
+        <SlowZoom>
+          <CutoutImage
+            id="hook-product-cutout"
+            src={imageSrc}
+            delay={0}
+            baseRotate={-2}
+            width={840}
+            x={0}
+            y={40}
+            style={PRODUCT_CARD_STYLE}
+          >
+            {isSubBeat && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "12%",
+                  right: "8px",
+                  backgroundColor: THEME.colors.accent,
+                  color: THEME.colors.text,
+                  fontFamily: FONTS.heading,
+                  fontWeight: 700,
+                  fontSize: "32px",
+                  padding: "8px 22px",
+                  borderRadius: "16px",
+                  transform: "rotate(4deg)",
+                  boxShadow: "0 10px 24px rgba(2,6,23,0.5)",
+                  whiteSpace: "nowrap",
+                  zIndex: 30,
+                }}
+              >
+                ✨ ไอเทมเด็ดช้อปปี้
+              </div>
+            )}
+          </CutoutImage>
+        </SlowZoom>
+        <HighlightFrame x={150} y={700} width={720} height={600} delay={14} />
+
+        <AbsoluteFill
+          style={{
+            paddingTop: "200px",
+            paddingBottom: "400px",
+            paddingLeft: "70px",
+            paddingRight: "140px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {hook.badgeText && (
+            <div style={{ position: "relative", marginBottom: "16px", zIndex: 25 }}>
+              {pack?.renderBadge ? (
+                pack.renderBadge(hook.badgeText, primaryColor)
+              ) : (
                 <div
                   style={{
-                    backgroundColor: primaryColor,
-                    color: PALETTE.white,
+                    backgroundColor: THEME.colors.surfaceRaised,
+                    color: THEME.colors.accentSoft,
+                    border: `2px solid ${THEME.colors.accent}`,
                     fontFamily: FONTS.heading,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     fontSize: "30px",
                     padding: "8px 24px",
-                    borderRadius: "10px",
-                    boxShadow: "4px 6px 0px rgba(0,0,0,0.35)",
-                    transform: "rotate(-2deg)",
-                    filter: "url(#torn)",
+                    borderRadius: "999px",
                   }}
                 >
                   {hook.badgeText}
                 </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* 💥 Main Hook Headline (TornStrip with Thai line balancing, fontSize >= 88px) */}
-        <TornStrip
-          id="hook-headline-strip"
-          text={hook.headline}
-          lines={hook.headlineLines}
-          bg={accentColor}
-          textColor={PALETTE.ink}
-          fontSize={88} // V2 rule: Headline >= 88px
-          rotate={-1.5}
-          delay={2}
-          padding="16px 36px"
-          style={{ maxWidth: "880px" }}
-        />
-
-        {/* 📝 Subheadline (Delay 8f, with solid backing for 7:1 contrast) */}
-        {hook.subheadline && (
-          <div style={{ marginTop: "18px" }}>
-            <StickerText
-              id="hook-subheadline"
-              text={hook.subheadline}
-              lines={hook.captionLines}
-              highlightWord={hook.highlightWord}
-              fontSize={56} // V2 rule: Subtitle >= 56px
-              color={PALETTE.white}
-              strokeColor={PALETTE.ink}
-              withSolidBacking={true}
-              delay={8}
-              rotate={1}
-            />
-          </div>
-        )}
-
-        {/* 🖼️ Product Cutout (Enlarged 1.3-1.5x, centered around ~55% height) */}
-        <CutoutImage
-          id="hook-product-cutout"
-          src={imageSrc}
-          delay={6}
-          baseRotate={-2}
-          width={840} // Scaled up 1.4x
-          x={0}
-          y={40}
-          showTape={true}
-        >
-          {/* ⚡ Sub-beat Accent: Clamped sticker relative to product image (Rule E3: max 12px beyond edge, safe non-guarantee wording per E4) */}
-          {isSubBeat && (
-            <div
-              style={{
-                position: "absolute",
-                top: "12%",
-                right: "8px", // Clamped within product image boundary
-                backgroundColor: PALETTE.shopeeOrange,
-                color: PALETTE.white,
-                fontFamily: FONTS.heading,
-                fontWeight: 800,
-                fontSize: "32px",
-                padding: "8px 22px",
-                borderRadius: "14px",
-                transform: "rotate(6deg)",
-                boxShadow: "6px 8px 0px rgba(0,0,0,0.4)",
-                border: `3px solid ${PALETTE.white}`,
-                whiteSpace: "nowrap",
-                zIndex: 30,
-              }}
-            >
-              ✨ ไอเทมเด็ดช้อปปี้
+              )}
             </div>
           )}
-        </CutoutImage>
 
-        {/* 🏹 Hand-drawn Doodles */}
-        <Doodle
-          id="hook-arrow-doodle"
-          type="arrow"
-          color={PALETTE.shopeeOrange}
-          strokeWidth={8}
-          width={160}
-          height={160}
-          x={-20}
-          y={860}
-          rotate={15}
-          delay={12}
-        />
+          {/* Headline slams in on frame 0 — the 3-second hook */}
+          <div style={{ position: "relative", zIndex: 25 }}>
+            <TornStrip
+              id="hook-headline-strip"
+              text={hook.headline}
+              lines={hook.headlineLines}
+              bg={accentColor}
+              textColor={THEME.colors.text}
+              fontSize={88}
+              rotate={-1.5}
+              delay={0}
+              padding="16px 36px"
+              style={{ maxWidth: "880px" }}
+            />
+          </div>
 
-        <Doodle
-          id="hook-sparkle-1"
-          type="sparkle"
-          color={PALETTE.sunnyYellow}
-          width={100}
-          height={100}
-          x={720}
-          y={660}
-          rotate={15}
-          delay={10}
-        />
+          {hook.subheadline && !hideSubtitle && (
+            <div style={{ marginTop: "18px", zIndex: 25 }}>
+              <LineReveal
+                lines={
+                  hook.captionLines && hook.captionLines.length > 0
+                    ? hook.captionLines
+                    : splitSafeThaiLines(hook.subheadline, 18, 4)
+                }
+                delay={8}
+              />
+            </div>
+          )}
 
-        <Doodle
-          id="hook-star-2"
-          type="star"
-          color={PALETTE.pink}
-          width={80}
-          height={80}
-          x={110}
-          y={1180}
-          rotate={-20}
-          delay={16}
-        />
-      </AbsoluteFill>
+          <Doodle
+            id="hook-sparkle-1"
+            type="sparkle"
+            color={THEME.colors.accentSoft}
+            width={100}
+            height={100}
+            x={720}
+            y={660}
+            rotate={15}
+            delay={10}
+          />
+        </AbsoluteFill>
+      </SceneShell>
     </AbsoluteFill>
   );
 };

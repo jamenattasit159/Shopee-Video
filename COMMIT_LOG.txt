@@ -7,6 +7,43 @@
 
 --------------------------------------------------------------------------------
 
+[COMMIT RECORD #019]
+Commit Hash: f604d414ffaff26b806e30480ffe02344de64b3f (f604d41)
+Author:      jamenattasit159 <nattasitkung.am@gmail.com>
+Date/Time:   Mon Oct 12 16:08:09 2026 +0700
+Branch:      main
+Subject:     feat(remotion): implement Slate & Indigo theme, TikTok pop captions, and batch folder render
+รายละเอียดสิ่งที่แก้ไข:
+1. ปรับปรุง Theme วิดีโอหลักสู่ Slate & Indigo Design System (`remotion/theme.ts`):
+   - กำหนดชุดสีทางการ (Slate-950, Slate-900, Indigo-500) และ Safe Zone สำหรับแพลตฟอร์ม Shopee Video / TikTok
+   - ปรับแต่งการเคลื่อนไหวฉาก (`remotion/components/SceneMotion.tsx`): เพิ่มการเคลื่อนไหวกล้องแบบละมุน, พื้นหลัง Dot Grid, และแสงเงา Indigo Glow แทนสไตล์สติกเกอร์ตัดแปะแบบเดิม
+2. ระบบคำบรรยาย TikTok Pop Captions (`remotion/components/TikTokCaptions.tsx`, `captionTiming.ts`, `captions.json`):
+   - เพิ่มระบบตัวหนังสือเด้งตามคำพูดทีละคำ (Word-by-word pop caption) เน้นสีคำที่กำลังพูด (Indigo active highlight)
+   - รองรับคำแปลภาษาอังกฤษด้านล่าง พร้อมระบบจัดพื้นที่คงที่ป้องกันบรรทัดกระตุก (No-reflow layout)
+3. ปรับปรุงคอมโพเนนต์ฉากวิดีโอ (`remotion/components/HookScene.tsx`, `FeatureScene.tsx`, `CTAScene.tsx`, `ShopeeProductVideo.tsx`):
+   - ผสานการทำงานร่วมกับ Theme ใหม่และการแสดงผลคำบรรยาย TikTokCaptions
+4. เพิ่มสคริปต์ Batch Render วิดีโอจากโฟลเดอร์ (`scripts/batch-render-folders.mjs`):
+   - สคริปต์เรนเดอร์วิดีโออัตโนมัติจากชุดข้อมูลโฟลเดอร์สินค้าโดยตรง
+5. อัปเดตข้อมูลสินค้าและไฟล์มีเดีย (`data/products.json`, `public/uploads/`):
+   - บันทึกข้อมูลสินค้าใหม่พร้อมไฟล์เสียงพากย์ TTS ล่าสุด และไฟล์ภาพสินค้าความละเอียดสูง
+ไฟล์ที่เปลี่ยนแปลง (40 files):
+- data/products.json
+- remotion/ShopeeProductVideo.tsx
+- remotion/theme.ts
+- remotion/captions.json
+- remotion/components/CTAScene.tsx
+- remotion/components/FeatureScene.tsx
+- remotion/components/HookScene.tsx
+- remotion/components/SceneMotion.tsx
+- remotion/components/TikTokCaptions.tsx
+- remotion/lib/captionTiming.ts
+- remotion/lib/palette.ts
+- scripts/batch-render-folders.mjs
+- src/lib/captions.ts
+- public/uploads/ (ไฟล์เสียงพากย์และภาพสินค้าชุดใหม่)
+
+--------------------------------------------------------------------------------
+
 [COMMIT RECORD #018]
 Commit Hash: 1d8b5401378fa2190f6dd1ee9a1849d1218f64e0 (1d8b540)
 Author:      jamenattasit159 <nattasitkung.am@gmail.com>

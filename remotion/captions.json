@@ -1,0 +1,33 @@
+{
+  "$comment": "Caption config. language: th | en | both. Text source: manual (when productName matches) -> voiceLines script -> on-screen subtitle.",
+  "enabled": true,
+  "language": "both",
+  "maxCharsPerPage": 22,
+  "manual": [
+    {
+      "productName": "แก้วเก็บความเย็น Tyeso สแตนเลส 304",
+      "hook": {
+        "th": "น้ำแข็งอยู่ข้ามวัน ไม่ละลายจริงมั้ย?!",
+        "en": "Ice that lasts overnight — really?!"
+      },
+      "scenes": [
+        {
+          "th": "สแตนเลส 304 แท้ ไอน้ำไม่เกาะโต๊ะ",
+          "en": "Real 304 stainless steel, no condensation"
+        },
+        {
+          "th": "พกไปทำงาน ไปยิม คุมโทนสุดๆ",
+          "en": "Take it to work or the gym, perfectly on-tone"
+        },
+        {
+          "th": "เหลือเพียง ฿259 ส่งฟรีทั่วไทย",
+          "en": "Only ฿259 with free shipping nationwide"
+        }
+      ],
+      "cta": {
+        "th": "แจกโค้ดส่งฟรี + คูปองส่วนลดเพิ่ม",
+        "en": "Free-shipping code + extra discount coupons"
+      }
+    }
+  ]
+}
