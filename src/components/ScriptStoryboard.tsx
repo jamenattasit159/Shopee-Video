@@ -32,7 +32,7 @@ interface ScriptStoryboardProps {
   highlights: string;
   storyboard: StoryboardPlan;
   onUpdateStoryboard: (updated: StoryboardPlan) => void;
-  onRegenerate: () => Promise<void>;
+  onRegenerate: (provider?: "claude" | "gemini") => Promise<void>;
   isRegenerating: boolean;
   voiceoverUrl?: string;
   onVoiceoverGenerated?: (url: string, duration?: number) => void;
@@ -270,19 +270,35 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             <span>✨ แผนสตอรี่บอร์ดและสคริปต์วิดีโอ (15 วินาที)</span>
           </h2>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
-            onClick={onRegenerate}
+            onClick={() => onRegenerate("claude")}
             disabled={isRegenerating}
-            className="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 px-3.5 py-2 rounded-xl border border-stone-300 transition flex items-center gap-2 disabled:opacity-50 shadow-xs"
+            className="text-xs bg-purple-50 hover:bg-purple-100 text-purple-900 px-3.5 py-2 rounded-xl border border-purple-200 transition flex items-center gap-1.5 disabled:opacity-50 shadow-xs font-semibold"
+            title="ใช้โมเดล Claude Fable 5.1 สร้าง Hook และบทใหม่"
           >
-            <RefreshCw
-              className={`w-3.5 h-3.5 text-amber-600 ${
+            <Sparkles
+              className={`w-3.5 h-3.5 text-purple-600 ${
                 isRegenerating ? "animate-spin" : ""
               }`}
             />
-            <span>{isRegenerating ? "กำลังเจนใหม่..." : "ให้ Gemini เจนสคริปต์ใหม่"}</span>
+            <span>{isRegenerating ? "กำลังประมวลผล..." : "เขียนบทใหม่ด้วย Claude 5.1"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onRegenerate("gemini")}
+            disabled={isRegenerating}
+            className="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 px-3 py-2 rounded-xl border border-stone-300 transition flex items-center gap-1.5 disabled:opacity-50 shadow-xs font-medium"
+            title="ใช้ Google Gemini 2.5 Flash สร้างบทใหม่"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 text-stone-600 ${
+                isRegenerating ? "animate-spin" : ""
+              }`}
+            />
+            <span>เจนด้วย Gemini</span>
           </button>
         </div>
       </div>

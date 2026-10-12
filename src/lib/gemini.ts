@@ -14,7 +14,12 @@ import { buildNaturalNarrationText } from "./narrationHelper";
 import { splitSafeThaiLines, validateLine } from "../../remotion/lib/thaiKeep";
 import { getRecommendedPresetForCategory } from "./voicePresets";
 
-export { buildNaturalNarrationText };
+export {
+  buildNaturalNarrationText,
+  validateAndNormalizeStoryboard,
+  generateFallbackStoryboard,
+  checkLineViolations,
+};
 
 export interface ScriptGenerationParams {
   productName: string;

@@ -16,6 +16,7 @@ import {
   Undo2,
   Upload,
   Wand2,
+  Zap,
 } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { PackId, ProductRecord } from "../../remotion/types";
@@ -48,6 +49,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [cta, setCta] = useState("พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!");
   const [styleMode, setStyleMode] = useState<"auto" | "custom">("auto");
   const [chosenPack, setChosenPack] = useState<PackId>("kraft-scrapbook");
+  const [aiProvider, setAiProvider] = useState<"claude" | "gemini">("claude");
 
   // Field source & status tracking for Review Screen
   const [fieldSources, setFieldSources] = useState<{
@@ -371,6 +373,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       formData.append("highlights", highlights || "สินค้าคุณภาพ คุ้มค่าเกินราคา");
       formData.append("tone", tone);
       formData.append("cta", cta || "พิกัดในตะกร้าส้มซ้ายล่าง");
+      formData.append("aiProvider", aiProvider);
 
       // ส่ง optional metadata หากมาจาก link import
       if (activeDraft) {
@@ -673,6 +676,67 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <option value="problem_solving">💡 เน้นแก้ปัญหา ก่อน-หลัง (Pain Point / Before-After)</option>
                 <option value="promo">⚡ จัดโปรโมชั่น Flash Sale ลดกระหน่ำ (Urgent Deal)</option>
               </select>
+            </div>
+          </div>
+
+          {/* AI Creative Director Model Selection */}
+          <div className="bg-stone-50/80 border border-stone-200/90 rounded-2xl p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-600" />
+                <span>AI Creative Director (โมเดลคิดบท & สตอรี่บอร์ด)</span>
+              </label>
+              <span className="text-[11px] font-medium text-stone-500 bg-white border border-stone-200 px-2 py-0.5 rounded-full">
+                เสียงพากย์ใช้ Gemini Voice Cloning เสมอ
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setAiProvider("claude")}
+                className={`p-3 rounded-xl border text-left transition flex items-start gap-3 ${
+                  aiProvider === "claude"
+                    ? "bg-white border-2 border-purple-600 shadow-xs ring-2 ring-purple-500/20"
+                    : "bg-white border-stone-200 hover:border-purple-300 text-stone-700"
+                }`}
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-300 flex items-center justify-center shrink-0 mt-0.5">
+                  <Sparkles className="w-4 h-4 text-purple-700" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-stone-900">Claude Fable 5.1</span>
+                    <span className="badge badge-primary badge-xs text-[10px]">แนะนำ ไวรัล</span>
+                  </div>
+                  <p className="text-[11px] text-stone-500 mt-0.5 leading-snug">
+                    ฮุคแรง หยุดดูใน 2 วินาที สคริปต์สไตล์ครีเอเตอร์สายป้ายยาตัวแม่
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAiProvider("gemini")}
+                className={`p-3 rounded-xl border text-left transition flex items-start gap-3 ${
+                  aiProvider === "gemini"
+                    ? "bg-white border-2 border-orange-500 shadow-xs ring-2 ring-orange-500/20"
+                    : "bg-white border-stone-200 hover:border-orange-300 text-stone-700"
+                }`}
+              >
+                <div className="w-8 h-8 rounded-lg bg-orange-100 border border-orange-300 flex items-center justify-center shrink-0 mt-0.5">
+                  <Zap className="w-4 h-4 text-orange-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-stone-900">Gemini 2.5 Flash</span>
+                    <span className="badge badge-ghost badge-xs text-[10px]">Google AI</span>
+                  </div>
+                  <p className="text-[11px] text-stone-500 mt-0.5 leading-snug">
+                    ประมวลผลฉับไว โฟกัสจุดเด่นสินค้าครบถ้วน สื่อสารกระชับ
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
 

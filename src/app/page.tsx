@@ -127,7 +127,7 @@ export default function DashboardPage() {
     );
   };
 
-  const handleRegenerateScript = async () => {
+  const handleRegenerateScript = async (provider: "claude" | "gemini" = "claude") => {
     if (!activeProduct) return;
     setIsRegenerating(true);
     try {
@@ -140,14 +140,24 @@ export default function DashboardPage() {
           tone: activeProduct.tone,
           imageCount: activeProduct.images.length,
           ctaText: activeProduct.cta,
+          modelProvider: provider,
         },
       });
       if (data && data.success && data.storyboard) {
         handleUpdateStoryboard(data.storyboard);
-        showNotification("✨ อัปเดตสคริปต์ใหม่ด้วย Gemini AI เรียบร้อยแล้ว!");
+        if (data.fallbackNotice) {
+          showNotification(`ℹ️ ${data.fallbackNotice}`);
+        } else {
+          showNotification(
+            data.provider === "claude"
+              ? "✨ อัปเดตสคริปต์ใหม่ด้วย Claude Fable 5.1 เรียบร้อยแล้ว!"
+              : "✨ อัปเดตสคริปต์ใหม่ด้วย Gemini 2.5 Flash เรียบร้อยแล้ว!"
+          );
+        }
       }
     } catch (err) {
       console.error(err);
+      showNotification("❌ ไม่สามารถสร้างสคริปต์ใหม่ได้ กรุณาลองอีกครั้ง");
     } finally {
       setIsRegenerating(false);
     }

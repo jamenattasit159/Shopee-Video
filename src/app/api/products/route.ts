@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { ProductRecord } from "../../../../remotion/types";
 import { generateShopeeScript } from "@/lib/gemini";
+import { generateShopeeScriptWithClaude } from "@/lib/claude";
 import { ensureStorageDirectories, getProducts, saveProduct } from "@/lib/storage";
 import { withErrorHandling } from "@/lib/serverError";
 
@@ -104,8 +105,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   if (!storyboard) {
-    // Auto-generate storyboard via Gemini
-    storyboard = await generateShopeeScript({
+    const aiProvider = (formData.get("aiProvider") as string) || "claude";
+    const scriptParams = {
       productName: name,
       price,
       highlights,
@@ -115,7 +116,14 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       category,
       promoTag,
       facts,
-    });
+    };
+
+    if (aiProvider === "gemini") {
+      storyboard = await generateShopeeScript(scriptParams);
+    } else {
+      const claudeRes = await generateShopeeScriptWithClaude(scriptParams);
+      storyboard = claudeRes.storyboard;
+    }
   }
 
   const productRecord: ProductRecord = {
