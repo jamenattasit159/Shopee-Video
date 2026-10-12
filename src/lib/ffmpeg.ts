@@ -145,3 +145,46 @@ export function getAudioDurationInSeconds(filePath: string): number {
 
   return 0;
 }
+
+/**
+ * Concatenates multiple audio files into a single output audio file using FFmpeg
+ */
+export async function concatAudioFiles(inputPaths: string[], outputPath: string): Promise<void> {
+  if (inputPaths.length === 0) return;
+  if (inputPaths.length === 1) {
+    await fs.promises.copyFile(inputPaths[0], outputPath);
+    return;
+  }
+
+  const listFile = `${outputPath}_concat_${Date.now()}.txt`;
+  const fileLines = inputPaths
+    .map((p) => {
+      const absPath = path.resolve(p).replace(/\\/g, "/");
+      return `file '${absPath.replace(/'/g, "'\\''")}'`;
+    })
+    .join("\n");
+
+  await fs.promises.writeFile(listFile, fileLines, "utf-8");
+
+  try {
+    const ext = path.extname(outputPath).toLowerCase();
+    const isWav = ext === ".wav";
+    const codecArgs = isWav
+      ? ["-c:a", "pcm_s16le", "-ar", "24000", "-ac", "1"]
+      : ["-c:a", "libmp3lame", "-b:a", "192k"];
+
+    await execFfmpegAsync([
+      "-y",
+      "-f",
+      "concat",
+      "-safe",
+      "0",
+      "-i",
+      listFile,
+      ...codecArgs,
+      outputPath,
+    ]);
+  } finally {
+    await fs.promises.unlink(listFile).catch(() => {});
+  }
+}

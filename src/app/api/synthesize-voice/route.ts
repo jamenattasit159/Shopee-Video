@@ -19,6 +19,7 @@ import {
 } from "@/lib/voicePresets";
 import { normalizeForSpeech } from "@/lib/speechText";
 import { polishAudio } from "@/lib/audioPolish";
+import { concatAudioFiles } from "@/lib/ffmpeg";
 
 interface SynthesizeLineInput {
   id: string;
@@ -62,11 +63,14 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   // 1. Resolve lines to synthesize
   let lines: SynthesizeLineInput[] = [];
 
-  if (Array.isArray(inputLines) && inputLines.length > 0) {
+  if (previewOnly && Array.isArray(inputLines) && inputLines.length > 0) {
+    lines = inputLines.filter((l) => l && l.text && l.text.trim());
+  } else if (customText && typeof customText === "string" && customText.trim()) {
+    lines = [{ id: "main", text: customText.trim() }];
+  } else if (Array.isArray(inputLines) && inputLines.length > 0) {
     lines = inputLines.filter((l) => l && l.text && l.text.trim());
   } else {
     const scriptText =
-      customText ||
       (storyboard ? buildNarrationScript(productName || "", price || "", storyboard) : "");
 
     if (!scriptText || !scriptText.trim()) {
@@ -310,16 +314,34 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     );
   }
 
-  // Primary output file (first line or main)
-  const primaryFile = files[0];
+  // Primary output file (merged track if multiple lines, or single line)
+  let primaryAudioUrl = files[0]?.url || null;
+  let finalDurationSec = totalDurationSec;
+
+  if (files.length > 1) {
+    try {
+      const ext = engine === "gemini" ? ".wav" : ".mp3";
+      const mergedFilename = `merged_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+      const mergedFilePath = path.join(cacheDir, mergedFilename);
+      const inputDiskPaths = files.map((f) =>
+        path.join(process.cwd(), "public", f.url.replace(/^\//, ""))
+      );
+      await concatAudioFiles(inputDiskPaths, mergedFilePath);
+      primaryAudioUrl = `/audio/cache/${mergedFilename}`;
+      const measured = getAudioDurationInSeconds(mergedFilePath);
+      if (measured > 0) finalDurationSec = measured;
+    } catch (concatErr: any) {
+      console.warn("[synthesize-voice] Concat audio files fallback to first file:", concatErr?.message);
+    }
+  }
 
   return NextResponse.json({
     ok: true,
     success: true,
     files,
     // Backward compatible fields:
-    audioUrl: primaryFile?.url || null,
-    duration: totalDurationSec,
+    audioUrl: primaryAudioUrl,
+    duration: finalDurationSec,
     scriptText: lines.map((l) => l.text).join(" "),
     engineUsed: ttsEngine,
     fallbackNotice,

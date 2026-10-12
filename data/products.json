@@ -1,5 +1,384 @@
 [
   {
+    "id": "prod_1791778270599",
+    "name": "Madame Fin มาดามฟินของแท้ น้ำหอมใหม่ รุ่น Element Of Energy 4 กลิ่น (ขนาด 50ml.",
+    "price": "ลดหนักจัด",
+    "highlights": "น้ำหอมมาดามฟินของแท้, คอลเลกชันใหม่ Element Of Energy, 4 กลิ่นหอมเป็นเอกลักษณ์, ขนาด 50ml, สร้างเสน่ห์และมั่นใจในทุกวัน",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791778270600_0_th-11134201-81ztd-ms39jwybvocm94_resize_w450_nl.webp",
+      "/uploads/1791778270601_1_th-11134207-81ztf-mn6sgvyedb7p64_resize_w450_nl.webp",
+      "/uploads/1791778270602_2_th-11134207-81zth-mn6sb5su5szse2.webp",
+      "/uploads/1791778270603_3_th-11134207-81zth-mn6sgvygzf9dc7_resize_w450_nl.webp",
+      "/uploads/1791778270604_4_th-11134207-81ztj-mn6sh17gzbb654_resize_w450_nl.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "เจอแล้ว! น้ำหอมตัวท็อป",
+        "headlineLines": [
+          "เจอแล้ว! น้ำ",
+          "หอมตัวท็อป"
+        ],
+        "subheadline": "ปักหมุดไอเทมเด็ดช้อปปี้",
+        "captionLines": [
+          "ปักหมุดไอเทมเด็ดช้อปปี้"
+        ],
+        "badgeText": "📌 ของแท้ตรงปก",
+        "highlightWord": "ตัวท็อป",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "เผยเสน่ห์ดึงดูดใจ",
+          "headlineLines": [
+            "เผยเสน่",
+            "ห์ดึงดูดใจ"
+          ],
+          "highlightDesc": "คอลใหม่ 4 กลิ่นเฉพาะคุณ",
+          "captionLines": [
+            "คอลใหม่ 4",
+            "กลิ่นเฉพาะคุณ"
+          ],
+          "stickerText": "✨ สร้างความประทับใจ",
+          "highlightWord": "Madame Fin",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "กลิ่นหอมเป็นเอกลักษณ์",
+          "headlineLines": [
+            "กลิ่นหอมเป็นเอกลักษณ์"
+          ],
+          "highlightDesc": "สร้างความมั่นใจในทุกวัน",
+          "captionLines": [
+            "สร้างความมั่น",
+            "ใจในทุกวัน"
+          ],
+          "stickerText": "💖 เสริมความมั่นใจ",
+          "highlightWord": "มั่นใจ",
+          "layout": "hero-center",
+          "paperTheme": "lined-paper",
+          "imageIndex": 1,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "เสน่ห์ยาวนานตลอดวัน",
+          "headlineLines": [
+            "เสน่ห์ยาวนานตล",
+            "อดวัน"
+          ],
+          "highlightDesc": "ขนาด 50ml หอมฟุ้งติดทน",
+          "captionLines": [
+            "50ml",
+            "หอมฟุ้งติดทน"
+          ],
+          "stickerText": "💐 หอมติดทนนาน",
+          "highlightWord": "50ml",
+          "layout": "hero-center",
+          "paperTheme": "dot-grid",
+          "imageIndex": 2,
+          "durationSec": 4
+        }
+      ],
+      "cta": {
+        "ctaTitle": "จิ้มตะกร้าส้มซ้ายล่างเลย!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างเลย!"
+        ],
+        "ctaSubtitle": "ลดหนักจัด! ส่งฟรี!",
+        "captionLines": [
+          "ลดหนักจัด!",
+          "เก็บโค้ดส่งฟรี"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (pinboard-corkboard)"
+      },
+      "audioSuggestion": {
+        "mood": "ตื่นเต้น เร่งเร้า ชวนช้อป",
+        "musicGenre": "TikTok Upbeat Affiliate Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
+      },
+      "narrationScript": "ปักหมุดด่วน! ใครกำลังหาน้ำหอมตัวท็อป Madame Fin Element Of Energy คอลใหม่ 4 กลิ่นหอมเป็นเอกลักษณ์ ช่วยเสริมเสน่ห์และความมั่นใจให้คุณทุกวัน กลิ่นหอมติดทนขนาด 50ml. สร้างความประทับใจยาวนาน จัดเลย! กดตะกร้าส้มซ้ายล่าง ได้ลดหนักจัด ส่งฟรีด้วยนะ รีบเลย!",
+      "styleDNA": {
+        "seed": 98500747,
+        "pack": "pinboard-corkboard",
+        "palette": "pinboard-corkboard-analogous-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#f31685",
+        "bgColor": "#ebe8d6",
+        "fontPair": "prompt-heavy",
+        "structure": "compare",
+        "hookFormula": "reaction",
+        "layouts": [
+          "polaroid-stack",
+          "hero-center",
+          "hero-center"
+        ],
+        "transitions": [
+          "page-shuffle",
+          "slap-strip"
+        ],
+        "tempo": "snappy",
+        "stickerShape": "tag",
+        "sfxKit": "tactile-pop"
+      },
+      "voiceLines": [
+        {
+          "sceneId": "hook",
+          "role": "hook",
+          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! เจอแล้ว! น้ำหอมตัวท็อป"
+        },
+        {
+          "sceneId": "scene_0",
+          "role": "body",
+          "text": "เผยเสน่ห์ดึงดูดใจ คอลใหม่ 4 กลิ่นเฉพาะคุณ"
+        },
+        {
+          "sceneId": "scene_1",
+          "role": "body",
+          "text": "แถมยังกลิ่นหอมเป็นเอกลักษณ์"
+        },
+        {
+          "sceneId": "scene_2",
+          "role": "body",
+          "text": "แถมยังเสน่ห์ยาวนานตลอดวัน"
+        },
+        {
+          "sceneId": "cta",
+          "role": "cta",
+          "text": "ตอนนี้จัดโปรพิเศษเพียง ลดหนักจัด พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!"
+        }
+      ],
+      "voicePresetId": "vendor-live",
+      "voiceIntensity": "mid"
+    },
+    "createdAt": "2026-10-12T04:12:11.267Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/Madame-Fin-%E0%B8%A1%E0%B8%B2%E0%B8%94%E0%B8%B2%E0%B8%A1%E0%B8%9F%E0%B8%B4%E0%B8%99%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B9%81%E0%B8%97%E0%B9%89-%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%AB%E0%B8%AD%E0%B8%A1%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88-%E0%B8%A3%E0%B8%B8%E0%B9%88%E0%B8%99-Element-Of-Energy-4-%E0%B8%81%E0%B8%A5%E0%B8%B4%E0%B9%88%E0%B8%99-(%E0%B8%82%E0%B8%99%E0%B8%B2%E0%B8%94-50ml.",
+      "shopId": null,
+      "itemId": null,
+      "fetchedAt": "2026-10-12T04:09:37.006Z",
+      "confirmedAt": "2026-10-12T04:11:10.561Z"
+    },
+    "category": "Fragrances",
+    "facts": {
+      "brand": "Madame Fin",
+      "productType": "น้ำหอม",
+      "count": "4 กลิ่น",
+      "pack": "50ml.",
+      "claimsInTitle": [
+        "ของแท้",
+        "ใหม่"
+      ]
+    },
+    "renderedVideoUrl": "/renders/shopee_prod_1791778270599_1791778611670.mp4"
+  },
+  {
+    "id": "prod_1791774453207",
+    "name": "Madame Fin มาดามฟินของแท้ น้ำหอมใหม่ รุ่น Element Of Energy 4 กลิ่น (ขนาด 50ml.",
+    "price": "ลดจะตกใจ",
+    "highlights": "น้ำหอมมาดามฟินของแท้, 4 กลิ่นหอมมีสไตล์, ขนาด 50ml., เพิ่มเสน่ห์มั่นใจ",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1791774453208_0_th-11134201-81ztd-ms39jwybvocm94_resize_w450_nl.webp",
+      "/uploads/1791774453209_1_th-11134207-81ztf-mn6sgvyedb7p64_resize_w450_nl.webp",
+      "/uploads/1791774453210_2_th-11134207-81zth-mn6sb5su5szse2.webp",
+      "/uploads/1791774453211_3_th-11134207-81zth-mn6sgvygzf9dc7_resize_w450_nl.webp",
+      "/uploads/1791774453212_4_th-11134207-81ztj-mn6sh17gzbb654_resize_w450_nl.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "เบื่อไหมน้ำหอมเดิมๆ?",
+        "headlineLines": [
+          "เบื่อไหมน้ำ",
+          "หอมเดิมๆ?"
+        ],
+        "subheadline": "อยากได้กลิ่นไม่ซ้ำใคร?",
+        "captionLines": [
+          "อยากได้กลิ่น",
+          "ไม่ซ้ำใคร?"
+        ],
+        "badgeText": "🔥 ลดแรงไฟลุก",
+        "highlightWord": "ดีลเดือด",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "นี่เลยน้ำหอมตัวดัง!",
+          "headlineLines": [
+            "นี่เลยน้ำหอมตัวดัง!"
+          ],
+          "highlightDesc": "ใหม่! 4 กลิ่นหอมมีสไตล์",
+          "captionLines": [
+            "ใหม่! 4",
+            "กลิ่นหอมมีสไตล์"
+          ],
+          "stickerText": "✨ หอมมีสไตล์",
+          "highlightWord": "ของแท้",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "เสน่ห์ดึงดูดใจสุด",
+          "headlineLines": [
+            "เสน่ห์ดึงดูด",
+            "ใจสุด"
+          ],
+          "highlightDesc": "กลิ่นหอมเฉพาะตัว ไม่ซ้ำใคร",
+          "captionLines": [
+            "ขนาด 50ml",
+            "คุ้มค่าใช้ยาวๆ"
+          ],
+          "stickerText": "💖 ดึงดูดใจ",
+          "highlightWord": "มั่นใจ",
+          "layout": "callout-circle",
+          "paperTheme": "newspaper",
+          "imageIndex": 1,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "เลือกได้ 4 กลิ่น",
+          "headlineLines": [
+            "ของดีบอกต่อ",
+            "หอมติดทนนาน!"
+          ],
+          "highlightDesc": "น้ำหอมมาดามฟินของแท้ ทุกกลิ่น!",
+          "captionLines": [
+            "น้ำหอมมาดามฟินของแท้ ทุกกลิ่น!"
+          ],
+          "stickerText": "🌸 หอมติดทน",
+          "highlightWord": "ของแท้",
+          "layout": "polaroid-stack",
+          "paperTheme": "magazine",
+          "imageIndex": 2,
+          "durationSec": 4
+        }
+      ],
+      "cta": {
+        "ctaTitle": "ลดแรงจะตกใจ!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ช้อปด่วนเลย!"
+        ],
+        "ctaSubtitle": "ราคาพิเศษสุดๆ โค้ดส่งฟรีเพียบ!",
+        "captionLines": [
+          "ลดกระหน่ำจัดเต็ม",
+          "ของมันต้องมีนะ!"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#16cef3",
+        "bgColor": "#ebd9d6",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (supermarket-flyer)"
+      },
+      "audioSuggestion": {
+        "mood": "ตื่นเต้น เร่งเร้า ชวนช้อป",
+        "musicGenre": "TikTok Upbeat Affiliate Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
+      },
+      "narrationScript": "เบื่อไหมน้ำหอมกลิ่นเดิมๆ ที่ไม่ช่วยเพิ่มเสน่ห์ให้คุณ? นี่เลย! มาดามฟินของแท้รุ่น Element Of Energy น้ำหอมตัวดัง 4 กลิ่นหอมมีสไตล์ มาพร้อมขนาด 50ml เพิ่มความมั่นใจ สะกดทุกสายตา! ของแท้การันตีความปัง ไม่ซ้ำใครแน่นอน! ลดแรงจะตกใจ รีบจิ้มตะกร้าส้มตอนนี้! โค้ดส่งฟรีเพียบ ช้อปด่วนก่อนหมด!",
+      "styleDNA": {
+        "seed": 531216631,
+        "pack": "supermarket-flyer",
+        "palette": "supermarket-flyer-mono-accent-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#16cef3",
+        "bgColor": "#ebd9d6",
+        "fontPair": "kanit-modern",
+        "structure": "problem-solution",
+        "hookFormula": "relatable-pain",
+        "layouts": [
+          "hero-center",
+          "callout-circle",
+          "polaroid-stack"
+        ],
+        "transitions": [
+          "slap-strip",
+          "page-shuffle"
+        ],
+        "tempo": "hyper",
+        "stickerShape": "cloud",
+        "sfxKit": "playful-cartoon"
+      },
+      "voiceLines": [
+        {
+          "sceneId": "hook",
+          "role": "hook",
+          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! เบื่อไหมน้ำหอมเดิมๆ?"
+        },
+        {
+          "sceneId": "scene_0",
+          "role": "body",
+          "text": "นี่เลยน้ำหอมตัวดัง! ใหม่! 4 กลิ่นหอมมีสไตล์"
+        },
+        {
+          "sceneId": "scene_1",
+          "role": "body",
+          "text": "แถมยังเสน่ห์ดึงดูดใจสุด"
+        },
+        {
+          "sceneId": "scene_2",
+          "role": "body",
+          "text": "แถมยังเลือกได้ 4 กลิ่น"
+        },
+        {
+          "sceneId": "cta",
+          "role": "cta",
+          "text": "ตอนนี้จัดโปรพิเศษเพียง ลดจะตกใจ พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!"
+        }
+      ],
+      "voicePresetId": "vendor-live",
+      "voiceIntensity": "mid"
+    },
+    "createdAt": "2026-10-12T03:08:27.474Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/Madame-Fin-%E0%B8%A1%E0%B8%B2%E0%B8%94%E0%B8%B2%E0%B8%A1%E0%B8%9F%E0%B8%B4%E0%B8%99%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B9%81%E0%B8%97%E0%B9%89-%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%AB%E0%B8%AD%E0%B8%A1%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88-%E0%B8%A3%E0%B8%B8%E0%B9%88%E0%B8%99-Element-Of-Energy-4-%E0%B8%81%E0%B8%A5%E0%B8%B4%E0%B9%88%E0%B8%99-(%E0%B8%82%E0%B8%99%E0%B8%B2%E0%B8%94-50ml.",
+      "shopId": null,
+      "itemId": null,
+      "fetchedAt": "2026-10-12T03:05:21.006Z",
+      "confirmedAt": "2026-10-12T03:07:32.609Z"
+    },
+    "category": "Fragrances",
+    "facts": {
+      "brand": "Madame Fin",
+      "productType": "น้ำหอม",
+      "count": "4 กลิ่น",
+      "pack": "50ml",
+      "claimsInTitle": [
+        "ของแท้",
+        "ใหม่"
+      ]
+    }
+  },
+  {
     "id": "prod_1791635183107",
     "name": "Mama's Choice เซ็ทดูแลผิวลูกน้อย (ครีมทาหน้าเด็ก ครีมทาผื่นเด็ก ผื่นผ้าอ้อม",
     "price": "ลดหนักจัดจริง",

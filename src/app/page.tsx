@@ -164,6 +164,7 @@ export default function DashboardPage() {
         cta: activeProduct.storyboard.cta,
         theme: activeProduct.storyboard.theme,
         styleDNA: activeProduct.storyboard.styleDNA,
+        narrationScript: (activeProduct.storyboard as any)?.narrationScript,
         voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
         voiceoverDurationSec: voiceoverDurationSec || activeProduct.voiceoverDurationSec,
         bgmUrl: "/audio/bgm-upbeat.mp3",

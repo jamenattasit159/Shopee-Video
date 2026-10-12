@@ -175,7 +175,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
       const payload: any = {
         productName,
         price,
-        customText: narrationText,
+        customText: narrationText.trim(),
         ttsEngine,
         voiceType,
         rate: speechRate,
@@ -184,15 +184,6 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
         intensity: voiceIntensity,
         polish: polishVoice,
       };
-
-      if (data.voiceLines && data.voiceLines.length > 0) {
-        payload.lines = data.voiceLines.map((vl) => ({
-          id: vl.sceneId,
-          text: vl.text,
-          role: vl.role,
-          style: vl.styleOverride,
-        }));
-      }
 
       const resData = await apiFetch<any>("/api/synthesize-voice", {
         method: "POST",
@@ -207,28 +198,18 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             setFallbackNotice(resData.fallbackNotice);
           }
 
-          let updatedVoiceLines = data.voiceLines;
-          if (Array.isArray(resData.files) && updatedVoiceLines && updatedVoiceLines.length > 0) {
-            updatedVoiceLines = updatedVoiceLines.map((vl) => {
-              const fileMatch = resData.files.find((f: any) => f.id === vl.sceneId);
-              if (fileMatch) {
-                return {
-                  ...vl,
-                  audioUrl: fileMatch.url,
-                  rawAudioUrl: fileMatch.rawUrl,
-                  durationSec: fileMatch.durationSec,
-                  polished: fileMatch.polished,
-                };
-              }
-              return vl;
-            });
-          }
-
           const updatedStoryboard: StoryboardPlan = {
             ...data,
+            narrationScript: narrationText.trim(),
             voicePresetId,
             voiceIntensity,
-            voiceLines: updatedVoiceLines,
+            voiceLines: data.voiceLines
+              ? data.voiceLines.map((vl) => ({
+                  ...vl,
+                  audioUrl: undefined,
+                  rawAudioUrl: undefined,
+                }))
+              : undefined,
           };
           setData(updatedStoryboard);
           onUpdateStoryboard(updatedStoryboard);

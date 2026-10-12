@@ -4,8 +4,8 @@ export const calculateTotalFrames = (
   props: ShopeeProductVideoProps,
   fps: number = 30
 ): number => {
-  // If voiceLines with durationSec are provided, dynamically compute total frames from voice line durations + 0.3s padding
-  if (props.voiceLines && props.voiceLines.length > 0) {
+  // If voiceLines with individual audioUrls are provided, dynamically compute total frames from voice line durations + 0.3s padding
+  if (props.voiceLines && props.voiceLines.length > 0 && props.voiceLines.some((l) => l.audioUrl)) {
     const linesTotalSec = props.voiceLines.reduce((sum, line) => {
       const lineDuration = line.durationSec && line.durationSec > 0 ? line.durationSec + 0.3 : 3.0;
       return sum + lineDuration;
