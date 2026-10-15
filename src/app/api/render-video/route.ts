@@ -128,12 +128,16 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   await fs.mkdir(tempDir, { recursive: true });
   const tempPropsFile = path.join(tempDir, `props_${Date.now()}.json`);
   const progressFile = path.join(tempDir, "render_progress.json");
+  const videoUrl = `/renders/${filename}`;
+
   await fs.writeFile(tempPropsFile, JSON.stringify(props, null, 2), "utf-8");
   await fs.writeFile(
     progressFile,
     JSON.stringify({
       status: "starting",
       percent: 4,
+      productId: id,
+      videoUrl,
       message:
         isRemotionRequested
           ? "กำลังเริ่มต้นเรนเดอร์แอนิเมชัน (พร้อมระบบป้องกัน Timeout อัตโนมัติ)..."
@@ -162,13 +166,23 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       );
       renderErr.code = "RENDER_EXIT_NONZERO";
       renderErr.status = 500;
+      await fs.writeFile(
+        progressFile,
+        JSON.stringify({
+          status: "error",
+          percent: 0,
+          productId: id,
+          message: renderErr.message,
+          updatedAt: Date.now(),
+        }),
+        "utf-8"
+      ).catch(() => {});
       throw renderErr;
     }
   } finally {
     await fs.unlink(tempPropsFile).catch(() => {});
   }
 
-  const videoUrl = `/renders/${filename}`;
   if (productId) {
     await updateProductVideo(productId, videoUrl);
   }
@@ -186,6 +200,21 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   } catch (bundleErr: any) {
     console.warn("[render-video] Export bundle generation warning:", bundleErr?.message);
   }
+
+  await fs.writeFile(
+    progressFile,
+    JSON.stringify({
+      status: "complete",
+      percent: 100,
+      productId: id,
+      videoUrl,
+      filename,
+      exportBundle,
+      message: "เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ",
+      updatedAt: Date.now(),
+    }),
+    "utf-8"
+  ).catch(() => {});
 
   return NextResponse.json({
     ok: true,

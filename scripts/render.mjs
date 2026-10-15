@@ -144,6 +144,7 @@ async function main() {
     }
 
     let lastLoggedPercent = -1;
+    let lastWriteTime = 0;
     await renderMedia({
       composition,
       serveUrl: bundleLocation,
@@ -161,22 +162,33 @@ async function main() {
       },
       onProgress: ({ progress, renderedFrames, totalFrames }) => {
         const percent = Math.min(99, Math.max(15, Math.floor(15 + progress * 84)));
+        const total = totalFrames || composition?.durationInFrames || 0;
+        const now = Date.now();
         if (percent !== lastLoggedPercent) {
           lastLoggedPercent = percent;
-          console.log(`PROGRESS:${percent}:${renderedFrames}:${totalFrames}`);
-          void writeProgress({
-            status: "rendering",
-            percent,
-            renderedFrames,
-            totalFrames,
-            message: `กำลังเรนเดอร์เฟรม ${renderedFrames}/${totalFrames} (${percent}%)`,
-          });
+          console.log(`PROGRESS:${percent}:${renderedFrames}:${total}`);
+          if (now - lastWriteTime >= 500 || percent >= 98) {
+            lastWriteTime = now;
+            void writeProgress({
+              status: "rendering",
+              percent,
+              renderedFrames,
+              totalFrames: total,
+              message: `กำลังเรนเดอร์เฟรม ${renderedFrames}/${total || "..."} (${percent}%)`,
+            });
+          }
         }
       },
     });
 
     await fs.writeFile(outputPath.replace(/\.mp4$/i, ".render.json"), JSON.stringify({ engine: "remotion", pack: inputProps.styleDNA?.pack || "pro-minimal-luxury", captionCues: inputProps.captionCues, fps: composition.fps, durationSec: composition.durationInFrames / composition.fps }, null, 2));
-    await writeProgress({ status: "complete", percent: 100, message: "เรนเดอร์เสร็จสมบูรณ์!" });
+    await writeProgress({
+      status: "complete",
+      percent: 100,
+      message: "เรนเดอร์เสร็จสมบูรณ์!",
+      outputPath,
+      videoUrl: `/renders/${path.basename(outputPath)}`,
+    });
 
     try {
       const rootRendersDir = path.resolve("renders");

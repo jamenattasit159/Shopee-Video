@@ -7,6 +7,25 @@
 
 --------------------------------------------------------------------------------
 
+[COMMIT RECORD #021]
+Commit Hash: 59ac75e
+Author:      jamenattasit159 <nattasitkung.am@gmail.com>
+Date/Time:   Thu Oct 15 16:08:00 2026 +0700
+Branch:      main
+Subject:     fix(render): prevent Next.js HMR reload during render and persist tab & render state
+รายละเอียดสิ่งที่แก้ไข:
+1. ป้องกัน Dev Server และ Next.js HMR Reload ระหว่างเรนเดอร์:
+   - กำหนด `watchOptions.ignored` ใน `next.config.mjs` เพื่อไม่ให้ Webpack คอยตรวจจับการเขียนไฟล์ใน `.tmp`, `data`, `public/renders`, `renders`
+   - หน่วงเวลาการเขียนไฟล์ Progress (`writeProgress`) ใน `scripts/render.mjs` ไม่ให้เขียนซ้ำซ้อนทุกเฟรมจนเกิด File Lock บน Windows
+2. รักษา State ของหน้าและแท็บไม่ให้หาย:
+   - ปรับปรุง `src/app/page.tsx` ให้เก็บ Tab ปัจจุบันและ Active Product ลงใน `localStorage`
+   - ไม่ Unmount คอมโพเนนต์ระหว่างสลับแท็บ โดยใช้คลาสซ่อน (`hidden`) ทำให้การเรนเดอร์และวิดีโอที่กำลังทำงานในแท็บ 3 ไม่ถูกทำลายเมื่อสลับไปหน้า 1 หรือ 2
+3. กู้คืนสถานะการเรนเดอร์ใน RenderExportModal:
+   - เพิ่มระบบตรวจสอบสถานะจาก `/api/render-video` ทันทีที่เปิดหน้า และ Polling จนกว่าจะเสร็จสมบูรณ์
+   - บันทึก `videoUrl` และ `productId` ลงใน `render_progress.json` เพื่อกู้คืนคลิปวิดีโอที่เรนเดอร์เสร็จแล้วได้ตลอดเวลา
+
+--------------------------------------------------------------------------------
+
 [COMMIT RECORD #020]
 Commit Hash: 10f0d2e
 Author:      jamenattasit159 <nattasitkung.am@gmail.com>

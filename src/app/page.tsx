@@ -42,6 +42,13 @@ export default function DashboardPage() {
   const [voiceoverDurationSec, setVoiceoverDurationSec] = useState<number | undefined>(undefined);
   const [isManageModalOpen, setIsManageModalOpen] = useState<boolean>(false);
 
+  const handleTabChange = (tab: "create" | "storyboard" | "render") => {
+    setActiveTab(tab);
+    try {
+      localStorage.setItem("shopee_active_tab", tab);
+    } catch {}
+  };
+
   const showNotification = (msg: string) => {
     setNotification(msg);
     setTimeout(() => setNotification(null), 4000);
@@ -53,9 +60,17 @@ export default function DashboardPage() {
       if (data && data.success && Array.isArray(data.products)) {
         setProducts(data.products);
         if (!activeProduct && data.products.length > 0) {
-          setActiveProduct(data.products[0]);
-          setVoiceoverUrl(data.products[0]?.voiceoverUrl || undefined);
-          setVoiceoverDurationSec(data.products[0]?.voiceoverDurationSec || undefined);
+          let selected = data.products[0];
+          try {
+            const savedId = localStorage.getItem("shopee_active_product_id");
+            if (savedId) {
+              const matched = data.products.find((p: ProductRecord) => p.id === savedId);
+              if (matched) selected = matched;
+            }
+          } catch {}
+          setActiveProduct(selected);
+          setVoiceoverUrl(selected?.voiceoverUrl || undefined);
+          setVoiceoverDurationSec(selected?.voiceoverDurationSec || undefined);
         }
       }
     } catch (err) {
@@ -64,8 +79,22 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    try {
+      const savedTab = localStorage.getItem("shopee_active_tab") as any;
+      if (savedTab && ["create", "storyboard", "render"].includes(savedTab)) {
+        setActiveTab(savedTab);
+      }
+    } catch {}
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    if (activeProduct?.id) {
+      try {
+        localStorage.setItem("shopee_active_product_id", activeProduct.id);
+      } catch {}
+    }
+  }, [activeProduct?.id]);
 
   // Register global AI Auto-Fix handler so clicking "✨ ให้ AI แก้ปัญหาให้อัตโนมัติ" in any error toast/modal fixes the active product directly
   useEffect(() => {
@@ -92,7 +121,7 @@ export default function DashboardPage() {
             setActiveProduct(updated);
             setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
           }
-          setActiveTab("render");
+          handleTabChange("render");
           const msg = "AI สร้างไฟล์วิดีโอ MP4 ให้เสร็จสมบูรณ์แล้วด้วยโหมด Turbo Direct! ดาวน์โหลดได้เลย";
           showNotification(msg);
           return msg;
@@ -133,7 +162,7 @@ export default function DashboardPage() {
     setActiveProduct(null);
     setVoiceoverUrl(undefined);
     setVoiceoverDurationSec(undefined);
-    setActiveTab("create");
+    handleTabChange("create");
     setFormKey((prev) => prev + 1);
     showNotification("เปิดฟอร์มว่างพร้อมสร้างคลิปใหม่แล้ว! วางลิงก์หรืออัปโหลดรูป/คลิปได้เลย");
   };
@@ -150,7 +179,7 @@ export default function DashboardPage() {
           setActiveProduct(next);
           setVoiceoverUrl(next?.voiceoverUrl || undefined);
           setVoiceoverDurationSec(next?.voiceoverDurationSec || undefined);
-          if (!next) setActiveTab("create");
+          if (!next) handleTabChange("create");
         }
         showNotification("ลบรายการสินค้าเรียบร้อยแล้ว!");
       }
@@ -190,7 +219,7 @@ export default function DashboardPage() {
         setActiveProduct(null);
         setVoiceoverUrl(undefined);
         setVoiceoverDurationSec(undefined);
-        setActiveTab("create");
+        handleTabChange("create");
         setIsManageModalOpen(false);
         showNotification("ล้างรายการสินค้าทั้งหมดเรียบร้อยแล้ว!");
       }
@@ -204,7 +233,7 @@ export default function DashboardPage() {
     setActiveProduct(newProduct);
     setVoiceoverUrl(newProduct.voiceoverUrl || undefined);
     setVoiceoverDurationSec(newProduct.voiceoverDurationSec || undefined);
-    setActiveTab("storyboard");
+    handleTabChange("storyboard");
 
     if (keptStoryboard) {
       showNotification("อัปเดตข้อมูลและรูป/คลิปเรียบร้อยแล้ว (คงสตอรี่บอร์ดและเสียงพากย์เดิม)!");
@@ -457,7 +486,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-1.5 bg-base-100 p-1.5 rounded-2xl border border-base-300 shadow-xs text-xs font-semibold">
               <button
                 type="button"
-                onClick={() => setActiveTab("create")}
+                onClick={() => handleTabChange("create")}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "create"
                     ? "bg-primary text-primary-content shadow-xs"
@@ -475,7 +504,7 @@ export default function DashboardPage() {
                     alert("กรุณากรอกข้อมูลสินค้าและกด 'บันทึกสินค้า' ในขั้นตอนที่ 1 ก่อนครับ");
                     return;
                   }
-                  setActiveTab("storyboard");
+                  handleTabChange("storyboard");
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "storyboard"
@@ -494,7 +523,7 @@ export default function DashboardPage() {
                     alert("กรุณาสร้างสินค้าในขั้นตอนที่ 1 ก่อนครับ");
                     return;
                   }
-                  setActiveTab("render");
+                  handleTabChange("render");
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "render"
@@ -507,7 +536,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {activeTab === "create" && (
+            <div className={activeTab === "create" ? "space-y-6" : "hidden"}>
               <ProductForm
                 key={activeProduct ? `edit_${activeProduct.id}` : `new_${formKey}`}
                 initialProduct={activeProduct}
@@ -515,41 +544,62 @@ export default function DashboardPage() {
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
               />
+            </div>
+
+            {activeProduct && (
+              <div className={activeTab === "storyboard" ? "space-y-6" : "hidden"}>
+                <ScriptStoryboard
+                  productName={activeProduct.name}
+                  price={activeProduct.price}
+                  highlights={activeProduct.highlights}
+                  images={activeProduct.images}
+                  storyboard={activeProduct.storyboard}
+                  onUpdateStoryboard={handleUpdateStoryboard}
+                  onRegenerate={handleRegenerateScript}
+                  isRegenerating={isRegenerating}
+                  voiceoverUrl={voiceoverUrl}
+                  onAppendMedia={handleAppendMedia}
+                  onNavigateToStep1={() => handleTabChange("create")}
+                  onVoiceoverGenerated={(url, duration) => {
+                    setVoiceoverUrl(url);
+                    setVoiceoverDurationSec(duration);
+                    if (activeProduct) {
+                      const updated = {
+                        ...activeProduct,
+                        voiceoverUrl: url,
+                        voiceoverDurationSec: duration,
+                      };
+                      setActiveProduct(updated);
+                      setProducts((prev) =>
+                        prev.map((p) => (p.id === updated.id ? updated : p))
+                      );
+                    }
+                    showNotification("เสียงพากย์ AI ถูกเชื่อมต่อเข้าสู่วิดีโอแล้ว!");
+                  }}
+                />
+
+                <div className="bg-base-100 border border-base-300 rounded-2xl p-5 flex items-center justify-between shadow-xs">
+                  <div>
+                    <h4 className="font-bold text-sm text-base-content">
+                      พอใจกับสตอรี่บอร์ด เสียงพากย์ และซับไตเติลแล้วใช่ไหม?
+                    </h4>
+                    <p className="text-xs text-base-content/60">
+                      ไปที่ขั้นตอนเรนเดอร์เพื่อสร้างไฟล์ MP4 พร้อมเสียง และรับแพ็กเกจแคปชั่นสำหรับโพสต์ขาย
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange("render")}
+                    className="btn btn-primary btn-sm rounded-xl gap-2 shadow-xs"
+                  >
+                    <Video className="w-4 h-4" />
+                    <span>ไปหน้าเรนเดอร์ MP4</span>
+                  </button>
+                </div>
+              </div>
             )}
 
-            {activeTab === "storyboard" && activeProduct && (
-              <ScriptStoryboard
-                productName={activeProduct.name}
-                price={activeProduct.price}
-                highlights={activeProduct.highlights}
-                images={activeProduct.images}
-                storyboard={activeProduct.storyboard}
-                onUpdateStoryboard={handleUpdateStoryboard}
-                onRegenerate={handleRegenerateScript}
-                isRegenerating={isRegenerating}
-                voiceoverUrl={voiceoverUrl}
-                onAppendMedia={handleAppendMedia}
-                onNavigateToStep1={() => setActiveTab("create")}
-                onVoiceoverGenerated={(url, duration) => {
-                  setVoiceoverUrl(url);
-                  setVoiceoverDurationSec(duration);
-                  if (activeProduct) {
-                    const updated = {
-                      ...activeProduct,
-                      voiceoverUrl: url,
-                      voiceoverDurationSec: duration,
-                    };
-                    setActiveProduct(updated);
-                    setProducts((prev) =>
-                      prev.map((p) => (p.id === updated.id ? updated : p))
-                    );
-                  }
-                  showNotification("เสียงพากย์ AI ถูกเชื่อมต่อเข้าสู่วิดีโอแล้ว!");
-                }}
-              />
-            )}
-
-            {activeTab === "render" && (
+            <div className={activeTab === "render" ? "space-y-6" : "hidden"}>
               <RenderExportModal
                 productId={activeProduct?.id}
                 productName={activeProduct?.name}
@@ -557,7 +607,7 @@ export default function DashboardPage() {
                 highlights={activeProduct?.highlights}
                 videoProps={currentVideoProps}
                 initialVideoUrl={activeProduct?.renderedVideoUrl}
-                onNavigateToTab={setActiveTab}
+                onNavigateToTab={handleTabChange}
                 onVideoRendered={(url) => {
                   if (activeProduct) {
                     const updated = { ...activeProduct, renderedVideoUrl: url };
@@ -568,28 +618,7 @@ export default function DashboardPage() {
                   }
                 }}
               />
-            )}
-
-            {activeTab === "storyboard" && (
-              <div className="bg-base-100 border border-base-300 rounded-2xl p-5 flex items-center justify-between shadow-xs">
-                <div>
-                  <h4 className="font-bold text-sm text-base-content">
-                    พอใจกับสตอรี่บอร์ด เสียงพากย์ และซับไตเติลแล้วใช่ไหม?
-                  </h4>
-                  <p className="text-xs text-base-content/60">
-                    ไปที่ขั้นตอนเรนเดอร์เพื่อสร้างไฟล์ MP4 พร้อมเสียง และรับแพ็กเกจแคปชั่นสำหรับโพสต์ขาย
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("render")}
-                  className="btn btn-primary btn-sm rounded-xl gap-2 shadow-xs"
-                >
-                  <Video className="w-4 h-4" />
-                  <span>ไปหน้าเรนเดอร์ MP4</span>
-                </button>
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Right Column: Live Video Player Preview (5 cols, sticky) */}
@@ -619,7 +648,7 @@ export default function DashboardPage() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => setActiveTab("create")}
+                    onClick={() => handleTabChange("create")}
                     className="text-primary font-semibold hover:underline"
                   >
                     + แก้ไขข้อมูล / เพิ่มรูปและคลิป
@@ -713,7 +742,7 @@ export default function DashboardPage() {
                           setActiveProduct(item);
                           setVoiceoverUrl(item.voiceoverUrl || undefined);
                           setVoiceoverDurationSec(item.voiceoverDurationSec || undefined);
-                          setActiveTab("create");
+                          handleTabChange("create");
                           setIsManageModalOpen(false);
                         }}
                         className="btn btn-outline btn-xs rounded-lg gap-1"

@@ -7,7 +7,6 @@
     "tone": "exciting",
     "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
     "images": [
-      "/uploads/1791791844542_1_th-11134207-81ztg-mqyc5oa2ud5154.webp",
       "/uploads/1791791844543_2_th-11134207-81zti-mpm4i9uroyki65.webp",
       "/uploads/1791791844545_4_th-11134207-81ztq-mrmx0p41fsoxd8.webp",
       "/uploads/1792045597040_0_IMG_9074.mov",
@@ -15,34 +14,34 @@
     ],
     "storyboard": {
       "hook": {
-        "headline": "ผ้าเปียกแบบไหนดีคะแม่ๆ?",
+        "headline": "ทิชชู่เปียกเลือกแบบไหนดี?",
         "headlineLines": [
-          "ผ้าเปียกแบบ",
-          "ไหนดีคะแม่ๆ?"
+          "ทิชชู่เปียก",
+          "เลือกแบบไหนดี?"
         ],
-        "subheadline": "สำหรับลูกผิวแพ้ง่าย",
+        "subheadline": "ต้องโดโด้เลิฟเท่านั้น!",
         "captionLines": [
-          "สำหรับลูก",
-          "ผิวแพ้ง่าย"
+          "ผ้าหนานุ่ม",
+          "ใช้ได้ทุกส่วน"
         ],
-        "badgeText": "👶 ของดีบอกต่อ",
-        "highlightWord": "แพ้ง่าย",
+        "badgeText": "✨ ของมันต้องมี",
+        "highlightWord": "โดโด้เลิฟ",
         "paperTheme": "kraft",
         "durationSec": 3
       },
       "scenes": [
         {
-          "highlightTitle": "ผ้านุ่ม ไม่ขาดง่าย",
+          "highlightTitle": "ผ้าเหนียวนุ่มไม่ขาดง่าย",
           "headlineLines": [
-            "ผ้านุ่มพิเศษ",
-            "ไม่ขาดง่ายเลย"
+            "ผ้าเหนียวนุ่ม",
+            "ไม่ขาดง่าย"
           ],
-          "highlightDesc": "เช็ดสะอาดอ่อนโยนสุดๆ",
+          "highlightDesc": "เช็ดสะอาดมั่นใจ",
           "captionLines": [
-            "เช็ดสะอาด",
-            "อ่อนโยนสุดๆ"
+            "เช็ดได้ทุกจุด",
+            "ไม่เปื่อยยุ่ยเลย"
           ],
-          "stickerText": "👶 สบายผิวลูกน้อย",
+          "stickerText": "🌿 สบายผิวลูกน้อย",
           "highlightWord": "เหนียวนุ่ม",
           "layout": "hero-center",
           "paperTheme": "cream-grid",
@@ -50,66 +49,70 @@
           "durationSec": 4
         },
         {
-          "highlightTitle": "ไร้สารเคมีอันตราย",
+          "highlightTitle": "อ่อนโยนสุดๆเด็กแรกเกิดใช้ได้",
           "headlineLines": [
-            "ไร้แอลกอฮอล์",
-            "และน้ำหอม"
+            "อ่อนโยนสุดๆเด็ก",
+            "แรกเกิดใช้ได้"
           ],
-          "highlightDesc": "มั่นใจทุกการใช้งาน",
+          "highlightDesc": "ไร้สารอันตราย",
           "captionLines": [
-            "มั่นใจทุกการใช้งาน"
+            "ไม่มีแอลกอฮอล์",
+            "หรือน้ำหอม"
           ],
           "stickerText": "🛡️ ปลอดภัยไร้สารเคมี",
-          "highlightWord": "ไร้สารเคมี",
+          "highlightWord": "แรกเกิด",
           "layout": "polaroid-stack",
-          "paperTheme": "blueprint-sketch",
+          "paperTheme": "cream-grid",
           "imageIndex": 1,
           "durationSec": 4
         },
         {
-          "highlightTitle": "เช็ดได้ทุกส่วน",
+          "highlightTitle": "เช็ดได้ครบจบในแผ่นเดียว!",
           "headlineLines": [
-            "เช็ดได้ทุกส่วน"
+            "เช็ดได้ครบ",
+            "จบในแผ่นเดียว!"
           ],
-          "highlightDesc": "สะอาดอ่อนโยนจริง",
+          "highlightDesc": "สะอาดปลอดภัยทุกส่วน",
           "captionLines": [
-            "สะอาดอ่อนโยนจริง"
+            "หน้า ปาก ก้น มือ",
+            "สะอาดหมดจด"
           ],
-          "stickerText": "✨ สะอาดได้ทุกจุด",
-          "highlightWord": "ทุกส่วน",
-          "layout": "callout-circle",
-          "paperTheme": "vintage-map",
+          "stickerText": "✨ สูตรออร์แกนิค",
+          "highlightWord": "แผ่นเดียว",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
           "imageIndex": 2,
           "durationSec": 4
         },
         {
-          "highlightTitle": "สูตรออร์แกนิค",
+          "highlightTitle": "ห่อใหญ่คุ้ม80แผ่นจุกๆ",
           "headlineLines": [
-            "ออร์แกนิคแท้",
-            "สำหรับแรกเกิด"
+            "ห่อใหญ่คุ้ม",
+            "แผ่นจุกๆ"
           ],
-          "highlightDesc": "ผิวแพ้ง่ายต้องมี",
+          "highlightDesc": "ใช้ได้นานไม่ง้อบ่อย",
           "captionLines": [
-            "ผิวแพ้ง่ายต้องมี"
+            "ใช้ได้นาน",
+            "ไม่ง้อบ่อย"
           ],
-          "stickerText": "🌿 ออร์แกนิคบริสุทธิ์",
-          "highlightWord": "ออร์แกนิค",
-          "layout": "hero-center",
-          "paperTheme": "lined-notebook",
+          "stickerText": "💰 คุ้มค่า 80 แผ่น",
+          "highlightWord": "80 แผ่น",
+          "layout": "polaroid-stack",
+          "paperTheme": "cream-grid",
           "imageIndex": 3,
           "durationSec": 4
         }
       ],
       "cta": {
-        "ctaTitle": "คุ้มมาก ต้องจัด!",
+        "ctaTitle": "กดตะกร้าส้มช้อปเลย!",
         "headlineLines": [
-          "จิ้มตะกร้าส้ม",
-          "ซ้ายล่างเลย!"
+          "กดตะกร้าส้ม",
+          "ช้อปเลย!"
         ],
-        "ctaSubtitle": "โปรลดแรงเพื่อแม่",
+        "ctaSubtitle": "โปรแม่และเด็ก",
         "captionLines": [
-          "รีบกดก่อนโค้ดหมด",
-          "ส่งฟรีลดเพิ่มอีก!"
+          "เก็บโค้ดส่งฟรี",
+          "ลดเพิ่มคุ้มสุด"
         ],
         "buttonText": "ช้อปเลยที่ Shopee",
         "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
@@ -129,7 +132,7 @@
         "musicGenre": "TikTok Upbeat Affiliate Beat",
         "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
       },
-      "narrationScript": "แม่ๆ จ๋า ผ้าเปียกแบบไหนดีคะ? ต้องตัวนี้เลย! DODOLOVE ทิชชู่เปียกออร์แกนิค ผ้านุ่มพิเศษ ไม่ขาดง่าย เช็ดได้ทั้งหน้า ปาก ก้น มือ ปลอดภัยไร้แอลกอฮอล์น้ำหอมและสารเคมี ใช้ได้ตั้งแต่แรกเกิด ผิวแพ้ง่ายก็รอด! มี 3 สูตรให้เลือกนะ พิกัดตะกร้าส้มเลย ลดแรงแถมส่งฟรี รีบกดก่อนหมด!",
+      "narrationScript": "เคยไหมคะ? ทิชชู่เปียกไม่ดี? ต้องนี่เลย DODOLOVE! ผ้าเหนียวนุ่ม ไม่ขาดง่าย เช็ดได้ทั้งตัว อ่อนโยนสุดๆ ไร้สารอันตราย ใช้ได้ตั้งแต่แรกเกิด มีให้เลือก 3 สูตร เช็ดหน้า ปาก ก้น มือ จบในแผ่นเดียว! ห่อใหญ่ 80 แผ่น ยกลังยิ่งคุ้ม! รีบกดตะกร้าส้มเลยค่ะ โค้ดส่งฟรีเพียบ!",
       "styleDNA": {
         "seed": 878847314,
         "pack": "pro-minimal-luxury",
@@ -158,27 +161,27 @@
         {
           "sceneId": "hook",
           "role": "hook",
-          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! ผ้าเปียกแบบไหนดีคะแม่ๆ?"
+          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! ทิชชู่เปียกเลือกแบบไหนดี?"
         },
         {
           "sceneId": "scene_0",
           "role": "body",
-          "text": "ผ้านุ่ม ไม่ขาดง่าย เช็ดสะอาดอ่อนโยนสุดๆ"
+          "text": "ผ้าเหนียวนุ่มไม่ขาดง่าย เช็ดสะอาดมั่นใจ"
         },
         {
           "sceneId": "scene_1",
           "role": "body",
-          "text": "แถมยังไร้สารเคมีอันตราย"
+          "text": "แถมยังอ่อนโยนสุดๆเด็กแรกเกิดใช้ได้"
         },
         {
           "sceneId": "scene_2",
           "role": "body",
-          "text": "แถมยังเช็ดได้ทุกส่วน"
+          "text": "แถมยังเช็ดได้ครบจบในแผ่นเดียว!"
         },
         {
           "sceneId": "scene_3",
           "role": "body",
-          "text": "แถมยังสูตรออร์แกนิค"
+          "text": "แถมยังห่อใหญ่คุ้ม80แผ่นจุกๆ"
         },
         {
           "sceneId": "cta",
@@ -239,7 +242,6 @@
         "สำหรับเด็ก",
         "ออร์แกนิค"
       ]
-    },
-    "renderedVideoUrl": "/renders/shopee_prod_1791791844541_1792048860137.mp4"
+    }
   }
 ]

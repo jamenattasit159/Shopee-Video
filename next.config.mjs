@@ -13,7 +13,23 @@ const nextConfig = {
       "archiver",
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          "**/.git/**",
+          "**/node_modules/**",
+          "**/.tmp/**",
+          "**/data/**",
+          "**/public/renders/**",
+          "**/public/audio/**",
+          "**/public/uploads/**",
+          "**/exports/**",
+          "**/renders/**",
+        ],
+      };
+    }
     // Allows loading video and font assets cleanly
     config.module.rules.push({
       test: /\.(mp4|webm)$/,

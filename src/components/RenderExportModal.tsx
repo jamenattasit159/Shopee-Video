@@ -63,25 +63,81 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   const [isOpeningFolder, setIsOpeningFolder] = useState<boolean>(false);
   const [folderOpenFeedback, setFolderOpenFeedback] = useState<string | null>(null);
 
-  // Sync if initialVideoUrl changes or product changes
+  // Sync if initialVideoUrl changes
   React.useEffect(() => {
-    setRenderedUrl(initialVideoUrl || null);
-    setRenderTimestamp(Date.now());
-  }, [initialVideoUrl, productId]);
+    if (initialVideoUrl) {
+      setRenderedUrl(initialVideoUrl);
+      setRenderTimestamp(Date.now());
+    }
+  }, [initialVideoUrl]);
+
+  // Check ongoing or completed render on mount and on productId change
+  React.useEffect(() => {
+    let isSubscribed = true;
+    const checkStatus = async () => {
+      try {
+        const res = await fetch(`/api/render-video?productId=${encodeURIComponent(productId || "")}`);
+        const data = await res.json();
+        if (!isSubscribed) return;
+        if (data?.progress) {
+          const prog = data.progress;
+          if (prog.status === "rendering" || prog.status === "starting" || prog.status === "bundling") {
+            const ageSec = (Date.now() - (prog.updatedAt || 0)) / 1000;
+            if (ageSec < 600) {
+              setIsRendering(true);
+              setRenderProgress(prog.percent || 10);
+              setRenderMessage(prog.message || "กำลังเรนเดอร์วิดีโอ...");
+            }
+          } else if (prog.status === "complete" && prog.videoUrl) {
+            if (!initialVideoUrl && (!prog.productId || prog.productId === productId)) {
+              setRenderedUrl(prog.videoUrl);
+              setRenderTimestamp(Date.now());
+              if (prog.exportBundle) {
+                setExportBundle(prog.exportBundle);
+              }
+              if (onVideoRendered) {
+                onVideoRendered(prog.videoUrl);
+              }
+            }
+          }
+        }
+      } catch {}
+    };
+    checkStatus();
+    return () => {
+      isSubscribed = false;
+    };
+  }, [productId, initialVideoUrl]);
 
   React.useEffect(() => {
     if (!isRendering) return;
-    setRenderProgress(5);
+    setRenderProgress((prev) => Math.max(prev, 5));
     const timer = setInterval(async () => {
       try {
-        const res = await fetch("/api/render-video");
+        const res = await fetch(`/api/render-video?productId=${encodeURIComponent(productId || "")}`);
         const data = await res.json();
         if (data?.progress) {
-          if (typeof data.progress.percent === "number") {
-            setRenderProgress(data.progress.percent);
+          const prog = data.progress;
+          if (typeof prog.percent === "number") {
+            setRenderProgress(prog.percent);
           }
-          if (data.progress.message) {
-            setRenderMessage(data.progress.message);
+          if (prog.message) {
+            setRenderMessage(prog.message);
+          }
+          if (prog.status === "complete" && prog.videoUrl) {
+            setIsRendering(false);
+            setRenderedUrl(prog.videoUrl);
+            setRenderTimestamp(Date.now());
+            setRenderMessage("เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ!");
+            if (prog.exportBundle) {
+              setExportBundle(prog.exportBundle);
+            }
+            if (onVideoRendered) {
+              onVideoRendered(prog.videoUrl);
+            }
+          } else if (prog.status === "error") {
+            setIsRendering(false);
+            setError(prog.message || "เกิดข้อผิดพลาดในการเรนเดอร์");
           }
         }
       } catch {
@@ -89,7 +145,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
       }
     }, 1500);
     return () => clearInterval(timer);
-  }, [isRendering]);
+  }, [isRendering, productId]);
 
   const handleFixNavigation = (where?: { sceneId?: string; field?: string }) => {
     if (!onNavigateToTab) return;
