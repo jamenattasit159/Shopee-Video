@@ -85,10 +85,10 @@ export default function ErrorDevTestPage() {
   const catalogList = Object.values(ERROR_CATALOG);
   const groups: Record<string, CatalogEntry[]> = {
     "รูปภาพ (Image)": catalogList.filter((c) => c.source === "ui" && c.code.includes("IMAGE") || c.code.includes("UPLOAD")),
-    "Gemini AI": catalogList.filter((c) => c.source === "gemini"),
+    "ระบบ AI": catalogList.filter((c) => c.source === "gemini"),
     "เสียง & เสียงพากย์ (Voice / TTS)": catalogList.filter((c) => c.source === "voice" || c.source === "tts"),
-    "FFmpeg Engine": catalogList.filter((c) => c.source === "ffmpeg"),
-    "Remotion Video Render": catalogList.filter((c) => c.source === "render" || c.source === "remotion"),
+    "ประมวลผลเสียง": catalogList.filter((c) => c.source === "ffmpeg"),
+    "สร้างวิดีโอ": catalogList.filter((c) => c.source === "render" || c.source === "remotion"),
     "พื้นที่จัดเก็บ (Storage / Disk)": catalogList.filter((c) => c.source === "storage"),
     "Shopee Link Import": catalogList.filter((c) => c.source === "import"),
     "การตรวจสอบข้อความ (Validation)": catalogList.filter((c) => c.code.includes("TEXT") || c.code.includes("LINE_BREAK")),
@@ -108,7 +108,8 @@ export default function ErrorDevTestPage() {
             <span>กลับหน้าหลัก Dashboard</span>
           </Link>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
-            <span>🛠️ Developer Error Alert Test Suite</span>
+            <Terminal className="w-7 h-7 text-primary" />
+            <span>Developer Error Alert Test Suite</span>
             <span className="badge badge-warning badge-sm font-mono">DEV ONLY</span>
           </h1>
           <p className="text-sm opacity-70 mt-1">

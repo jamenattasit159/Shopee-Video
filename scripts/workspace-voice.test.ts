@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import { getVoice, retrySameVoice } from '../src/lib/workspace/voiceCatalog';
+import { adaptLanguage, draftScenes } from '../src/lib/workspace/scriptRules';
+import { freshWorkspace,newScene } from '../src/lib/workspace/types';
+test('voice identity explicitly female/male',()=>{assert.equal(getVoice('thai-female').providerVoiceId,'th-TH-PremwadeeNeural');assert.equal(getVoice('thai-male').genderLabel,'male');assert.throws(()=>getVoice('unknown'));});
+test('retry keeps exact voice and text, stops after two attempts',async()=>{const seen:any[]=[];await assert.rejects(retrySameVoice('thai-female','dodolove',async(v,t)=>{seen.push([v,t]);throw new Error('offline');}));assert.deepEqual(seen,[['thai-female','dodolove'],['thai-female','dodolove']]);});
+test('language changes endings contextually and preserves quoted brand',()=>{assert.equal(adaptLanguage('ใช้ได้ไหมครับ','female-polite'),'ใช้ได้ไหมคะ');assert.equal(adaptLanguage('ดู dodolove ราคา 199 บาทครับ','female-polite'),'ดู dodolove ราคา 199 บาทค่ะ');assert.equal(adaptLanguage('ชอบไหมคะ','male-polite'),'ชอบไหมครับ');assert.equal(adaptLanguage('เขาพูดว่า “ดีครับ”','female-polite'),'เขาพูดว่า “ดีครับ”');});
+test('draft scenes keep media and factual price',()=>{const p=freshWorkspace();p.product={name:'dodolove',price:'199',highlights:'พกสะดวก'};p.assets=[{id:'a',name:'a',url:'/uploads/a.png',kind:'image',width:100,height:100,durationFrames:0,hasAudio:false,captions:[]}];p.scenes=[newScene(p.assets[0])];const s=draftScenes(p);assert.ok(s.some(s=>s.displayText.includes('199')));assert.ok(s.every(s=>s.assetId==='a'));});

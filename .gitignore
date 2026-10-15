@@ -38,6 +38,7 @@ next-env.d.ts
 .tmp/
 data/import-cache.json
 *.mp4
+/*.png
 public/renders/*.mp4
 !public/renders/.gitkeep
 renders/*.mp4
@@ -54,6 +55,11 @@ renders/*.mp4
 .agent/skills/
 # exports
 exports/
+data/studio/
+data/workspaces/
+.impeccable/
+public/uploads/studio_*
+public/renders/studio_*
 data/error-log.json
 public/audio/cache/
 ของ/

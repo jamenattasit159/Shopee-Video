@@ -126,7 +126,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   if (!result.success) {
     const renderErr: any = new Error(
-      `การเรนเดอร์วิดีโอ Remotion ล้มเหลว (Exit Code: ${result.code})\n${result.error || ""}`
+      `การสร้างวิดีโอล้มเหลว (รหัส: ${result.code})\n${result.error || ""}`
     );
     renderErr.code = "RENDER_EXIT_NONZERO";
     renderErr.status = 500;

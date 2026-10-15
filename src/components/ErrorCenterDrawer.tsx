@@ -5,6 +5,7 @@ import {
   AlertCircle,
   AlertTriangle,
   Check,
+  CheckCircle2,
   Copy,
   Download,
   Info,
@@ -113,7 +114,7 @@ export const ErrorCenterDrawer: React.FC = () => {
         <div className="p-4 border-b border-base-300 flex items-center justify-between bg-base-200/50">
           <div className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-              🚨
+              <AlertTriangle className="w-4 h-4 text-primary" />
             </span>
             <div>
               <h3 className="font-bold text-sm text-base-content">
@@ -156,12 +157,12 @@ export const ErrorCenterDrawer: React.FC = () => {
             >
               <option value="all">แหล่งที่มาทั้งหมด</option>
               <option value="api">API</option>
-              <option value="gemini">Gemini AI</option>
+              <option value="gemini">ระบบ AI</option>
               <option value="tts">TTS</option>
               <option value="voice">Voice</option>
               <option value="render">Render</option>
               <option value="import">Import</option>
-              <option value="ffmpeg">FFmpeg</option>
+              <option value="ffmpeg">ประมวลผลเสียงและวิดีโอ</option>
               <option value="storage">Storage</option>
             </select>
           </div>
@@ -194,7 +195,9 @@ export const ErrorCenterDrawer: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
           {filteredHistory.length === 0 ? (
             <div className="text-center py-16 text-base-content/50 space-y-2">
-              <span className="text-3xl block">🎉</span>
+              <div className="w-10 h-10 rounded-full bg-success/10 text-success flex items-center justify-center mx-auto mb-2">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
               <p className="text-xs font-medium">ไม่พบประวัติข้อผิดพลาดในขณะนี้</p>
               <p className="text-[11px]">ระบบทำงานได้ตามปกติและราบรื่น</p>
             </div>
@@ -236,8 +239,9 @@ export const ErrorCenterDrawer: React.FC = () => {
                     <h5 className="font-bold text-base-content text-[13px] leading-tight">
                       {item.messageTh}
                     </h5>
-                    <p className="text-[11px] text-base-content/75 mt-1 leading-relaxed">
-                      💡 {item.hintTh}
+                    <p className="text-[11px] text-base-content/75 mt-1 leading-relaxed flex items-start gap-1">
+                      <Info className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                      <span>{item.hintTh}</span>
                     </p>
                   </div>
 

@@ -1,0 +1,8 @@
+import fs from 'node:fs/promises';import path from 'node:path';import {synthesizeScene} from '../src/lib/workspace/narration';import {parseWorkspace} from '../src/lib/workspace/types';import {prepareSpeech} from '../src/lib/workspace/pronunciation';
+async function main(){const id=process.argv[2];if(!/^[a-f0-9-]{36}$/.test(id||''))return;const file=path.resolve('.tmp/studio-jobs',`${id}.json`);const state=JSON.parse(await fs.readFile(file,'utf8'));const update=async(patch:any)=>{Object.assign(state,patch);const tmp=`${file}.tmp`;await fs.writeFile(tmp,JSON.stringify(state));await fs.rename(tmp,file);};
+ const timer=setTimeout(()=>{void update({status:'error',error:'สร้างเสียงนานเกินกำหนด ลองใหม่เฉพาะฉากที่ยังไม่สำเร็จ'}).finally(()=>process.exit(1));},14*60*1000);
+ try{const {payload}=JSON.parse(await fs.readFile(path.resolve('.tmp/studio-jobs',`${id}.input.json`),'utf8'));const p=parseWorkspace(payload.project);const scenes=p.scenes.filter(s=>payload.sceneIds.includes(s.id)&&s.displayText.trim());const artifacts:any[]=[],errors:any[]=[];
+ for(let i=0;i<scenes.length;i++){const s=scenes[i];await update({progress:Math.floor(i/scenes.length*100),message:`กำลังสร้างเสียงฉาก ${i+1}/${scenes.length}`});try{artifacts.push({sceneId:s.id,artifact:await synthesizeScene(s,p.voice,prepareSpeech(s.displayText,p.pronunciation))});}catch(e:any){errors.push({sceneId:s.id,message:e.message});}await update({artifacts,errors});}
+ await update({status:'complete',progress:100,artifacts,errors});
+ }catch{await update({status:'error',error:'ข้อมูลเสียงไม่ถูกต้อง กรุณาลองใหม่'});}finally{clearTimeout(timer);}}
+void main();

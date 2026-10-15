@@ -1,0 +1,8 @@
+import {NextRequest,NextResponse} from 'next/server';import {parseWorkspace} from '@/lib/workspace/types';import {draftScenes,adaptLanguage} from '@/lib/workspace/scriptRules';import {generateShopeeScriptWithClaude} from '@/lib/claude';
+export const runtime='nodejs';
+export async function POST(req:NextRequest){try{const body=await req.json(),p=parseWorkspace(body.project);if(body.mode==='adapt-language')return NextResponse.json({scenes:p.scenes.map(s=>({...s,displayText:adaptLanguage(s.displayText,p.voice.languageStyle)})),warnings:['ตรวจสรรพนามและคำลงท้ายก่อนยอมรับ โดยเฉพาะคำถามและบทสนทนา']});
+ const scenes=draftScenes(p);if(!scenes.length)return NextResponse.json({error:'เพิ่มรูปหรือคลิปก่อนจัดร่างฉาก'},{status:400});
+ if(body.mode==='ai'&&p.product.name.trim()){
+ const res=await generateShopeeScriptWithClaude({productName:p.product.name,price:p.product.price,highlights:p.product.highlights,tone:'minimal',imageCount:p.assets.length,languageStyle:p.voice.languageStyle});const sb=res.storyboard;const lines=[sb.hook.headline,...sb.scenes.map(s=>`${s.highlightTitle} ${s.highlightDesc}`),sb.cta.ctaTitle];scenes.forEach((s,i)=>{if(i<scenes.length-1&&lines[i])s.displayText=adaptLanguage(lines[i],p.voice.languageStyle);});return NextResponse.json({scenes,warnings:['AI สร้างเป็นร่าง ตรวจข้อเท็จจริงและชื่อสินค้าก่อนใช้',...(res.fallbackNotice?['ใช้ตัวช่วยสำรองในการจัดร่าง']:[])]});}
+ return NextResponse.json({scenes,warnings:['ร่างจากข้อมูลสินค้าที่คุณกรอก ตรวจและปรับบทให้เป็นสไตล์ช่องก่อนสร้างเสียง']});
+ }catch{return NextResponse.json({error:'จัดร่างไม่สำเร็จ ลองใช้ “จัดร่างจากข้อมูล” หรือเขียนบทเองได้'},{status:400});}}

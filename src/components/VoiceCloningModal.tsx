@@ -227,7 +227,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
         throw new Error(data?.error || "เกิดข้อผิดพลาดในการโคลนเสียง");
       }
 
-      setSubmitSuccess(`🎉 โคลนเสียงสำเร็จแล้ว! สร้างโมเดล: ${data.voice.displayName}`);
+      setSubmitSuccess(`โคลนเสียงสำเร็จแล้ว! สร้างโมเดล: ${data.voice.displayName}`);
       await fetchVoices();
 
       // Automatically select new voice
@@ -245,7 +245,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
       }, 1500);
     } catch (err: any) {
       console.error("Voice creation failed:", err);
-      setSubmitError(err?.messageTh || err?.message || "เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง Gemini API");
+      setSubmitError(err?.messageTh || err?.message || "เกิดข้อผิดพลาดในการส่งข้อมูลไปยังระบบเสียง AI");
     } finally {
       setIsSubmitting(false);
     }
@@ -280,7 +280,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
             </div>
             <div>
               <h3 className="font-semibold text-base text-base-content flex items-center gap-2">
-                โคลนเสียงด้วย Gemini 3.8 Flash
+                โคลนเสียงด้วย AI
                 <span className="badge badge-primary badge-sm font-normal">Voice Replication</span>
               </h3>
               <p className="text-xs text-base-content/60">
@@ -363,8 +363,9 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
                 </div>
 
                 <div className="bg-base-100 border border-base-300/80 rounded-xl p-3 text-xs text-base-content/80 leading-relaxed">
-                  <span className="font-semibold text-primary block mb-1">
-                    💡 ตัวอย่างบทพูดภาษาไทย (อ่านตามนี้ได้เลยครับ):
+                  <span className="font-semibold text-primary flex items-center gap-1.5 mb-1">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>ตัวอย่างบทพูดภาษาไทย (อ่านตามนี้ได้เลยครับ):</span>
                   </span>
                   &ldquo;{SAMPLE_REFERENCE_SCRIPT_TH}&rdquo;
                 </div>
@@ -431,7 +432,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
                 <div className="bg-base-100 border border-warning/30 rounded-xl p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-[11px] text-base-content/70 font-medium">
-                      ผู้พูดต้องอ่านประโยคนี้คำต่อคำอย่างชัดเจน (Google AI จะตรวจจับคำพูด):
+                      ผู้พูดต้องอ่านประโยคนี้คำต่อคำอย่างชัดเจนเพื่อให้ระบบตรวจสอบคำยินยอม:
                     </p>
                     <div className="flex items-center gap-1 bg-base-200 p-0.5 rounded-lg border border-base-300">
                       <button
@@ -528,7 +529,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-base-content/70">
-                  เสียงโคลนที่บันทึกอยู่ในโปรเจกต์ Google AI Studio ของคุณ (สูงสุด 200 เสียง)
+                  เสียงโคลนที่บันทึกอยู่ในบัญชีบริการเสียง AI ของคุณ (สูงสุด 200 เสียง)
                 </span>
                 <button
                   onClick={fetchVoices}
@@ -645,7 +646,7 @@ export const VoiceCloningModal: React.FC<VoiceCloningModalProps> = ({
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    เริ่มโคลนเสียงด้วย Gemini 3.8
+                    เริ่มโคลนเสียงด้วย AI
                   </>
                 )}
               </button>

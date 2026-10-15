@@ -186,8 +186,9 @@ export const ErrorToaster: React.FC = () => {
                 <h4 className="font-bold text-sm text-base-content">
                   {selectedToast.messageTh}
                 </h4>
-                <p className="text-xs text-base-content/80 mt-1">
-                  💡 <strong>คำแนะนำ:</strong> {selectedToast.hintTh}
+                <p className="text-xs text-base-content/80 mt-1 flex items-start gap-1">
+                  <Info className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                  <span><strong>คำแนะนำ:</strong> {selectedToast.hintTh}</span>
                 </p>
               </div>
 

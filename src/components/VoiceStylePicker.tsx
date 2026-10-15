@@ -627,8 +627,9 @@ export const VoiceStylePicker: React.FC<VoiceStylePickerProps> = ({
             ให้คะแนนความเหมือน: "ยังเป็นเสียงฉันไหม" (1–5 ดาว)
           </span>
           {feedbackAdvice && (
-            <p className="text-[11px] text-warning font-medium">
-              💡 {feedbackAdvice}
+            <p className="text-[11px] text-warning font-medium flex items-center gap-1">
+              <Info className="w-3 h-3 shrink-0" />
+              <span>{feedbackAdvice}</span>
             </p>
           )}
         </div>

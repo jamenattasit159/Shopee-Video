@@ -40,35 +40,36 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
   const durationSec = (durationInFrames / 30).toFixed(1);
 
   return (
-    <div className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-sm flex flex-col items-center relative">
+    <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-xs flex flex-col items-center relative">
       {/* Header */}
-      <div className="w-full flex items-center justify-between pb-4 border-b border-stone-200/80 mb-4">
+      <div className="w-full flex items-center justify-between pb-4 border-b border-base-300 mb-4">
         <div>
-          <span className="text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Step 3: Real-Time Remotion Video Engine
+          <span className="badge badge-primary badge-outline text-xs font-semibold tracking-wider">
+            ขั้นตอนที่ 3: พรีวิววิดีโอแบบเรียลไทม์
           </span>
-          <h2 className="text-xl font-extrabold text-stone-900 mt-1.5 flex items-center gap-2">
-            <span>📱 พรีวิววิดีโอสด 9:16</span>
+          <h2 className="text-xl font-bold text-base-content mt-1.5 flex items-center gap-2">
+            <Smartphone className="w-5 h-5 text-primary" />
+            <span>พรีวิววิดีโอสด 9:16</span>
           </h2>
         </div>
-        <div className="text-xs bg-stone-100 text-stone-700 px-3 py-1.5 rounded-lg border border-stone-300 flex items-center gap-1.5 font-mono shadow-2xs">
-          <Smartphone className="w-3.5 h-3.5 text-sky-600" />
+        <div className="text-xs bg-base-200 text-base-content/80 px-3 py-1.5 rounded-lg border border-base-300 flex items-center gap-1.5 font-mono shadow-xs">
+          <Smartphone className="w-3.5 h-3.5 text-primary" />
           <span>1080x1920 • 30fps • {durationSec}s</span>
         </div>
       </div>
 
       {props.imageWarning && (
-        <div className="w-full mb-4 bg-amber-50 border border-amber-300 rounded-xl p-2.5 text-xs text-amber-900 flex items-center gap-2 shadow-2xs">
-          <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+        <div className="w-full mb-4 alert alert-warning text-xs p-3 rounded-xl flex items-center gap-2 shadow-xs">
+          <ShieldAlert className="w-4 h-4 shrink-0" />
           <span>ข้อควรระวัง: {props.imageWarning}</span>
         </div>
       )}
 
       {/* Red Zone Toggle Control Bar */}
-      <div className="w-full mb-4 bg-stone-50 border border-stone-200 rounded-xl p-3 flex items-center justify-between gap-3 text-xs shadow-2xs">
+      <div className="w-full mb-4 bg-base-200/50 border border-base-300 rounded-xl p-3 flex items-center justify-between gap-3 text-xs shadow-xs">
         <div className="flex items-center gap-2">
-          <ShieldAlert className={`w-4 h-4 ${showSafeZone ? "text-red-500" : "text-stone-400"}`} />
-          <span className="font-bold text-stone-800">
+          <ShieldAlert className={`w-4 h-4 ${showSafeZone ? "text-error" : "opacity-40"}`} />
+          <span className="font-semibold text-base-content">
             {showSafeZone ? "เปิดไกด์ Red Zone (Safe Zone)" : "ปิดไกด์ Red Zone"}
           </span>
         </div>
@@ -76,10 +77,10 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
         <button
           type="button"
           onClick={toggleSafeZone}
-          className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition ${
+          className={`btn btn-xs rounded-lg font-medium flex items-center gap-1.5 transition ${
             showSafeZone
-              ? "bg-red-600 text-white shadow-sm"
-              : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 shadow-2xs"
+              ? "btn-error text-white shadow-xs"
+              : "btn-outline"
           }`}
         >
           {showSafeZone ? (
@@ -89,7 +90,7 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
             </>
           ) : (
             <>
-              <Eye className="w-3.5 h-3.5 text-orange-600" />
+              <Eye className="w-3.5 h-3.5" />
               <span>แสดงกรอบ Red Zone</span>
             </>
           )}
@@ -97,11 +98,11 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
       </div>
 
       {/* Mobile Device Frame */}
-      <div className="relative w-full max-w-[340px] md:max-w-[360px] bg-stone-900 rounded-[42px] p-3 shadow-xl border-4 border-stone-800 ring-1 ring-stone-700">
+      <div className="relative w-full max-w-[340px] md:max-w-[360px] bg-neutral-900 rounded-[42px] p-3 shadow-2xl border-4 border-neutral-800 ring-1 ring-neutral-700">
         {/* Dynamic Island / Speaker Notch */}
         <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-30 flex items-center justify-center">
-          <div className="w-3 h-3 rounded-full bg-stone-800 border border-stone-700 mr-2" />
-          <div className="w-2 h-2 rounded-full bg-stone-700" />
+          <div className="w-3 h-3 rounded-full bg-neutral-800 border border-neutral-700 mr-2" />
+          <div className="w-2 h-2 rounded-full bg-neutral-700" />
         </div>
 
         {/* Video Player Display Container */}
@@ -122,10 +123,10 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
                 })
               );
               return (
-                <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-stone-900 text-white text-center">
-                  <ShieldAlert className="w-10 h-10 text-red-500 mb-3" />
-                  <h3 className="text-sm font-bold text-red-400 mb-1">เกิดข้อผิดพลาดในการแสดงผล</h3>
-                  <p className="text-xs text-stone-400 mb-4 max-w-[240px]">
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-neutral-950 text-neutral-content text-center">
+                  <ShieldAlert className="w-10 h-10 text-error mb-3" />
+                  <h3 className="text-sm font-bold text-error mb-1">เกิดข้อผิดพลาดในการแสดงผล</h3>
+                  <p className="text-xs text-neutral-content/70 mb-4 max-w-[240px]">
                     {error.message || "ไม่สามารถเล่นพรีวิววิดีโอได้"}
                   </p>
                   <button
@@ -162,18 +163,18 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
         </div>
 
         {/* Home Bar */}
-        <div className="w-28 h-1 bg-stone-500 rounded-full mx-auto mt-2.5 opacity-60" />
+        <div className="w-28 h-1 bg-neutral-600 rounded-full mx-auto mt-2.5 opacity-60" />
       </div>
 
       {/* Audio Status & Tips */}
-      <div className="w-full mt-4 flex items-center justify-between text-[11px] text-stone-500 border-t border-stone-200 pt-3">
-        <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-          <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
+      <div className="w-full mt-4 flex items-center justify-between text-xs text-base-content/60 border-t border-base-300 pt-3">
+        <div className="flex items-center gap-1.5 text-success font-medium">
+          <Volume2 className="w-3.5 h-3.5 text-success" />
           <span>
             {props.voiceoverUrl ? "มีเสียงพากย์ AI + เพลง BGM + SFX" : "มีเพลง BGM + เสียง SFX (เพิ่มเสียงพากย์ได้)"}
           </span>
         </div>
-        <div className="text-stone-400">
+        <div className="text-base-content/40">
           กรอบไกด์แสดงเฉพาะตอนพรีวิว ไม่ติดไปในไฟล์ MP4
         </div>
       </div>

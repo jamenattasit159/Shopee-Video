@@ -5,11 +5,15 @@ import {
   AlertTriangle,
   Camera,
   CheckCircle2,
+  Dices,
   ExternalLink,
   FileText,
   HelpCircle,
   Loader2,
+  Package,
+  Palette,
   RotateCcw,
+  Search,
   Sparkles,
   Tag,
   Trash2,
@@ -151,9 +155,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       case "redirect-url":
         return "ลิงก์ Shopee";
       case "affiliate-api":
-        return "Shopee API";
+        return "ข้อมูลจาก Shopee";
       case "gemini":
-        return "Gemini AI";
+        return "วิเคราะห์ด้วย AI";
       case "screenshot":
         return "ภาพหน้าจอ";
       case "user":
@@ -439,35 +443,41 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       />
 
       {/* 2. Main Form & Review Screen Container */}
-      <div className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-sm space-y-6 relative">
+      <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-xs space-y-6 relative">
         {/* Top Banner & Mode Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-stone-200/80 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-base-300 gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              <span className="text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
                 {activeDraft ? "Review & Confirm" : "Step 1: Input & Uploads"}
               </span>
               <span
-                className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${
                   activeDraft
-                    ? "text-amber-800 bg-amber-50 border border-amber-200"
-                    : "text-emerald-800 bg-emerald-50 border border-emerald-200"
+                    ? "text-warning bg-warning/10 border border-warning/20"
+                    : "text-success bg-success/10 border border-success/20"
                 }`}
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full animate-pulse ${
-                    activeDraft ? "bg-amber-500" : "bg-emerald-500"
+                    activeDraft ? "bg-warning" : "bg-success"
                   }`}
                 />
                 {activeDraft ? "ตรวจสอบร่างข้อมูลก่อนสร้างคลิป" : "พร้อมสร้างสินค้าใหม่"}
               </span>
             </div>
-            <h2 className="text-xl font-extrabold text-stone-900 mt-1.5 flex items-center gap-2">
-              <span>
-                {activeDraft
-                  ? "🔍 ตรวจสอบและยืนยันข้อมูลสินค้า (Review Screen)"
-                  : "📦 กรอกข้อมูลสินค้าเพื่อสร้างคลิปใหม่"}
-              </span>
+            <h2 className="text-xl font-bold text-base-content mt-1.5 flex items-center gap-2">
+              {activeDraft ? (
+                <>
+                  <Search className="w-5 h-5 text-primary" />
+                  <span>ตรวจสอบและยืนยันข้อมูลสินค้า (Review Screen)</span>
+                </>
+              ) : (
+                <>
+                  <Package className="w-5 h-5 text-primary" />
+                  <span>กรอกข้อมูลสินค้าเพื่อสร้างคลิปใหม่</span>
+                </>
+              )}
             </h2>
           </div>
 
@@ -476,19 +486,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             <button
               type="button"
               onClick={handleClearForm}
-              className="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 px-3 py-1.5 rounded-xl border border-stone-300 transition flex items-center gap-1.5 shadow-xs"
+              className="btn btn-ghost btn-xs text-base-content/70 hover:text-base-content rounded-xl border border-base-300 gap-1.5"
               title="ล้างข้อความทั้งหมดในฟอร์มเพื่อกรอกใหม่"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
+              <RotateCcw className="w-3.5 h-3.5" />
               <span>ล้างฟอร์มว่าง</span>
             </button>
 
             <button
               type="button"
               onClick={() => loadPreset("tumbler")}
-              className="text-xs bg-orange-50 hover:bg-orange-100 text-orange-800 px-3 py-1.5 rounded-xl border border-orange-200 transition flex items-center gap-1.5 shadow-xs"
+              className="btn btn-outline btn-primary btn-xs rounded-xl gap-1.5"
             >
-              <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+              <Sparkles className="w-3.5 h-3.5" />
               <span>โหลดสินค้าตัวอย่าง</span>
             </button>
           </div>
@@ -496,33 +506,33 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         {/* Review Screen Header Info (When activeDraft is present) */}
         {activeDraft && (
-          <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 space-y-3">
+          <div className="bg-warning/5 border border-warning/20 rounded-xl p-4 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 truncate">
-                <span className="text-stone-500 shrink-0">ลิงก์ต้นฉบับ:</span>
-                <span className="text-stone-800 truncate font-mono">
+                <span className="text-base-content/60 shrink-0">ลิงก์ต้นฉบับ:</span>
+                <span className="text-base-content truncate font-mono">
                   {activeDraft.originalUrl}
                 </span>
                 <a
                   href={activeDraft.originalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-ghost btn-xs text-orange-600 hover:text-orange-700 flex items-center gap-1 shrink-0"
+                  className="btn btn-ghost btn-xs text-primary hover:underline flex items-center gap-1 shrink-0"
                 >
                   <span>เปิดดูหน้าสินค้าจริง</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
-              <div className="text-stone-500 shrink-0">
+              <div className="text-base-content/60 shrink-0">
                 ดึงข้อมูลเมื่อ:{" "}
-                <span className="text-stone-800 font-medium">
+                <span className="text-base-content font-medium">
                   {new Date(activeDraft.fetchedAt).toLocaleTimeString("th-TH")}
                 </span>
               </div>
             </div>
 
-            <div className="text-xs text-amber-900 bg-amber-100/80 border border-amber-300/80 rounded-lg p-2.5 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+            <div className="alert alert-warning py-2.5 px-3 text-xs rounded-xl flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>
                 <strong>โปรดทราบ:</strong> ราคาและโปรโมชันอาจเปลี่ยนแปลงตามเวลา
                 กรุณาตรวจสอบความถูกต้องก่อนกดยืนยันเรนเดอร์คลิป
@@ -531,12 +541,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
             {/* Warnings list if any */}
             {activeDraft.warnings && activeDraft.warnings.length > 0 && (
-              <div className="bg-amber-100/90 border border-amber-300 rounded-xl p-3 text-xs space-y-1">
-                <div className="font-semibold text-amber-900 flex items-center gap-1.5">
+              <div className="bg-warning/10 border border-warning/20 rounded-xl p-3 text-xs space-y-1">
+                <div className="font-semibold text-warning-content flex items-center gap-1.5">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>ข้อสังเกตจากระบบ:</span>
                 </div>
-                <ul className="list-disc list-inside text-amber-800 space-y-0.5">
+                <ul className="list-disc list-inside text-base-content/80 space-y-0.5">
                   {activeDraft.warnings.map((w, idx) => (
                     <li key={idx}>{w}</li>
                   ))}
@@ -545,9 +555,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             )}
 
             {/* Tier 4: Screenshot OCR Fallback Button */}
-            <div className="flex items-center justify-between pt-1 border-t border-stone-200">
-              <span className="text-xs text-stone-500">
-                หากช่องใดขาดข้อมูล สามารถให้ Gemini Vision ช่วยอ่านจากรูปภาพหน้าจอได้:
+            <div className="flex items-center justify-between pt-1 border-t border-base-300">
+              <span className="text-xs text-base-content/60">
+                หากช่องใดขาดข้อมูล สามารถให้ AI ช่วยอ่านจากรูปภาพหน้าจอได้:
               </span>
               <div>
                 <input
@@ -561,17 +571,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   type="button"
                   onClick={() => ocrInputRef.current?.click()}
                   disabled={isOcrLoading}
-                  className="btn btn-xs bg-white hover:bg-stone-50 border-stone-300 text-stone-700 gap-1.5 shadow-2xs"
+                  className="btn btn-xs btn-outline rounded-lg gap-1.5"
                 >
                   {isOcrLoading ? (
                     <>
-                      <Loader2 className="w-3 h-3 animate-spin text-orange-600" />
+                      <Loader2 className="w-3 h-3 animate-spin text-primary" />
                       <span>กำลังอ่านภาพ...</span>
                     </>
                   ) : (
                     <>
-                      <Camera className="w-3 h-3 text-orange-600" />
-                      <span>📷 อัปโหลดภาพหน้าจอสินค้า (OCR)</span>
+                      <Camera className="w-3 h-3 text-primary" />
+                      <span>อัปโหลดภาพหน้าจอสินค้า (OCR)</span>
                     </>
                   )}
                 </button>
@@ -584,9 +594,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           {/* Product Name */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm font-bold text-stone-800 flex items-center gap-2">
+              <label className="text-sm font-semibold text-base-content flex items-center gap-2">
                 <span>1. ชื่อสินค้า (Product Name)</span>
-                <span className="text-orange-500">*</span>
+                <span className="text-error">*</span>
               </label>
 
               {/* Status Badge */}
@@ -600,9 +610,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       : "badge-error"
                   }`}
                 >
-                  {fieldStatuses.name === "ok" && `✅ ดึงได้ (${getSourceLabel(fieldSources.name)})`}
-                  {fieldStatuses.name === "review" && `⚠️ ควรตรวจ (${getSourceLabel(fieldSources.name)})`}
-                  {fieldStatuses.name === "missing" && "❌ ไม่พบ (ต้องกรอกเอง)"}
+                  {fieldStatuses.name === "ok" && `ดึงได้ (${getSourceLabel(fieldSources.name)})`}
+                  {fieldStatuses.name === "review" && `ควรตรวจ (${getSourceLabel(fieldSources.name)})`}
+                  {fieldStatuses.name === "missing" && "ไม่พบ (ต้องกรอกเอง)"}
                 </span>
               )}
             </div>
@@ -617,7 +627,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 setChecklist((p) => ({ ...p, nameOk: true }));
               }}
               placeholder="พิมพ์ชื่อสินค้าของคุณ เช่น ขาตั้งกล้องบลูทูธ, หม้อทอดไร้น้ำมัน, ลิปสติกแมทท์"
-              className="w-full bg-stone-50/70 border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition text-sm shadow-2xs"
+              className="input input-bordered w-full rounded-xl bg-base-100 text-base-content border-base-300 focus:border-primary text-sm shadow-xs"
               required
             />
           </div>
@@ -626,8 +636,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-bold text-stone-800">
-                  2. ราคาและโปรโมชั่น (Price & Deal) <span className="text-orange-500">*</span>
+                <label className="text-sm font-semibold text-base-content">
+                  2. ราคาและโปรโมชั่น (Price & Deal) <span className="text-error">*</span>
                 </label>
 
                 {/* Price Status Badge */}
@@ -641,9 +651,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         : "badge-error"
                     }`}
                   >
-                    {fieldStatuses.price === "ok" && `✅ ดึงได้ (${getSourceLabel(fieldSources.price)})`}
-                    {fieldStatuses.price === "review" && `⚠️ ควรตรวจ (${getSourceLabel(fieldSources.price)})`}
-                    {fieldStatuses.price === "missing" && "❌ ไม่พบ (ต้องกรอกเอง)"}
+                    {fieldStatuses.price === "ok" && `ดึงได้ (${getSourceLabel(fieldSources.price)})`}
+                    {fieldStatuses.price === "review" && `ควรตรวจ (${getSourceLabel(fieldSources.price)})`}
+                    {fieldStatuses.price === "missing" && "ไม่พบ (ต้องกรอกเอง)"}
                   </span>
                 )}
               </div>
@@ -657,37 +667,37 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   setChecklist((p) => ({ ...p, priceOk: true }));
                 }}
                 placeholder="เช่น ฿199 (ลด 50%), ซื้อ 1 แถม 1"
-                className="w-full bg-stone-50/70 border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition text-sm shadow-2xs"
+                className="input input-bordered w-full rounded-xl bg-base-100 text-base-content border-base-300 focus:border-primary text-sm shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-stone-800 mb-1.5">
+              <label className="block text-sm font-semibold text-base-content mb-1.5">
                 3. สไตล์ / อารมณ์ของวิดีโอ (Video Tone)
               </label>
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
-                className="w-full bg-stone-50/70 border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 focus:bg-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition text-sm shadow-2xs"
+                className="select select-bordered w-full rounded-xl bg-base-100 text-base-content border-base-300 focus:border-primary text-sm shadow-xs"
               >
-                <option value="exciting">🔥 สายป้ายยา ตื่นเต้น เร้าใจ (Viral Hook)</option>
-                <option value="minimal">🌿 มินิมอล คลีนๆ สไตล์มูจิ (Minimal Aesthetic)</option>
-                <option value="problem_solving">💡 เน้นแก้ปัญหา ก่อน-หลัง (Pain Point / Before-After)</option>
-                <option value="promo">⚡ จัดโปรโมชั่น Flash Sale ลดกระหน่ำ (Urgent Deal)</option>
+                <option value="exciting">สายป้ายยา ตื่นเต้น เร้าใจ (Viral Hook)</option>
+                <option value="minimal">มินิมอล คลีนๆ สไตล์มูจิ (Minimal Aesthetic)</option>
+                <option value="problem_solving">เน้นแก้ปัญหา ก่อน-หลัง (Pain Point / Before-After)</option>
+                <option value="promo">จัดโปรโมชั่น Flash Sale ลดกระหน่ำ (Urgent Deal)</option>
               </select>
             </div>
           </div>
 
           {/* AI Creative Director Model Selection */}
-          <div className="bg-stone-50/80 border border-stone-200/90 rounded-2xl p-4 space-y-3">
+          <div className="bg-base-200/50 border border-base-300 rounded-2xl p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-600" />
+              <label className="text-sm font-semibold text-base-content flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
                 <span>AI Creative Director (โมเดลคิดบท & สตอรี่บอร์ด)</span>
               </label>
-              <span className="text-[11px] font-medium text-stone-500 bg-white border border-stone-200 px-2 py-0.5 rounded-full">
-                เสียงพากย์ใช้ Gemini Voice Cloning เสมอ
+              <span className="text-[11px] font-medium text-base-content/60 bg-base-100 border border-base-300 px-2 py-0.5 rounded-full">
+                เสียงพากย์ใช้ระบบโคลนเสียง AI เสมอ
               </span>
             </div>
 
@@ -697,19 +707,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 onClick={() => setAiProvider("claude")}
                 className={`p-3 rounded-xl border text-left transition flex items-start gap-3 ${
                   aiProvider === "claude"
-                    ? "bg-white border-2 border-purple-600 shadow-xs ring-2 ring-purple-500/20"
-                    : "bg-white border-stone-200 hover:border-purple-300 text-stone-700"
+                    ? "bg-base-100 border-2 border-primary shadow-xs ring-2 ring-primary/20"
+                    : "bg-base-100 border-base-300 hover:border-primary/40 text-base-content"
                 }`}
               >
-                <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-300 flex items-center justify-center shrink-0 mt-0.5">
-                  <Sparkles className="w-4 h-4 text-purple-700" />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Sparkles className="w-4 h-4 text-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-stone-900">Claude Fable 5.1</span>
+                    <span className="text-xs font-bold text-base-content">AI บทสร้างสรรค์</span>
                     <span className="badge badge-primary badge-xs text-[10px]">แนะนำ ไวรัล</span>
                   </div>
-                  <p className="text-[11px] text-stone-500 mt-0.5 leading-snug">
+                  <p className="text-[11px] text-base-content/60 mt-0.5 leading-snug">
                     ฮุคแรง หยุดดูใน 2 วินาที สคริปต์สไตล์ครีเอเตอร์สายป้ายยาตัวแม่
                   </p>
                 </div>
@@ -720,19 +730,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 onClick={() => setAiProvider("gemini")}
                 className={`p-3 rounded-xl border text-left transition flex items-start gap-3 ${
                   aiProvider === "gemini"
-                    ? "bg-white border-2 border-orange-500 shadow-xs ring-2 ring-orange-500/20"
-                    : "bg-white border-stone-200 hover:border-orange-300 text-stone-700"
+                    ? "bg-base-100 border-2 border-secondary shadow-xs ring-2 ring-secondary/20"
+                    : "bg-base-100 border-base-300 hover:border-secondary/40 text-base-content"
                 }`}
               >
-                <div className="w-8 h-8 rounded-lg bg-orange-100 border border-orange-300 flex items-center justify-center shrink-0 mt-0.5">
-                  <Zap className="w-4 h-4 text-orange-600" />
+                <div className="w-8 h-8 rounded-lg bg-secondary/10 border border-secondary/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Zap className="w-4 h-4 text-secondary" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-stone-900">Gemini 2.5 Flash</span>
-                    <span className="badge badge-ghost badge-xs text-[10px]">Google AI</span>
+                    <span className="text-xs font-bold text-base-content">AI บทรวดเร็ว</span>
+                    <span className="badge badge-ghost badge-xs text-[10px]">รวดเร็ว</span>
                   </div>
-                  <p className="text-[11px] text-stone-500 mt-0.5 leading-snug">
+                  <p className="text-[11px] text-base-content/60 mt-0.5 leading-snug">
                     ประมวลผลฉับไว โฟกัสจุดเด่นสินค้าครบถ้วน สื่อสารกระชับ
                   </p>
                 </div>
@@ -743,43 +753,45 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           {/* Video Style Selection (Anti-Repetition / Style Pack) */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-bold text-stone-800">
+              <label className="block text-sm font-semibold text-base-content">
                 สไตล์วิดีโอ (Video Style Pack)
               </label>
-              <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs shadow-2xs">
+              <div className="join border border-base-300 bg-base-100 rounded-xl p-0.5">
                 <button
                   type="button"
                   onClick={() => setStyleMode("auto")}
-                  className={`px-3 py-1 rounded-lg transition font-semibold ${
+                  className={`join-item btn btn-xs gap-1.5 ${
                     styleMode === "auto"
-                      ? "bg-orange-600 text-white shadow-xs"
-                      : "text-stone-600 hover:text-stone-900"
+                      ? "btn-primary font-semibold"
+                      : "btn-ghost text-base-content/70"
                   }`}
                 >
-                  🎲 สุ่มให้ (แนะนำ)
+                  <Dices className="w-3.5 h-3.5" />
+                  <span>สุ่มให้ (แนะนำ)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setStyleMode("custom")}
-                  className={`px-3 py-1 rounded-lg transition font-semibold ${
+                  className={`join-item btn btn-xs gap-1.5 ${
                     styleMode === "custom"
-                      ? "bg-indigo-600 text-white shadow-xs"
-                      : "text-stone-600 hover:text-stone-900"
+                      ? "btn-primary font-semibold"
+                      : "btn-ghost text-base-content/70"
                   }`}
                 >
-                  🎨 เลือกเอง
+                  <Palette className="w-3.5 h-3.5" />
+                  <span>เลือกเอง</span>
                 </button>
               </div>
             </div>
 
             {styleMode === "auto" ? (
-              <div className="bg-stone-50/80 border border-stone-200 rounded-xl p-3.5 text-xs text-stone-600 flex items-center gap-3 shadow-2xs">
-                <div className="text-xl">✨</div>
+              <div className="bg-base-200/50 border border-base-300 rounded-xl p-3.5 text-xs text-base-content/70 flex items-center gap-3 shadow-xs">
+                <Sparkles className="w-5 h-5 text-primary shrink-0" />
                 <div>
-                  <strong className="text-stone-800">
+                  <strong className="text-base-content font-semibold">
                     ระบบคัดสรรสไตล์อัตโนมัติ (Anti-Repetition Engine):
                   </strong>
-                  <p className="mt-0.5 text-stone-500">
+                  <p className="mt-0.5 text-base-content/60">
                     ระบบจะสลับแพ็กและพาเลตสีให้ไม่ซ้ำกับคลิปก่อนหน้า เพื่อให้คลิปมีความหลากหลายสูงและสะกดสายตา
                   </p>
                 </div>
@@ -796,15 +808,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       onClick={() => setChosenPack(pId)}
                       className={`text-left p-2.5 rounded-xl border transition text-xs flex flex-col gap-1 ${
                         isSelected
-                          ? "bg-indigo-50 border-2 border-indigo-500 text-indigo-950 shadow-xs ring-1 ring-indigo-500/30"
-                          : "bg-white border-stone-200 text-stone-700 hover:border-stone-300 hover:bg-stone-50/80"
+                          ? "bg-primary/5 border-2 border-primary text-base-content shadow-xs ring-1 ring-primary/30"
+                          : "bg-base-100 border-base-300 text-base-content/80 hover:border-base-content/30 hover:bg-base-200/50"
                       }`}
                     >
                       <div className="flex items-center gap-1.5 font-bold">
-                        <span className="text-base">{info.emoji}</span>
                         <span className="truncate">{info.name}</span>
                       </div>
-                      <div className="text-[11px] text-stone-500 line-clamp-2 leading-tight">
+                      <div className="text-[11px] text-base-content/60 line-clamp-2 leading-tight">
                         {info.desc}
                       </div>
                     </button>
@@ -817,7 +828,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           {/* Key Selling Points / Highlights */}
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-              <label className="block text-sm font-bold text-stone-800">
+              <label className="block text-sm font-semibold text-base-content">
                 4. จุดเด่นสินค้า / สโลแกน / สรรพคุณ (Key Selling Points)
               </label>
 
@@ -826,7 +837,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <button
                     type="button"
                     onClick={handleUndoHumanize}
-                    className="btn btn-ghost btn-xs text-stone-500 hover:text-stone-800 gap-1 text-[11px]"
+                    className="btn btn-ghost btn-xs text-base-content/60 hover:text-base-content gap-1 text-[11px]"
                     title="ย้อนกลับเป็นข้อความเดิมที่เคยก๊อปปี้มา"
                   >
                     <Undo2 className="w-3 h-3" />
@@ -838,18 +849,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   type="button"
                   onClick={handleHumanizeCopy}
                   disabled={isHumanizing || (!highlights.trim() && !name.trim())}
-                  className="btn btn-xs bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 rounded-lg shadow-2xs gap-1.5 font-medium transition disabled:opacity-50"
+                  className="btn btn-xs btn-outline btn-secondary rounded-lg gap-1.5 font-medium transition disabled:opacity-50"
                   title="เกลาคำที่ copy มา (เช่น แปลจีน หรือ bullet แข็งๆ) ให้เป็นภาษาพูดรีวิวธรรมชาติสไตล์ Humanizer"
                 >
                   {isHumanizing ? (
                     <>
-                      <Loader2 className="w-3 h-3 animate-spin text-amber-700" />
+                      <Loader2 className="w-3 h-3 animate-spin text-secondary" />
                       <span>กำลังเกลาสำนวน...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3 h-3 text-amber-600" />
-                      <span>🪄 ปรับคำให้เป็นธรรมชาติ (Humanize)</span>
+                      <Wand2 className="w-3 h-3 text-secondary" />
+                      <span>ปรับคำให้เป็นธรรมชาติ (Humanize)</span>
                     </>
                   )}
                 </button>
@@ -860,18 +871,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               value={highlights}
               onChange={(e) => setHighlights(e.target.value)}
               rows={3}
-              placeholder="วางข้อมูลสินค้าที่ copy มาได้เลย เช่น มือตบกล่อมนอน มีแบตในตัว ถอดซักได้... แล้วคลิก '🪄 ปรับคำให้เป็นธรรมชาติ' ได้ทันที"
-              className="w-full bg-stone-50/70 border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition resize-none text-sm leading-relaxed shadow-2xs"
+              placeholder="วางข้อมูลสินค้าที่ copy มาได้เลย เช่น มือตบกล่อมนอน มีแบตในตัว ถอดซักได้... แล้วคลิก 'ปรับคำให้เป็นธรรมชาติ' ได้ทันที"
+              className="textarea textarea-bordered w-full rounded-xl bg-base-100 text-base-content border-base-300 focus:border-primary resize-none text-sm leading-relaxed shadow-xs"
             />
 
             {humanizeHistory && (
-              <div className="mt-1.5 flex items-center justify-between text-xs text-emerald-800 bg-emerald-50/80 border border-emerald-200 rounded-lg px-2.5 py-1.5">
+              <div className="mt-1.5 flex items-center justify-between text-xs text-success bg-success/10 border border-success/20 rounded-lg px-2.5 py-1.5">
                 <span className="flex items-center gap-1.5 truncate">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
                   <span className="truncate">{humanizeHistory.explanation}</span>
                 </span>
-                <span className="text-[10px] text-emerald-700 font-semibold uppercase tracking-wider shrink-0 ml-2">
-                  ✨ Humanized
+                <span className="text-[10px] text-success font-semibold uppercase tracking-wider shrink-0 ml-2">
+                  Humanized
                 </span>
               </div>
             )}
@@ -880,17 +891,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           {/* Image Uploads */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-bold text-stone-800">
-                5. รูปภาพสินค้า (1 - 5 รูป) <span className="text-orange-500">*</span>
+              <label className="block text-sm font-semibold text-base-content">
+                5. รูปภาพสินค้า (1 - 5 รูป) <span className="text-error">*</span>
               </label>
-              <span className="text-xs text-stone-500 font-medium">
+              <span className="text-xs text-base-content/60 font-medium">
                 {previewUrls.length} / 5 ภาพที่เลือก
               </span>
             </div>
 
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-stone-300 hover:border-orange-500 bg-stone-50/60 hover:bg-orange-50/30 rounded-xl p-5 text-center cursor-pointer transition group shadow-2xs"
+              className="border-2 border-dashed border-base-300 hover:border-primary bg-base-200/40 hover:bg-base-200/70 rounded-2xl p-5 text-center cursor-pointer transition group shadow-xs"
             >
               <input
                 type="file"
@@ -901,25 +912,25 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 className="hidden"
               />
               <div className="flex flex-col items-center justify-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-orange-100 border border-orange-300 flex items-center justify-center group-hover:scale-110 transition shadow-2xs">
-                  <Upload className="w-5 h-5 text-orange-600" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:scale-105 transition shadow-xs">
+                  <Upload className="w-5 h-5 text-primary" />
                 </div>
-                <div className="text-sm font-semibold text-stone-800">
+                <div className="text-sm font-semibold text-base-content">
                   คลิกเพื่ออัปโหลดรูปภาพสินค้าจากเครื่องของคุณ
                 </div>
-                <div className="text-xs text-stone-500">
+                <div className="text-xs text-base-content/60">
                   รองรับ JPG, PNG, WebP (ถอดรหัสและตรวจสอบความสมบูรณ์อัตโนมัติด้วย Sharp)
                 </div>
               </div>
             </div>
 
-            {/* Thumbnails list - Polaroid Style Cutout */}
+            {/* Thumbnails list */}
             {previewUrls.length > 0 && (
               <div className="grid grid-cols-5 gap-3 mt-3">
                 {previewUrls.map((url, idx) => (
                   <div
                     key={idx}
-                    className="relative group rounded-lg overflow-hidden border-2 border-white shadow-md bg-stone-100 aspect-square flex items-center justify-center transition-transform hover:-rotate-1"
+                    className="relative group rounded-xl overflow-hidden border border-base-300 shadow-sm bg-base-200 aspect-square flex items-center justify-center transition-transform hover:-translate-y-0.5"
                   >
                     <img
                       src={url}
@@ -930,7 +941,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         (e.currentTarget as HTMLImageElement).src = "/samples/tumbler-1.svg";
                       }}
                     />
-                    <div className="absolute top-1 left-1 bg-stone-900/80 text-[10px] font-bold text-white px-1.5 py-0.5 rounded shadow-xs">
+                    <div className="absolute top-1 left-1 bg-neutral/80 text-[10px] font-bold text-neutral-content px-1.5 py-0.5 rounded shadow-xs">
                       #{idx + 1}
                     </div>
                     <button
@@ -939,7 +950,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         e.stopPropagation();
                         handleRemoveImage(idx);
                       }}
-                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition shadow"
+                      className="absolute top-1 right-1 btn btn-circle btn-error btn-xs opacity-0 group-hover:opacity-100 transition shadow"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -951,7 +962,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
           {/* CTA Text */}
           <div>
-            <label className="block text-sm font-bold text-stone-800 mb-1.5">
+            <label className="block text-sm font-semibold text-base-content mb-1.5">
               6. ข้อความ Call To Action (ชวนสั่งซื้อ)
             </label>
             <input
@@ -959,19 +970,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               value={cta}
               onChange={(e) => setCta(e.target.value)}
               placeholder="เช่น พิกัดในตะกร้าส้มซ้ายล่าง, กดซื้อที่ลิงก์หน้าโปรไฟล์"
-              className="w-full bg-stone-50/70 border border-stone-300 rounded-xl px-4 py-2.5 text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition text-sm shadow-2xs"
+              className="input input-bordered w-full rounded-xl bg-base-100 text-base-content border-base-300 focus:border-primary text-sm shadow-xs"
             />
           </div>
 
           {/* Review Screen Checklist (Section 8.2) */}
           {activeDraft && (
-            <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 space-y-3 shadow-2xs">
-              <div className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <div className="bg-base-200/50 border border-base-300 rounded-xl p-4 space-y-3 shadow-xs">
+              <div className="text-xs font-semibold text-base-content flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-success" />
                 <span>Checklist ตรวจสอบความถูกต้องก่อนสร้างสคริปต์ (จำเป็นต้องติ๊กให้ครบ):</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-stone-700">
-                <label className="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-stone-200 hover:border-stone-300 shadow-2xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-base-content/80">
+                <label className="flex items-center gap-2 cursor-pointer bg-base-100 p-2.5 rounded-xl border border-base-300 hover:border-base-content/30 shadow-xs">
                   <input
                     type="checkbox"
                     checked={checklist.nameOk}
@@ -981,7 +992,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <span>1. ชื่อสินค้าถูกต้อง</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-stone-200 hover:border-stone-300 shadow-2xs">
+                <label className="flex items-center gap-2 cursor-pointer bg-base-100 p-2.5 rounded-xl border border-base-300 hover:border-base-content/30 shadow-xs">
                   <input
                     type="checkbox"
                     checked={checklist.priceOk}
@@ -991,7 +1002,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <span>2. ราคาถูกต้องและเป็นราคาปัจจุบัน</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-stone-200 hover:border-stone-300 shadow-2xs">
+                <label className="flex items-center gap-2 cursor-pointer bg-base-100 p-2.5 rounded-xl border border-base-300 hover:border-base-content/30 shadow-xs">
                   <input
                     type="checkbox"
                     checked={checklist.imageOk}
@@ -1001,7 +1012,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <span>3. รูปตรงกับสินค้าจริง</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-stone-200 hover:border-stone-300 shadow-2xs">
+                <label className="flex items-center gap-2 cursor-pointer bg-base-100 p-2.5 rounded-xl border border-base-300 hover:border-base-content/30 shadow-xs">
                   <input
                     type="checkbox"
                     checked={checklist.claimsOk}
@@ -1026,21 +1037,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     !price.trim() ||
                     previewUrls.length === 0))
               }
-              className={`w-full text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 shadow-md disabled:opacity-40 disabled:cursor-not-allowed text-base cursor-pointer transition ${
-                activeDraft ? "btn btn-primary" : "shopee-gradient-btn"
-              }`}
+              className="btn btn-primary w-full py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 shadow-md disabled:opacity-40 disabled:cursor-not-allowed text-base cursor-pointer"
             >
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>กำลังวิเคราะห์และสร้าง Storyboard ด้วย Gemini AI...</span>
+                  <span>กำลังวิเคราะห์และสร้างสตอรี่บอร์ดด้วย AI...</span>
                 </>
               ) : (
                 <>
                   <Wand2 className="w-5 h-5" />
                   <span>
                     {activeDraft
-                      ? "✅ ยืนยันข้อมูล & สร้าง AI Storyboard (ไป Step 2)"
+                      ? "ยืนยันข้อมูล & สร้าง AI Storyboard (ไป Step 2)"
                       : "บันทึกสินค้า & สร้าง AI Script + Storyboard ทันที"}
                   </span>
                 </>
@@ -1052,7 +1061,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 !name.trim() ||
                 !price.trim() ||
                 previewUrls.length === 0) && (
-                <p className="text-center text-xs text-amber-700 font-medium">
+                <p className="text-center text-xs text-warning font-medium">
                   * กรุณาตรวจข้อมูล ติ๊ก Checklist ให้ครบทั้ง 4 ข้อ และมีรูปสินค้าอย่างน้อย 1 ภาพก่อนกดยืนยัน
                 </p>
               )}

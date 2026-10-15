@@ -148,7 +148,7 @@ export const SystemStatusBar: React.FC = () => {
                 <div className="flex items-center justify-between font-semibold">
                   <span className="flex items-center gap-1.5 text-base-content">
                     <Sparkles className="w-4 h-4 text-warning" />
-                    Google Gemini API
+                    ระบบสร้างสคริปต์และเสียง AI
                   </span>
                   {health.checks.environment.geminiApiKeyConfigured ? (
                     <span className="text-success flex items-center gap-1">
@@ -162,8 +162,8 @@ export const SystemStatusBar: React.FC = () => {
                 </div>
                 <p className="text-[11px] text-base-content/60">
                   {health.checks.environment.geminiApiKeyConfigured
-                    ? "เชื่อมต่อ AI โมเดล gemini-2.5-flash และ gemini-3.8-flash-tts เรียบร้อย"
-                    : "ยังไม่มี GEMINI_API_KEY ใน .env.local ระบบสลับไปใช้ Offline Template อัตโนมัติ"}
+                    ? "ตั้งค่าคีย์สำหรับระบบ AI แล้ว"
+                    : "ยังไม่ได้ตั้งค่าคีย์ AI ระบบใช้เทมเพลตสำรองอัตโนมัติ"}
                 </p>
               </div>
 
@@ -172,7 +172,7 @@ export const SystemStatusBar: React.FC = () => {
                 <div className="flex items-center justify-between font-semibold">
                   <span className="flex items-center gap-1.5 text-base-content">
                     <Server className="w-4 h-4 text-primary" />
-                    Remotion Headless Chromium
+                    ระบบสร้างวิดีโอ
                   </span>
                   {health.checks.remotion.browserAvailable ? (
                     <span className="text-success flex items-center gap-1">
@@ -194,7 +194,7 @@ export const SystemStatusBar: React.FC = () => {
                 <div className="flex items-center justify-between font-semibold">
                   <span className="flex items-center gap-1.5 text-base-content">
                     <Volume2 className="w-4 h-4 text-secondary" />
-                    FFmpeg Audio Engine
+                    ระบบประมวลผลเสียง
                   </span>
                   {health.checks.ffmpeg.available ? (
                     <span className="text-success flex items-center gap-1">
@@ -202,7 +202,7 @@ export const SystemStatusBar: React.FC = () => {
                     </span>
                   ) : (
                     <span className="text-error flex items-center gap-1">
-                      <XCircle className="w-3.5 h-3.5" /> ไม่พบ FFmpeg
+                      <XCircle className="w-3.5 h-3.5" /> ไม่พบตัวประมวลผลเสียง
                     </span>
                   )}
                 </div>

@@ -22,6 +22,7 @@ export {
 };
 
 export interface ScriptGenerationParams {
+  languageStyle?: 'female-polite' | 'male-polite' | 'neutral';
   productName: string;
   price: string;
   highlights: string;
@@ -85,7 +86,8 @@ export async function generateShopeeScript(
         defaultTheme: "kraft",
       };
 
-      const systemPrompt = `You are a top-tier viral Shopee & TikTok Affiliate Video Director, Motion Designer, and Copywriter.
+      const systemPrompt = `Use Thai speaker language: ${params.languageStyle || 'neutral'}. female-polite uses ค่ะ for statements and คะ for questions; male-polite uses ครับ; neutral avoids gendered pronouns. Preserve all provided product facts and never invent medical claims.
+You are a top-tier viral Shopee & TikTok Affiliate Video Director, Motion Designer, and Copywriter.
 Your task is to write a high-converting, professional short-form video storyboard formatted for a Paper Collage & Stop-Motion aesthetic in THAI.
 
 CREATIVE DIRECTION LOCK (STYLE DNA):

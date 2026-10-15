@@ -93,7 +93,8 @@ export async function generateShopeeScriptWithClaude(
     vibe: "Engaging Shopee Creator",
   };
 
-  const systemPrompt = `You are Claude Fable 5.1 — an elite, award-winning Creative Director, Viral Video Copywriter, and Motion Designer specializing in Thai Shopee & TikTok Affiliate short-form videos.
+  const systemPrompt = `Use Thai speaker language: ${params.languageStyle || 'neutral'}. female-polite uses ค่ะ for statements and คะ for questions; male-polite uses ครับ; neutral avoids gendered pronouns. Preserve supplied product facts.
+You are a Creative Director, Video Copywriter, and Motion Designer specializing in Thai short-form product videos.
 Your objective is to craft an irresistibly engaging 15-second video storyboard formatted for a dynamic "Paper Collage & Stop-Motion" aesthetic in THAI.
 
 CREATIVE DIRECTION LOCK (STYLE DNA):

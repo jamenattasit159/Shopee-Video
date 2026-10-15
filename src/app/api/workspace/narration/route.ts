@@ -1,0 +1,3 @@
+import {NextRequest,NextResponse} from 'next/server';import {parseWorkspace} from '@/lib/workspace/types';import {startJob} from '@/lib/studioServer';
+export const runtime='nodejs';
+export async function POST(req:NextRequest){try{const body=await req.json(),project=parseWorkspace(body.project);const sceneIds=project.scenes.filter(s=>Array.isArray(body.sceneIds)&&body.sceneIds.includes(s.id)&&s.displayText.trim()).map(s=>s.id);if(!sceneIds.length)throw Error();return NextResponse.json({id:await startJob('workspace-narration',{project,sceneIds})},{status:202});}catch(e:any){return NextResponse.json({error:e.message?.startsWith('มีงาน')?e.message:'สร้างเสียงไม่ได้ ตรวจบทและเวลาของฉากก่อน'},{status:400});}}

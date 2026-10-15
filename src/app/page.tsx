@@ -8,8 +8,10 @@ import {
   ShoppingBag,
   Sparkles,
   Video,
+  Scissors as ScissorsIcon,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { defaultShopeeVideoProps } from "../../remotion/ShopeeProductVideo";
 import {
   ProductRecord,
@@ -71,7 +73,7 @@ export default function DashboardPage() {
     setVoiceoverDurationSec(undefined);
     setActiveTab("create");
     setFormKey((prev) => prev + 1);
-    showNotification("✨ เปิดฟอร์มว่างพร้อมสร้างคลิปใหม่แล้ว! กรอกข้อมูลสินค้าได้เลย");
+    showNotification("เปิดฟอร์มว่างพร้อมสร้างคลิปใหม่แล้ว! กรอกข้อมูลสินค้าได้เลย");
   };
 
   const handleProductCreated = (newProduct: ProductRecord) => {
@@ -80,7 +82,7 @@ export default function DashboardPage() {
     setVoiceoverUrl(newProduct.voiceoverUrl || undefined);
     setVoiceoverDurationSec(newProduct.voiceoverDurationSec || undefined);
     setActiveTab("storyboard");
-    showNotification("🎉 สร้าง AI Storyboard สำเร็จแล้ว! กำลังเตรียมเสียงพากย์ AI...");
+    showNotification("สร้าง AI Storyboard สำเร็จแล้ว! กำลังเตรียมเสียงพากย์ AI...");
 
     // Auto-synthesize voiceover in background so video is never silent
     const script = newProduct.storyboard?.narrationScript;
@@ -108,7 +110,7 @@ export default function DashboardPage() {
             setProducts((prev) =>
               prev.map((p) => (p.id === updated.id ? updated : p))
             );
-            showNotification("🎙️ เสียงพากย์ AI สร้างเสร็จสมบูรณ์และเชื่อมกับคลิปแล้ว!");
+            showNotification("เสียงพากย์ AI สร้างเสร็จสมบูรณ์และเชื่อมกับคลิปแล้ว!");
           }
         })
         .catch((err) => console.error("Auto voiceover synthesis error:", err));
@@ -146,18 +148,18 @@ export default function DashboardPage() {
       if (data && data.success && data.storyboard) {
         handleUpdateStoryboard(data.storyboard);
         if (data.fallbackNotice) {
-          showNotification(`ℹ️ ${data.fallbackNotice}`);
+          showNotification(data.fallbackNotice);
         } else {
           showNotification(
             data.provider === "claude"
-              ? "✨ อัปเดตสคริปต์ใหม่ด้วย Claude Fable 5.1 เรียบร้อยแล้ว!"
-              : "✨ อัปเดตสคริปต์ใหม่ด้วย Gemini 2.5 Flash เรียบร้อยแล้ว!"
+              ? "อัปเดตสคริปต์ใหม่ด้วย AI บทสร้างสรรค์เรียบร้อยแล้ว!"
+              : "อัปเดตสคริปต์ใหม่ด้วย AI บทรวดเร็วเรียบร้อยแล้ว!"
           );
         }
       }
     } catch (err) {
       console.error(err);
-      showNotification("❌ ไม่สามารถสร้างสคริปต์ใหม่ได้ กรุณาลองอีกครั้ง");
+      showNotification("ไม่สามารถสร้างสคริปต์ใหม่ได้ กรุณาลองอีกครั้ง");
     } finally {
       setIsRegenerating(false);
     }
@@ -186,39 +188,43 @@ export default function DashboardPage() {
       };
 
   return (
-    <div className="min-h-screen bg-transparent text-stone-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-base-200 text-base-content flex flex-col font-sans">
       {/* Top Notification Toast */}
       {notification && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-stone-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-[3px_3px_0px_#ea580c] flex items-center gap-2 transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2 border border-stone-800">
-          <Sparkles className="w-4 h-4 text-amber-300" />
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-neutral text-neutral-content text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2 border border-neutral-content/10">
+          <Sparkles className="w-4 h-4 text-primary" />
           <span>{notification}</span>
         </div>
       )}
 
       {/* Top Navigation Bar */}
-      <header className="border-b border-stone-200/90 bg-white/85 backdrop-blur-md sticky top-0 z-40 shadow-xs">
+      <header className="border-b border-base-300 bg-base-100/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#EE4D2D] to-[#FF6533] flex items-center justify-center shadow-md shadow-orange-500/20 border border-orange-500/30">
-              <ShoppingBag className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-primary text-primary-content flex items-center justify-center shadow-xs">
+              <ShoppingBag className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-extrabold text-base sm:text-lg text-stone-900 tracking-tight">
+                <h1 className="font-bold text-base sm:text-lg text-base-content tracking-tight">
                   Shopee Video Generator
                 </h1>
-                <span className="text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-300 px-2 py-0.5 rounded-full shadow-xs">
-                  AI Voice & Paper Collage Pro
+                <span className="badge badge-primary badge-outline badge-xs py-2 px-2 font-medium">
+                  Video Studio
                 </span>
               </div>
-              <p className="text-xs text-stone-500 hidden sm:block">
-                ระบบสร้างคลิปป้ายยาอัตโนมัติ (Next.js + Remotion + Gemini AI + Edge TTS)
+              <p className="text-xs text-base-content/60 hidden sm:block">
+                สร้างคลิปขายสินค้าพร้อมสคริปต์และเสียงพากย์ AI ในที่เดียว
               </p>
             </div>
           </div>
 
           {/* Product Switcher, Status Bar, Error Center & New Button */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/studio" className="btn btn-primary btn-sm rounded-xl gap-2">
+              <ScissorsIcon className="w-4 h-4" />
+              <span>ตัดต่อคลิปจริง</span>
+            </Link>
             <SystemStatusBar />
             <ErrorCenterButton />
             {products.length > 0 && (
@@ -237,12 +243,12 @@ export default function DashboardPage() {
                     }
                   }
                 }}
-                className="bg-white border border-stone-300 text-xs text-stone-800 rounded-xl px-3 py-2 shadow-xs focus:outline-none focus:border-orange-500 max-w-[180px] sm:max-w-[240px] truncate"
+                className="select select-bordered select-sm rounded-xl text-xs max-w-[180px] sm:max-w-[240px] truncate bg-base-100 border-base-300 text-base-content"
               >
                 <option value="new">+ สร้างสินค้าใหม่...</option>
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>
-                    📦 {p.name}
+                    {p.name}
                   </option>
                 ))}
               </select>
@@ -252,7 +258,7 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={handleStartNewProduct}
-              className="shopee-gradient-btn text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+              className="btn btn-primary btn-sm rounded-xl gap-1.5 shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>สร้างคลิปใหม่</span>
@@ -267,14 +273,14 @@ export default function DashboardPage() {
           {/* Left Column: Form & Storyboard Workflow (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
             {/* Step Tabs */}
-            <div className="flex items-center gap-2 bg-stone-100/90 p-1.5 rounded-2xl border border-stone-300/80 shadow-xs text-xs font-semibold">
+            <div className="flex items-center gap-1.5 bg-base-100 p-1.5 rounded-2xl border border-base-300 shadow-xs text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setActiveTab("create")}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "create"
-                    ? "bg-orange-600 text-white shadow-sm"
-                    : "text-stone-600 hover:text-stone-900 hover:bg-white/80"
+                    ? "bg-primary text-primary-content shadow-xs"
+                    : "text-base-content/70 hover:text-base-content hover:bg-base-200"
                 }`}
               >
                 <span>1. ข้อมูล & ภาพ</span>
@@ -291,8 +297,8 @@ export default function DashboardPage() {
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "storyboard"
-                    ? "bg-amber-600 text-white shadow-sm"
-                    : "text-stone-600 hover:text-stone-900 hover:bg-white/80"
+                    ? "bg-primary text-primary-content shadow-xs"
+                    : "text-base-content/70 hover:text-base-content hover:bg-base-200"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
@@ -310,8 +316,8 @@ export default function DashboardPage() {
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 ${
                   activeTab === "render"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-stone-600 hover:text-stone-900 hover:bg-white/80"
+                    ? "bg-primary text-primary-content shadow-xs"
+                    : "text-base-content/70 hover:text-base-content hover:bg-base-200"
                 }`}
               >
                 <Video className="w-3.5 h-3.5" />
@@ -354,7 +360,7 @@ export default function DashboardPage() {
                       prev.map((p) => (p.id === updated.id ? updated : p))
                     );
                   }
-                  showNotification("🎙️ เสียงพากย์ AI ถูกเชื่อมต่อเข้าสู่วิดีโอแล้ว!");
+                  showNotification("เสียงพากย์ AI ถูกเชื่อมต่อเข้าสู่วิดีโอแล้ว!");
                 }}
               />
             )}
@@ -383,19 +389,19 @@ export default function DashboardPage() {
 
             {/* Always show Render trigger at bottom of Storyboard view */}
             {activeTab === "storyboard" && (
-              <div className="bg-white border border-stone-200/90 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+              <div className="bg-base-100 border border-base-300 rounded-2xl p-5 flex items-center justify-between shadow-xs">
                 <div>
-                  <h4 className="font-bold text-sm text-stone-900">
+                  <h4 className="font-bold text-sm text-base-content">
                     พอใจกับสคริปต์และเสียงพากย์แล้วใช่ไหม?
                   </h4>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-base-content/60">
                     ไปที่ขั้นตอนเรนเดอร์เพื่อสร้างไฟล์ MP4 พร้อมเสียง และรับแคปชั่นสำหรับโพสต์
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveTab("render")}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-5 rounded-xl flex items-center gap-2 shadow-sm transition"
+                  className="btn btn-primary btn-sm rounded-xl gap-2 shadow-xs"
                 >
                   <Video className="w-4 h-4" />
                   <span>ไปหน้าเรนเดอร์ MP4</span>
@@ -414,29 +420,29 @@ export default function DashboardPage() {
 
             {/* Active Product Quick Info Card */}
             {activeProduct ? (
-              <div className="mt-4 bg-white border border-stone-200/90 rounded-xl p-4 text-xs text-stone-600 shadow-sm space-y-1.5">
+              <div className="mt-4 bg-base-100 border border-base-300 rounded-2xl p-4 text-xs text-base-content/80 shadow-xs space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-stone-800">
+                  <span className="font-bold text-base-content">
                     สินค้าที่เลือกอยู่:
                   </span>
-                  <span className="text-orange-600 font-bold">
+                  <span className="text-primary font-bold">
                     {activeProduct.price}
                   </span>
                 </div>
-                <div className="text-stone-900 font-medium truncate">
+                <div className="text-base-content font-medium truncate">
                   {activeProduct.name}
                 </div>
-                <div className="text-[11px] text-stone-500 flex items-center justify-between pt-1 border-t border-stone-200">
+                <div className="text-[11px] text-base-content/60 flex items-center justify-between pt-2 border-t border-base-300">
                   <span>รูปภาพ: {activeProduct.images.length} ภาพ</span>
                   <span>
-                    เสียง: {voiceoverUrl ? "🔊 พากย์ AI + BGM" : "🎵 เพลง BGM"}
+                    เสียง: {voiceoverUrl ? "พากย์ AI + BGM" : "เพลง BGM"}
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="mt-4 bg-stone-100/70 border border-dashed border-stone-300 rounded-xl p-4 text-center text-xs text-stone-500">
+              <div className="mt-4 bg-base-100 border border-dashed border-base-300 rounded-2xl p-4 text-center text-xs text-base-content/60">
                 <span>กรอกข้อมูลและอัปโหลดรูปทางซ้ายมือ แล้วกด </span>
-                <span className="text-orange-600 font-semibold">"บันทึกสินค้า & สร้าง AI Script"</span>
+                <span className="text-primary font-semibold">"บันทึกสินค้า & สร้าง AI Script"</span>
                 <span> เพื่อเริ่มสร้างคลิป</span>
               </div>
             )}
@@ -445,8 +451,8 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200/80 py-6 mt-12 bg-white/60 text-center text-xs text-stone-500">
-        Shopee Affiliate Video Production System • Powered by Next.js, Remotion, Google Gemini & Edge TTS
+      <footer className="border-t border-base-300 py-6 mt-12 bg-base-100/50 text-center text-xs text-base-content/60">
+        Shopee Video Generator • สร้างคลิปขายสินค้า พร้อมเผยแพร่
       </footer>
     </div>
   );

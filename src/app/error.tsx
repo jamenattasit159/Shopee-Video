@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertTriangle, RotateCcw, Home } from "lucide-react";
+import { AlertTriangle, RotateCcw, Home, Info } from "lucide-react";
 import { toAppError } from "@/lib/errors";
 
 export default function ErrorBoundary({
@@ -31,8 +31,9 @@ export default function ErrorBoundary({
           <h2 className="text-xl font-bold text-base-content">
             {appErr.messageTh || "เกิดข้อผิดพลาดในการโหลดหน้านี้"}
           </h2>
-          <p className="text-xs text-base-content/70 leading-relaxed">
-            💡 {appErr.hintTh || "กรุณากดปุ่มลองใหม่อีกครั้ง หรือกลับสู่หน้าหลัก"}
+          <p className="text-xs text-base-content/70 leading-relaxed flex items-center justify-center gap-1">
+            <Info className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span>{appErr.hintTh || "กรุณากดปุ่มลองใหม่อีกครั้ง หรือกลับสู่หน้าหลัก"}</span>
           </p>
         </div>
 

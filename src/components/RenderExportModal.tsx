@@ -88,7 +88,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     let activeVoiceUrl = videoProps.voiceoverUrl;
     let activeVoiceDuration = videoProps.voiceoverDurationSec;
     if (!activeVoiceUrl && videoProps.hook) {
-      setRenderMessage("กำลังบันทึกเสียงพากย์ AI อัตโนมัติ (Edge TTS)...");
+      setRenderMessage("กำลังบันทึกเสียงพากย์ AI อัตโนมัติ...");
       try {
         const voiceData = await apiFetch<any>("/api/synthesize-voice", {
           method: "POST",
@@ -117,7 +117,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
       }
     }
 
-    setRenderMessage("กำลังส่งข้อมูลไปยัง Remotion Rendering Engine...");
+    setRenderMessage("กำลังเตรียมข้อมูลเพื่อสร้างวิดีโอ...");
 
     try {
       setRenderMessage("กำลังเรนเดอร์ภาพและแทร็กเสียง (Rendering 1080x1920 MP4 + Audio)...");
@@ -202,7 +202,8 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
             Step 4: Preflight Check & Export Bundle
           </span>
           <h2 className="text-xl font-bold text-base-content mt-1.5 flex items-center gap-2">
-            <span>🎬 ตรวจสอบคุณภาพ เรนเดอร์ และส่งออกไฟล์ (Export Bundle)</span>
+            <Film className="w-5 h-5 text-primary" />
+            <span>ตรวจสอบคุณภาพ เรนเดอร์ และส่งออกไฟล์ (Export Bundle)</span>
           </h2>
         </div>
       </div>
@@ -258,7 +259,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           <div>
             <span className="font-bold block">{renderMessage}</span>
             <span className="opacity-80">
-              การเรนเดอร์ใช้เวลาประมาณ 15 - 25 วินาที ผ่าน Remotion Headless Chromium + FFMPEG
+              ระยะเวลาขึ้นอยู่กับความยาววิดีโอและประสิทธิภาพเครื่อง กรุณารอจนกว่าจะเสร็จสิ้น
             </span>
           </div>
         </div>
@@ -502,7 +503,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
             </div>
           </div>
 
-          {/* 📋 Quick-Copy Post Captions */}
+          {/* Quick-Copy Post Captions */}
           <div className="pt-4 border-t border-base-300/60 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-base-content flex items-center gap-1.5">

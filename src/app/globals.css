@@ -1,6 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+@plugin "daisyui" {
+  themes: light, dark;
+}
+@plugin "daisyui/theme" {
+  name: "paper";
+  default: true;
+  color-scheme: light;
+  --color-primary: #EE4D2D;
+  --color-primary-content: #ffffff;
+  --color-secondary: #0284C7;
+  --color-secondary-content: #ffffff;
+  --color-accent: #F59E0B;
+  --color-accent-content: #1C1917;
+  --color-neutral: #292524;
+  --color-neutral-content: #FAFAF9;
+  --color-base-100: #FFFFFF;
+  --color-base-200: #F9F7F2;
+  --color-base-300: #EBE5D8;
+  --color-base-content: #1C1917;
+  --color-info: #0284C7;
+  --color-info-content: #ffffff;
+  --color-success: #16A34A;
+  --color-success-content: #ffffff;
+  --color-warning: #D97706;
+  --color-warning-content: #1C1917;
+  --color-error: #DC2626;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+.studio { color-scheme: dark; }
+.studio ::selection { background: var(--color-primary); color: var(--color-primary-content); }
+.studio :is(button, a, input, select, textarea, summary):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.studio :is(input, textarea) { caret-color: var(--color-primary); }
+.studio input[type="number"] { font-variant-numeric: tabular-nums; }
+.studio ::-webkit-scrollbar-track { background: var(--color-base-200); }
+.studio ::-webkit-scrollbar-thumb { background: var(--color-base-300); }
 
 :root {
   color-scheme: light;
@@ -8,12 +51,6 @@
 
 body {
   @apply bg-base-200 text-base-content antialiased;
-  background-color: #FAF8F5;
-  background-image: 
-    radial-gradient(#E5DFD3 0.9px, transparent 0.9px),
-    linear-gradient(to right, rgba(235, 229, 216, 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(235, 229, 216, 0.4) 1px, transparent 1px);
-  background-size: 24px 24px, 24px 24px, 24px 24px;
 }
 
 /* Warm paper highlighter selection */
