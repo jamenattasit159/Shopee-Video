@@ -6,21 +6,31 @@ import {
   AlertTriangle,
   CheckCircle2,
   Info,
+  Loader2,
   RotateCcw,
+  Sparkles,
+  Wand2,
   X,
   FileText,
 } from "lucide-react";
 import {
   DisplayToast,
   dismissToast,
+  getAiDiagnosisForError,
   getErrorState,
   setDrawerOpen,
   subscribeErrorStore,
+  triggerAiAutoFix,
 } from "@/lib/errorStore";
 
 export const ErrorToaster: React.FC = () => {
   const [toasts, setToasts] = useState<DisplayToast[]>([]);
   const [selectedToast, setSelectedToast] = useState<DisplayToast | null>(null);
+  const [isAutoFixing, setIsAutoFixing] = useState<boolean>(false);
+  const [autoFixFeedback, setAutoFixFeedback] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     setToasts(getErrorState().toasts);
@@ -30,16 +40,34 @@ export const ErrorToaster: React.FC = () => {
     return unsubscribe;
   }, []);
 
+  const handleRunAiAutoFix = async (targetToast: DisplayToast) => {
+    setIsAutoFixing(true);
+    setAutoFixFeedback(null);
+    try {
+      const res = await triggerAiAutoFix(targetToast);
+      setAutoFixFeedback({ ok: res.ok, message: res.summaryTh });
+      if (res.ok) {
+        setTimeout(() => {
+          dismissToast(targetToast.toastId);
+          setSelectedToast(null);
+          setAutoFixFeedback(null);
+        }, 1800);
+      }
+    } finally {
+      setIsAutoFixing(false);
+    }
+  };
+
   if (toasts.length === 0 && !selectedToast) {
     return null;
   }
 
   const fatalToast = toasts.find((t) => t.severity === "fatal");
   const regularToasts = toasts.filter((t) => t.severity !== "fatal");
+  const selectedDiagnosis = selectedToast ? getAiDiagnosisForError(selectedToast) : null;
 
   return (
     <>
-      {/* Fatal Error Full-Width Top Banner */}
       {fatalToast && (
         <div
           role="alert"
@@ -57,10 +85,21 @@ export const ErrorToaster: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setSelectedToast(fatalToast)}
+              onClick={() => handleRunAiAutoFix(fatalToast)}
+              disabled={isAutoFixing}
+              className="btn btn-xs bg-white text-error hover:bg-white/90 border-0 rounded-lg font-bold gap-1"
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+              <span>ให้ AI แก้ให้อัตโนมัติ</span>
+            </button>
+            <button
+              onClick={() => {
+                setAutoFixFeedback(null);
+                setSelectedToast(fatalToast);
+              }}
               className="btn btn-xs bg-error-content/20 hover:bg-error-content/30 text-error-content border-0 rounded-lg"
             >
-              ดูรายละเอียด
+              ดูวิธีแก้
             </button>
             <button
               onClick={() => dismissToast(fatalToast.toastId)}
@@ -104,9 +143,7 @@ export const ErrorToaster: React.FC = () => {
                   {isInfo && <Info className="w-5 h-5 shrink-0 mt-0.5 text-info-content" />}
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs">
-                        {toast.messageTh}
-                      </span>
+                      <span className="font-bold text-xs">{toast.messageTh}</span>
                       {toast.count > 1 && (
                         <span className="badge badge-sm font-bold bg-base-100/30 border-0">
                           ×{toast.count}
@@ -130,8 +167,22 @@ export const ErrorToaster: React.FC = () => {
                 </button>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 self-end pt-1">
+              {/* Action Buttons with Direct AI Auto-Fix */}
+              <div className="flex items-center gap-2 self-end pt-1 flex-wrap">
+                <button
+                  type="button"
+                  disabled={isAutoFixing}
+                  onClick={() => handleRunAiAutoFix(toast)}
+                  className="btn btn-xs bg-white text-neutral-900 hover:bg-white/90 border-0 rounded-lg gap-1 font-bold shadow-xs"
+                >
+                  {isAutoFixing ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Wand2 className="w-3 h-3 text-primary" />
+                  )}
+                  <span>ให้ AI แก้ปัญหาให้เลย</span>
+                </button>
+
                 {toast.onRetry && toast.retryable && (
                   <button
                     type="button"
@@ -145,13 +196,17 @@ export const ErrorToaster: React.FC = () => {
                     ลองใหม่
                   </button>
                 )}
+
                 <button
                   type="button"
-                  onClick={() => setSelectedToast(toast)}
+                  onClick={() => {
+                    setAutoFixFeedback(null);
+                    setSelectedToast(toast);
+                  }}
                   className="btn btn-xs bg-base-100/20 hover:bg-base-100/30 border-0 rounded-lg gap-1 text-[11px]"
                 >
                   <FileText className="w-3 h-3" />
-                  ดูรายละเอียด
+                  AI นำทางแก้ปัญหา
                 </button>
               </div>
             </div>
@@ -159,13 +214,13 @@ export const ErrorToaster: React.FC = () => {
         })}
       </div>
 
-      {/* Details Modal */}
-      {selectedToast && (
+      {/* Details & AI Troubleshooter Modal */}
+      {selectedToast && selectedDiagnosis && (
         <div className="modal modal-open z-50">
-          <div className="modal-box rounded-2xl max-w-lg p-6 bg-base-100 border border-base-300">
+          <div className="modal-box rounded-2xl max-w-xl p-6 bg-base-100 border border-base-300 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-base-300">
               <div className="flex items-center gap-2">
-                <span className="badge badge-outline text-xs uppercase font-bold">
+                <span className="badge badge-error badge-outline text-xs uppercase font-bold">
                   {selectedToast.code}
                 </span>
                 <span className="text-xs text-base-content/60">
@@ -181,40 +236,102 @@ export const ErrorToaster: React.FC = () => {
               </button>
             </div>
 
-            <div className="py-4 space-y-3">
+            <div className="space-y-4">
               <div>
-                <h4 className="font-bold text-sm text-base-content">
+                <h4 className="font-bold text-base text-base-content">
                   {selectedToast.messageTh}
                 </h4>
-                <p className="text-xs text-base-content/80 mt-1 flex items-start gap-1">
-                  <Info className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                  <span><strong>คำแนะนำ:</strong> {selectedToast.hintTh}</span>
+                <p className="text-xs text-base-content/80 mt-1 flex items-start gap-1.5">
+                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>
+                    <strong>คำแนะนำเบื้องต้น:</strong> {selectedToast.hintTh}
+                  </span>
                 </p>
               </div>
 
-              {selectedToast.context && (
-                <div className="bg-base-200/60 p-3 rounded-xl space-y-1 text-xs">
-                  <span className="font-semibold block text-base-content/70">
-                    บริบท (Context):
-                  </span>
-                  <pre className="text-[11px] font-mono overflow-x-auto text-base-content/80">
-                    {JSON.stringify(selectedToast.context, null, 2)}
-                  </pre>
+              {/* AI Step-by-Step Guide & One-Click Auto-Fix Card */}
+              <div className="bg-primary/5 border-2 border-primary/25 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary font-bold text-sm">
+                  <Sparkles className="w-4 h-4 shrink-0" />
+                  <span>AI วิเคราะห์สาเหตุและนำทางแก้ปัญหา</span>
                 </div>
-              )}
 
-              {Boolean(selectedToast.details) && (
-                <div className="bg-base-200/60 p-3 rounded-xl space-y-1 text-xs">
-                  <span className="font-semibold block text-base-content/70">
-                    รายละเอียดทางเทคนิค (Redacted Stack / Log):
-                  </span>
-                  <pre className="text-[11px] font-mono overflow-x-auto text-base-content/80 max-h-48">
-                    {typeof selectedToast.details === "object"
-                      ? JSON.stringify(selectedToast.details, null, 2)
-                      : String(selectedToast.details)}
-                  </pre>
+                <p className="text-xs text-base-content/80 leading-relaxed">
+                  <strong>สาเหตุที่ตรวจพบ:</strong> {selectedDiagnosis.rootCauseTh}
+                </p>
+
+                <div className="space-y-1.5">
+                  <div className="text-xs font-semibold text-base-content">
+                    สิ่งที่ AI จะดำเนินการแก้ไขให้อัตโนมัติ:
+                  </div>
+                  <ol className="list-decimal list-inside text-xs text-base-content/80 space-y-1">
+                    {selectedDiagnosis.stepsTh.map((step, i) => (
+                      <li key={i} className="leading-relaxed">
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
                 </div>
-              )}
+
+                {autoFixFeedback && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                      autoFixFeedback.ok
+                        ? "bg-success/15 text-success border border-success/30"
+                        : "bg-warning/15 text-warning-content border border-warning/30"
+                    }`}
+                  >
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>{autoFixFeedback.message}</span>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  disabled={isAutoFixing}
+                  onClick={() => handleRunAiAutoFix(selectedToast)}
+                  className="btn btn-primary btn-sm w-full rounded-xl gap-2 shadow-sm font-bold"
+                >
+                  {isAutoFixing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>AI กำลังแก้ไขปัญหาให้คุณ...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4" />
+                      <span>{selectedDiagnosis.autoFixLabel}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Collapsible Technical Log so it doesn't overwhelm the user */}
+              <details className="collapse collapse-arrow bg-base-200/60 border border-base-300 rounded-xl text-xs">
+                <summary className="collapse-title font-semibold text-base-content/70 py-2.5 min-h-0">
+                  ดูรายละเอียดทางเทคนิคสำหรับนักพัฒนา (Technical Log)
+                </summary>
+                <div className="collapse-content space-y-2">
+                  {selectedToast.context && (
+                    <div>
+                      <span className="font-semibold block text-base-content/70">บริบท (Context):</span>
+                      <pre className="text-[11px] font-mono overflow-x-auto text-base-content/80">
+                        {JSON.stringify(selectedToast.context, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                  {Boolean(selectedToast.details) && (
+                    <div>
+                      <span className="font-semibold block text-base-content/70">Stack / Log:</span>
+                      <pre className="text-[11px] font-mono overflow-x-auto text-base-content/80 max-h-40">
+                        {typeof selectedToast.details === "object"
+                          ? JSON.stringify(selectedToast.details, null, 2)
+                          : String(selectedToast.details)}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              </details>
             </div>
 
             <div className="modal-action pt-2 border-t border-base-300 flex items-center justify-between">
@@ -231,9 +348,9 @@ export const ErrorToaster: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedToast(null)}
-                className="btn btn-primary btn-sm rounded-xl px-4"
+                className="btn btn-outline btn-sm rounded-xl px-4"
               >
-                ปิด
+                ปิดหน้าต่าง
               </button>
             </div>
           </div>

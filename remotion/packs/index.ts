@@ -1,5 +1,11 @@
 import { PackId } from "../types";
 import { PackDefinition } from "./types";
+import {
+  proMinimalLuxuryPack,
+  proFlashSalePack,
+  proUgcCreatorPack,
+  proCyberSlatePack,
+} from "./proPacks";
 import { kraftScrapbookPack } from "./kraftScrapbook";
 import { notebookDoodlePack } from "./notebookDoodle";
 import { zineNewspaperPack } from "./zineNewspaper";
@@ -11,6 +17,10 @@ import { softKawaiiPack } from "./softKawaii";
 
 export * from "./types";
 export {
+  proMinimalLuxuryPack,
+  proFlashSalePack,
+  proUgcCreatorPack,
+  proCyberSlatePack,
   kraftScrapbookPack,
   notebookDoodlePack,
   zineNewspaperPack,
@@ -22,6 +32,10 @@ export {
 };
 
 export const ALL_PACKS: PackDefinition[] = [
+  proMinimalLuxuryPack,
+  proFlashSalePack,
+  proUgcCreatorPack,
+  proCyberSlatePack,
   kraftScrapbookPack,
   notebookDoodlePack,
   zineNewspaperPack,
@@ -33,6 +47,10 @@ export const ALL_PACKS: PackDefinition[] = [
 ];
 
 export const PACK_MAP: Record<PackId, PackDefinition> = {
+  "pro-minimal-luxury": proMinimalLuxuryPack,
+  "pro-flash-sale": proFlashSalePack,
+  "pro-ugc-creator": proUgcCreatorPack,
+  "pro-cyber-slate": proCyberSlatePack,
   "kraft-scrapbook": kraftScrapbookPack,
   "notebook-doodle": notebookDoodlePack,
   "zine-newspaper": zineNewspaperPack,
@@ -47,5 +65,5 @@ export function getPack(packId?: PackId | string): PackDefinition {
   if (packId && packId in PACK_MAP) {
     return PACK_MAP[packId as PackId];
   }
-  return kraftScrapbookPack;
+  return proMinimalLuxuryPack;
 }

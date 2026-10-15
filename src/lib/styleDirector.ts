@@ -19,6 +19,8 @@ import {
   ALL_TEMPOS,
   ALL_FONT_PAIRS,
   ALL_TRANSITIONS,
+  DIVERSE_LAYOUT_SETS,
+  PACK_PALETTE_MAP,
 } from "./styleConstants";
 
 export interface HistoryItem {
@@ -38,12 +40,7 @@ export {
   ALL_TRANSITIONS,
 };
 
-export const ALL_LAYOUT_SETS: SceneLayout[][] = [
-  ["hero-center", "polaroid-stack", "callout-circle"],
-  ["polaroid-stack", "hero-center", "hero-center"],
-  ["callout-circle", "hero-center", "polaroid-stack"],
-  ["hero-center", "callout-circle", "polaroid-stack"],
-];
+export const ALL_LAYOUT_SETS: SceneLayout[][] = DIVERSE_LAYOUT_SETS;
 
 // Seeded PRNG: Mulberry32
 export function mulberry32(a: number): () => number {
@@ -111,7 +108,6 @@ export function saveStyleHistory(item: HistoryItem): void {
     }
     const history = loadStyleHistory();
     history.push(item);
-    // Keep last 200 items
     const trimmed = history.slice(-200);
     fs.writeFileSync(filePath, JSON.stringify(trimmed, null, 2), "utf-8");
   } catch (err) {
@@ -125,7 +121,6 @@ export function pickAvoiding<T>(pool: T[], recent: T[], rng: () => number): T {
   return list[Math.floor(rng() * list.length)];
 }
 
-// Calculate difference between 2 StyleDNA objects across 10 axes
 export function countDnaDifferences(a: StyleDNA, b?: StyleDNA): number {
   if (!b) return 10;
   let diff = 0;
@@ -152,9 +147,10 @@ export function pickStyleDNA(opts: {
 }): StyleDNA {
   const batchIndex = opts.batchIndex ?? 0;
   const history = opts.history ?? loadStyleHistory();
-  const dominant = opts.dominantColors && opts.dominantColors.length > 0
-    ? opts.dominantColors
-    : ["#EE4D2D"];
+  const dominant =
+    opts.dominantColors && opts.dominantColors.length > 0
+      ? opts.dominantColors
+      : ["#EE4D2D"];
 
   const seed = opts.seed ?? hash(`${opts.productId}|${Date.now()}|${batchIndex}`);
   const rng = mulberry32(seed);
@@ -166,7 +162,6 @@ export function pickStyleDNA(opts: {
   let bestDna: StyleDNA | null = null;
   let maxDiff = -1;
 
-  // Try up to 20 times to ensure difference >= 6 axes from the immediate previous clip
   for (let attempt = 0; attempt < 20; attempt++) {
     const pack =
       opts.lockedPack ??
@@ -176,12 +171,17 @@ export function pickStyleDNA(opts: {
         rng
       );
 
-    const derived = derivePalette(
-      dominant,
-      pack,
-      recent.map((d) => d.palette),
-      rng
-    );
+    const packPalette = PACK_PALETTE_MAP[pack];
+    const derived =
+      opts.dominantColors && opts.dominantColors.length > 0
+        ? derivePalette(dominant, pack, recent.map((d) => d.palette), rng)
+        : {
+            id: `${pack}-signature`,
+            primary: packPalette.primary,
+            secondary: packPalette.secondary,
+            accent: packPalette.accent,
+            bg: packPalette.bg,
+          };
 
     const structure = pickAvoiding(
       ALL_STRUCTURES,
@@ -221,7 +221,6 @@ export function pickStyleDNA(opts: {
 
     const layouts = ALL_LAYOUT_SETS[Math.floor(rng() * ALL_LAYOUT_SETS.length)];
 
-    // Pick 2 distinct transitions
     const t1 = pickAvoiding(ALL_TRANSITIONS, [], rng);
     const t2 = pickAvoiding(ALL_TRANSITIONS, [t1], rng);
     const transitions: TransitionType[] = [t1, t2];
@@ -233,7 +232,7 @@ export function pickStyleDNA(opts: {
       primaryColor: derived.primary,
       secondaryColor: derived.secondary,
       accentColor: derived.accent,
-      bgColor: derived.bg,
+      bgColor: packPalette?.bg || derived.bg,
       fontPair,
       structure,
       hookFormula,

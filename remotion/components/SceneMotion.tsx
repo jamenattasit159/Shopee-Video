@@ -2,34 +2,69 @@ import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { FONTS } from "../lib/palette";
 import { renderKeep } from "../lib/thaiKeep";
+import { PaperBackground } from "../paper/PaperBackground";
+import { PackId, PaperTheme } from "../types";
 import { THEME } from "../theme";
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
-/** Overrides the paper sticker outline on product cutouts with a soft dark-UI card. */
+const COLLAGE_PACKS: PackId[] = [
+  "kraft-scrapbook",
+  "notebook-doodle",
+  "zine-newspaper",
+  "sticker-bomb",
+  "pinboard-corkboard",
+  "comic-popart",
+  "supermarket-flyer",
+  "soft-kawaii",
+];
+
+export function isCollagePackId(packId?: PackId): boolean {
+  return !!packId && COLLAGE_PACKS.includes(packId);
+}
+
+/** Overrides the paper sticker outline on product cutouts with a soft card when in Pro Studio packs. */
 export const PRODUCT_CARD_STYLE: React.CSSProperties = {
-  filter: "drop-shadow(0 28px 48px rgba(2, 6, 23, 0.65))",
+  filter: "drop-shadow(0 28px 48px rgba(2, 6, 23, 0.55))",
   borderRadius: 32,
   overflow: "hidden",
 };
 
-/** Solid Slate background with a soft indigo glow behind the product area. */
-export const SceneBackground: React.FC<{ glowY?: string }> = ({ glowY = "55%" }) => {
+/**
+ * Dynamic SceneBackground that renders the chosen Style Pack (12 distinct packs:
+ * 4 Pro Commercial Studio packs + 8 Paper Collage packs) instead of a static background.
+ */
+export const SceneBackground: React.FC<{
+  glowY?: string;
+  packId?: PackId;
+  bgColor?: string;
+  paperTheme?: PaperTheme;
+  accentColor?: string;
+}> = ({
+  glowY = "55%",
+  packId = "pro-minimal-luxury",
+  bgColor,
+  paperTheme = "kraft",
+  accentColor = THEME.colors.accent,
+}) => {
   const frame = useCurrentFrame();
   const drift = Math.sin(frame / 40) * 3;
+  const showTornBorders = isCollagePackId(packId);
+
   return (
-    <AbsoluteFill style={{ backgroundColor: THEME.colors.bg }}>
-      <AbsoluteFill
-        style={{
-          background: `radial-gradient(circle at 50% calc(${glowY} + ${drift}%), ${THEME.colors.glow} 0%, transparent 55%)`,
-        }}
+    <AbsoluteFill>
+      <PaperBackground
+        packId={packId}
+        theme={paperTheme}
+        bg={bgColor}
+        overlayOpacity={showTornBorders ? 0.12 : 0.05}
+        showTornBorders={showTornBorders}
       />
-      {/* Fine dot grid for depth without noise */}
+      {/* Subtle dynamic accent aura behind product */}
       <AbsoluteFill
         style={{
-          opacity: 0.35,
-          backgroundImage: `radial-gradient(${THEME.colors.surfaceRaised} 1.5px, transparent 1.5px)`,
-          backgroundSize: "36px 36px",
+          background: `radial-gradient(circle at 50% calc(${glowY} + ${drift}%), ${accentColor}26 0%, transparent 58%)`,
+          pointerEvents: "none",
         }}
       />
     </AbsoluteFill>
@@ -44,7 +79,6 @@ export const SceneShell: React.FC<{ children: React.ReactNode; punch?: boolean }
 
   const enter = spring({ frame, fps, durationInFrames: sceneEnterFrames, config: { damping: 18, stiffness: 200 } });
   const exit = interpolate(frame, [durationInFrames - sceneExitFrames, durationInFrames], [0, 1], clamp);
-  // Hook: start zoomed-in and snap back for an instant attention grab
   const punchScale = punch
     ? interpolate(spring({ frame, fps, config: { damping: 12, stiffness: 160 } }), [0, 1], [hookPunchScale, 1])
     : 1;
@@ -75,8 +109,7 @@ export const SlowZoom: React.FC<{ children: React.ReactNode; direction?: 1 | -1 
 };
 
 /**
- * Indigo selection frame that "drags" open around a focus area, like a capture box,
- * then gently pulses. Coordinates are canvas px.
+ * Dynamic selection frame that drags open around a focus area, adapting to the active pack's accentColor.
  */
 export const HighlightFrame: React.FC<{
   x: number;
@@ -85,7 +118,8 @@ export const HighlightFrame: React.FC<{
   height: number;
   delay?: number;
   label?: string;
-}> = ({ x, y, width, height, delay = 10, label }) => {
+  accentColor?: string;
+}> = ({ x, y, width, height, delay = 10, label, accentColor = THEME.colors.accent }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const drag = spring({ frame: frame - delay, fps, config: { damping: 20, stiffness: 120 } });
@@ -96,7 +130,7 @@ export const HighlightFrame: React.FC<{
     position: "absolute",
     width: corner,
     height: corner,
-    borderColor: THEME.colors.accentSoft,
+    borderColor: accentColor,
     borderStyle: "solid",
     borderWidth: 0,
     ...pos,
@@ -110,9 +144,9 @@ export const HighlightFrame: React.FC<{
         top: y,
         width: width * drag,
         height: height * drag,
-        border: `3px solid ${THEME.colors.accent}`,
+        border: `3px solid ${accentColor}`,
         borderRadius: 28,
-        boxShadow: `0 0 40px ${THEME.colors.glow}`,
+        boxShadow: `0 0 36px ${accentColor}44`,
         transform: `scale(${pulse})`,
         zIndex: 18,
         pointerEvents: "none",
@@ -128,14 +162,15 @@ export const HighlightFrame: React.FC<{
             position: "absolute",
             top: -64,
             left: 0,
-            backgroundColor: THEME.colors.accent,
-            color: THEME.colors.text,
+            backgroundColor: accentColor,
+            color: "#FFFFFF",
             fontFamily: FONTS.heading,
             fontWeight: 700,
             fontSize: 34,
             padding: "6px 20px",
             borderRadius: 14,
             whiteSpace: "nowrap",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
           }}
         >
           {label}
@@ -151,8 +186,9 @@ export const LineReveal: React.FC<{
   delay?: number;
   stagger?: number;
   fontSize?: number;
+  accentColor?: string;
   style?: React.CSSProperties;
-}> = ({ lines, delay = 6, stagger = 6, fontSize = 52, style }) => {
+}> = ({ lines, delay = 6, stagger = 6, fontSize = 50, accentColor = THEME.colors.border, style }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   return (
@@ -164,13 +200,14 @@ export const LineReveal: React.FC<{
         gap: 4,
         padding: "16px 32px",
         borderRadius: 24,
-        backgroundColor: THEME.colors.surface,
-        border: `2px solid ${THEME.colors.border}`,
+        backgroundColor: "rgba(15, 23, 42, 0.9)",
+        border: `2px solid ${accentColor}`,
+        boxShadow: "0 14px 32px rgba(2, 6, 23, 0.45)",
         fontFamily: FONTS.heading,
         fontWeight: 700,
         fontSize,
         lineHeight: 1.35,
-        color: THEME.colors.textMuted,
+        color: "#F8FAFC",
         zIndex: 22,
         position: "relative",
         ...style,

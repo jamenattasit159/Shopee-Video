@@ -1,9 +1,21 @@
 export type PaperTheme = "kraft" | "cream-grid" | "halftone-orange" | "pastel-mint";
-export type SceneLayout = "hero-center" | "polaroid-stack" | "callout-circle";
+export type SceneLayout =
+  | "hero-center"
+  | "polaroid-stack"
+  | "callout-circle"
+  | "fullscreen-broll"
+  | "split-showcase"
+  | "bento-grid"
+  | "magazine-editorial";
+
 export type TransitionType = "slap-strip" | "torn-wipe" | "page-shuffle";
 export type SFXType = "pop" | "slap" | "tear" | "sparkle" | "cash";
 
 export type PackId =
+  | "pro-minimal-luxury"
+  | "pro-flash-sale"
+  | "pro-ugc-creator"
+  | "pro-cyber-slate"
   | "kraft-scrapbook"
   | "notebook-doodle"
   | "zine-newspaper"
@@ -35,6 +47,18 @@ export type StickerShape = "starburst" | "cloud" | "tag" | "wavy-circle" | "torn
 export type SfxKitId = "tactile-pop" | "playful-cartoon" | "retro-paper";
 export type TempoType = "chill" | "snappy" | "hyper";
 
+export type CaptionStyleId = "tiktok-pop" | "karaoke-pill" | "clean-bar" | "minimal-outline";
+export type CaptionPosition = "bottom" | "center" | "top";
+
+export interface CaptionSettings {
+  enabled: boolean;
+  style: CaptionStyleId;
+  position: CaptionPosition;
+  language: "th" | "both" | "en";
+  highlightColor?: string;
+  fontSize?: number;
+}
+
 export interface StyleDNA {
   seed: number;
   pack: PackId;
@@ -56,7 +80,7 @@ export interface StyleDNA {
 
 export interface VoiceLine {
   sceneId: string;
-  role: 'hook' | 'body' | 'cta';
+  role: "hook" | "body" | "cta";
   text: string;
   textForSpeech?: string;
   styleOverride?: string;
@@ -66,23 +90,32 @@ export interface VoiceLine {
   polished?: boolean;
 }
 
+export interface CaptionCue { text: string; startSec: number; endSec: number; en?: string; }
+
 export interface HookData {
   headline: string;
-  headlineLines?: string[]; // Part E: Pre-split lines (max 2 lines, <= 14 chars/line, >= 4 chars/line)
+  headlineLines?: string[];
   subheadline?: string;
-  captionLines?: string[]; // Part E: Pre-split lines (max 2 lines, <= 18 chars/line, >= 4 chars/line)
+  captionLines?: string[];
   badgeText?: string;
   highlightWord?: string;
   paperTheme?: PaperTheme;
   transitionOut?: TransitionType;
   durationSec: number;
+  imageIndex?: number;
+  videoStartSec?: number;
+  videoEndSec?: number;
+  videoFillMode?: "freeze" | "error";
+  durationMode?: "voice" | "manual";
+  videoAudioMode?: "mute" | "mix";
+  customCaption?: string;
 }
 
 export interface SceneData {
   highlightTitle: string;
-  headlineLines?: string[]; // Part E: Pre-split lines
+  headlineLines?: string[];
   highlightDesc: string;
-  captionLines?: string[]; // Part E: Pre-split lines
+  captionLines?: string[];
   stickerText?: string;
   highlightWord?: string;
   imageIndex: number;
@@ -91,23 +124,36 @@ export interface SceneData {
   transitionOut?: TransitionType;
   sfx?: SFXType[];
   durationSec: number;
+  videoStartSec?: number;
+  videoEndSec?: number;
+  videoFillMode?: "freeze" | "error";
+  durationMode?: "voice" | "manual";
+  videoAudioMode?: "mute" | "mix";
+  customCaption?: string;
 }
 
 export interface CTAData {
   ctaTitle: string;
-  headlineLines?: string[]; // Part E: Pre-split lines
+  headlineLines?: string[];
   ctaSubtitle?: string;
-  captionLines?: string[]; // Part E: Pre-split lines
+  captionLines?: string[];
   buttonText: string;
   basketNote?: string;
   badgeText?: string;
   paperTheme?: PaperTheme;
   durationSec: number;
+  imageIndex?: number;
+  videoStartSec?: number;
+  videoEndSec?: number;
+  videoFillMode?: "freeze" | "error";
+  durationMode?: "voice" | "manual";
+  videoAudioMode?: "mute" | "mix";
+  customCaption?: string;
 }
 
 export interface CollageScene {
   type: "hook" | "feature" | "cta";
-  headline: string; // ≤ 24 Thai chars
+  headline: string;
   headlineLines?: string[];
   captionLines?: string[];
   highlightWord?: string;
@@ -145,6 +191,7 @@ export interface StoryboardPlan {
   voiceLines?: VoiceLine[];
   voicePresetId?: string;
   voiceIntensity?: "low" | "mid" | "high";
+  captionSettings?: CaptionSettings;
 }
 
 export interface ShopeeProductVideoProps {
@@ -163,6 +210,9 @@ export interface ShopeeProductVideoProps {
   voiceLines?: VoiceLine[];
   bgmUrl?: string;
   showSafeZone?: boolean;
+  captionSettings?: CaptionSettings;
+  captionCues?: CaptionCue[];
+  mediaDurations?: Record<string, number>;
 }
 
 export interface ProductRecord {

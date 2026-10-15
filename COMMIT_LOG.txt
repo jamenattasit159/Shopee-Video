@@ -7,6 +7,26 @@
 
 --------------------------------------------------------------------------------
 
+[COMMIT RECORD #020]
+Commit Hash: 10f0d2e
+Author:      jamenattasit159 <nattasitkung.am@gmail.com>
+Date/Time:   Thu Oct 15 15:07:00 2026 +0700
+Branch:      main
+Subject:     feat(video-engine): implement 4-feature dynamic timeline sync, AI troubleshoot, and fast render pipeline
+รายละเอียดสิ่งที่แก้ไข:
+1. ปรับปรุง Video Engine และ Remotion Components:
+   - รองรับ Dynamic 4 Highlights Timeline Synchronization (`remotion/lib/videoTimeline.ts`, `FeatureScene.tsx`)
+   - ปรับปรุงการจัดวางเลย์เอาต์ Safe Zone 9:16 และเพิ่ม Motion Presets (`remotion/packs/proPacks.tsx`, `SafeZoneOverlay.tsx`)
+2. ระบบจัดการสินค้าและคลังข้อมูล:
+   - เพิ่มระบบลบรายการซ้ำอัตโนมัติ (Deduplication) และ Modal จัดการรายการสินค้า (`src/app/page.tsx`)
+   - ระบบจัดเตรียมวิดีโอและแคปชันแบบแม่นยำ (`src/lib/videoPreparation.ts`, `src/lib/captionAlignment.ts`)
+3. ระบบช่วยเหลือและเรนเดอร์:
+   - เพิ่ม API AI Troubleshoot วิเคราะห์และแก้ปัญหาเรนเดอร์อัตโนมัติ (`src/app/api/ai-troubleshoot/route.ts`)
+   - เพิ่มระบบ Export Bundle และสคริปต์ Fast FFMPEG Render (`src/lib/exportFiles.ts`, `scripts/fast-ffmpeg-render.mjs`)
+   - อัปเดตสคริปต์เปิดใช้งานระบบ (`start.bat`, `start.ps1`, `quick-start.bat`)
+
+--------------------------------------------------------------------------------
+
 [COMMIT RECORD #019]
 Commit Hash: f604d414ffaff26b806e30480ffe02344de64b3f (f604d41)
 Author:      jamenattasit159 <nattasitkung.am@gmail.com>

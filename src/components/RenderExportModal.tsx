@@ -49,6 +49,9 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   const [isRendering, setIsRendering] = useState(false);
   const [renderedUrl, setRenderedUrl] = useState<string | null>(initialVideoUrl || null);
   const [renderMessage, setRenderMessage] = useState<string>("");
+  const [renderProgress, setRenderProgress] = useState<number>(0);
+  const [renderMode, setRenderMode] = useState<"turbo" | "remotion" | "fast">("remotion");
+  const [resolutionScale, setResolutionScale] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
   const [copiedCaptionIndex, setCopiedCaptionIndex] = useState<number | null>(null);
   const [renderTimestamp, setRenderTimestamp] = useState<number>(Date.now());
@@ -65,6 +68,28 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
     setRenderedUrl(initialVideoUrl || null);
     setRenderTimestamp(Date.now());
   }, [initialVideoUrl, productId]);
+
+  React.useEffect(() => {
+    if (!isRendering) return;
+    setRenderProgress(5);
+    const timer = setInterval(async () => {
+      try {
+        const res = await fetch("/api/render-video");
+        const data = await res.json();
+        if (data?.progress) {
+          if (typeof data.progress.percent === "number") {
+            setRenderProgress(data.progress.percent);
+          }
+          if (data.progress.message) {
+            setRenderMessage(data.progress.message);
+          }
+        }
+      } catch {
+        // ignore poll error
+      }
+    }, 1500);
+    return () => clearInterval(timer);
+  }, [isRendering]);
 
   const handleFixNavigation = (where?: { sceneId?: string; field?: string }) => {
     if (!onNavigateToTab) return;
@@ -87,7 +112,9 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
     let activeVoiceUrl = videoProps.voiceoverUrl;
     let activeVoiceDuration = videoProps.voiceoverDurationSec;
-    if (!activeVoiceUrl && videoProps.hook) {
+    const sceneIds = ["hook", ...(videoProps.scenes || []).map((_, i) => `scene_${i}`), "cta"];
+    const hasSceneAudio = sceneIds.every((id) => videoProps.voiceLines?.some((line) => line.sceneId === id && line.audioUrl));
+    if (!activeVoiceUrl && !hasSceneAudio && videoProps.hook) {
       setRenderMessage("กำลังบันทึกเสียงพากย์ AI อัตโนมัติ...");
       try {
         const voiceData = await apiFetch<any>("/api/synthesize-voice", {
@@ -111,9 +138,13 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           if (voiceData.duration) {
             activeVoiceDuration = voiceData.duration;
           }
+        } else {
+          throw new Error("สร้างเสียงพากย์ไม่สำเร็จ กรุณาสร้างเสียงใหม่ในหน้า Storyboard");
         }
       } catch (voiceErr) {
-        console.warn("Auto-synthesizing voice failed, continuing with BGM only:", voiceErr);
+        setError(voiceErr instanceof Error ? voiceErr.message : "สร้างเสียงพากย์ไม่สำเร็จ");
+        setIsRendering(false);
+        return;
       }
     }
 
@@ -125,6 +156,8 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
         method: "POST",
         body: {
           productId: productId || `prod_${Date.now()}`,
+          renderMode,
+          resolutionScale,
           preflightResults: preflightSummary?.results || [],
           acknowledgedWarnings,
           props: {
@@ -218,7 +251,51 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
         setAcknowledgedWarnings={setAcknowledgedWarnings}
       />
 
-      {/* 2. Render Trigger Section */}
+      {/* 2. Render Performance & Anti-Freeze Controls */}
+      <div className="bg-base-200/40 border border-base-300 rounded-2xl p-4 space-y-3 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span className="font-bold text-base-content flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span>รูปแบบวิดีโอและความละเอียด</span>
+          </span>
+          <span className="badge badge-success badge-outline badge-xs py-2 px-2">
+            ตรวจไฟล์ก่อนส่งออก
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label className="block font-semibold text-base-content/80 mb-1">
+              รูปแบบการเรนเดอร์
+            </label>
+            <select
+              value={renderMode}
+              onChange={(e) => setRenderMode(e.target.value as "turbo" | "remotion" | "fast")}
+              disabled={isRendering}
+              className="select select-bordered select-sm w-full rounded-xl bg-base-100 text-xs font-medium"
+            >
+              <option value="remotion">Remotion — แอนิเมชันตามพรีวิว (1 เธรด)</option>
+              <option value="fast">Remotion — แอนิเมชันตามพรีวิว (2 เธรด)</option>
+            </select>
+          </div>
+          <div>
+            <label className="block font-semibold text-base-content/80 mb-1">
+              ความละเอียดไฟล์วิดีโอ (Resolution)
+            </label>
+            <select
+              value={resolutionScale}
+              onChange={(e) => setResolutionScale(Number(e.target.value))}
+              disabled={isRendering}
+              className="select select-bordered select-sm w-full rounded-xl bg-base-100 text-xs font-medium"
+            >
+              <option value={1}>Full HD 1080×1920 (คมชัดสูงสุดมาตรฐาน Shopee/TikTok)</option>
+              <option value={0.667}>HD 720×1280 (ไฟล์เล็ก ประหยัดทรัพยากร)</option>
+            </select>
+          </div>
+        </div>
+        <p className="text-xs text-base-content/60">ทั้งสองโหมดใช้เทมเพลต สไตล์ซับ และช่วงคลิปเดียวกับพรีวิว ต่างกันเฉพาะจำนวนเธรด</p>
+      </div>
+
+      {/* 3. Render Trigger Section */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-base-200/50 p-5 rounded-2xl border border-base-300/60 shadow-xs">
         <div>
           <h3 className="font-semibold text-base-content text-base flex items-center gap-2">
@@ -254,10 +331,16 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
       {/* Status / Error feedback */}
       {isRendering && (
-        <div className="alert alert-info rounded-xl p-4 text-xs shadow-xs">
-          <span className="loading loading-spinner loading-sm shrink-0" />
+        <div className="bg-info/10 border border-info/30 rounded-2xl p-4 text-xs shadow-xs space-y-2">
+          <div className="flex items-center justify-between font-bold text-base-content">
+            <span className="flex items-center gap-2">
+              <span className="loading loading-spinner loading-xs text-primary" />
+              <span>{renderMessage || "กำลังเรนเดอร์วิดีโอ..."}</span>
+            </span>
+            <span className="font-mono text-primary">{renderProgress}%</span>
+          </div>
+          <progress className="progress progress-primary w-full h-2.5" value={renderProgress} max={100} />
           <div>
-            <span className="font-bold block">{renderMessage}</span>
             <span className="opacity-80">
               ระยะเวลาขึ้นอยู่กับความยาววิดีโอและประสิทธิภาพเครื่อง กรุณารอจนกว่าจะเสร็จสิ้น
             </span>

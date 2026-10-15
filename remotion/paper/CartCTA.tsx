@@ -1,5 +1,6 @@
 import { ShoppingBag } from "lucide-react";
 import React from "react";
+import { SAFE_ZONE } from '../lib/layoutGuard';
 import { FONTS, PALETTE } from "../lib/palette";
 import { useBoil, useStepFrame } from "../lib/stopMotion";
 
@@ -28,8 +29,9 @@ export const CartCTA: React.FC<CartCTAProps> = ({
     <div
       style={{
         position: "absolute",
-        left: "48px",
-        bottom: "80px", // Calibrated for Shopee Video mobile basket location
+        left: SAFE_ZONE.left + 16,
+        bottom: 1920 - SAFE_ZONE.bottom + 24,
+        maxWidth: SAFE_ZONE.right - SAFE_ZONE.left - 32,
         zIndex: 50,
         display: "flex",
         flexDirection: "column",

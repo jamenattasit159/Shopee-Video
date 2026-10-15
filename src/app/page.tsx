@@ -1,29 +1,30 @@
 "use client";
 
 import {
-  CheckCircle,
+  Edit3,
   FolderOpen,
   Plus,
-  RefreshCw,
   ShoppingBag,
   Sparkles,
+  Trash2,
   Video,
-  Scissors as ScissorsIcon,
+  X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { defaultShopeeVideoProps } from "../../remotion/ShopeeProductVideo";
 import {
   ProductRecord,
   ShopeeProductVideoProps,
   StoryboardPlan,
 } from "../../remotion/types";
+import { isVideoMedia } from "../../remotion/utils";
 import { ProductForm } from "../components/ProductForm";
 import { RenderExportModal } from "../components/RenderExportModal";
 import { ScriptStoryboard } from "../components/ScriptStoryboard";
 import { VideoPlayerPreview } from "../components/VideoPlayerPreview";
 import { SystemStatusBar } from "../components/SystemStatusBar";
 import { ErrorCenterButton } from "../components/ErrorCenterButton";
+import { registerAiAutoFixHandler } from "@/lib/errorStore";
 import { apiFetch } from "@/lib/apiFetch";
 
 export default function DashboardPage() {
@@ -39,14 +40,19 @@ export default function DashboardPage() {
   const [showSafeZone, setShowSafeZone] = useState<boolean>(false);
   const [voiceoverUrl, setVoiceoverUrl] = useState<string | undefined>(undefined);
   const [voiceoverDurationSec, setVoiceoverDurationSec] = useState<number | undefined>(undefined);
+  const [isManageModalOpen, setIsManageModalOpen] = useState<boolean>(false);
 
-  // Fetch saved products on mount
+  const showNotification = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 4000);
+  };
+
   const fetchProducts = async () => {
     try {
       const data = await apiFetch<any>("/api/products", undefined, { silent: true });
-      if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
+      if (data && data.success && Array.isArray(data.products)) {
         setProducts(data.products);
-        if (!activeProduct) {
+        if (!activeProduct && data.products.length > 0) {
           setActiveProduct(data.products[0]);
           setVoiceoverUrl(data.products[0]?.voiceoverUrl || undefined);
           setVoiceoverDurationSec(data.products[0]?.voiceoverDurationSec || undefined);
@@ -61,30 +67,152 @@ export default function DashboardPage() {
     fetchProducts();
   }, []);
 
-  const showNotification = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 4000);
-  };
+  // Register global AI Auto-Fix handler so clicking "✨ ให้ AI แก้ปัญหาให้อัตโนมัติ" in any error toast/modal fixes the active product directly
+  useEffect(() => {
+    registerAiAutoFixHandler(async (action, err) => {
+      if (action === "autofix-render" || err?.code?.includes("RENDER")) {
+        showNotification("AI กำลังสร้างวิดีโอให้ใหม่ด้วยโหมดด่วนพิเศษ (Turbo Direct Engine)...");
+        const renderRes = await fetch("/api/render-video", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: activeProduct?.id || `prod_${Date.now()}`,
+            renderMode: "turbo",
+            resolutionScale: 1,
+            props: currentVideoProps,
+          }),
+        });
+        const renderData = await renderRes.json();
+        if (renderData && renderData.success && renderData.videoUrl) {
+          if (activeProduct) {
+            const updated: ProductRecord = {
+              ...activeProduct,
+              renderedVideoUrl: renderData.videoUrl,
+            };
+            setActiveProduct(updated);
+            setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          }
+          setActiveTab("render");
+          const msg = "AI สร้างไฟล์วิดีโอ MP4 ให้เสร็จสมบูรณ์แล้วด้วยโหมด Turbo Direct! ดาวน์โหลดได้เลย";
+          showNotification(msg);
+          return msg;
+        }
+      }
 
-  // Start a fresh new product
+      const res = await fetch("/api/ai-troubleshoot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error: err,
+          action,
+          productName: activeProduct?.name,
+          narrationText: activeProduct?.storyboard?.narrationScript,
+        }),
+      });
+      const data = await res.json();
+      if (data && data.ok) {
+        if (data.audioUrl && activeProduct) {
+          setVoiceoverUrl(data.audioUrl);
+          setVoiceoverDurationSec(data.duration || undefined);
+          const updated: ProductRecord = {
+            ...activeProduct,
+            voiceoverUrl: data.audioUrl,
+            voiceoverDurationSec: data.duration || undefined,
+          };
+          setActiveProduct(updated);
+          setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        }
+        showNotification(data.summaryTh || "AI แก้ไขปัญหาให้เรียบร้อยแล้ว!");
+        return data.summaryTh;
+      }
+    });
+    return () => registerAiAutoFixHandler(null);
+  }, [activeProduct, voiceoverUrl, voiceoverDurationSec]);
+
   const handleStartNewProduct = () => {
     setActiveProduct(null);
     setVoiceoverUrl(undefined);
     setVoiceoverDurationSec(undefined);
     setActiveTab("create");
     setFormKey((prev) => prev + 1);
-    showNotification("เปิดฟอร์มว่างพร้อมสร้างคลิปใหม่แล้ว! กรอกข้อมูลสินค้าได้เลย");
+    showNotification("เปิดฟอร์มว่างพร้อมสร้างคลิปใหม่แล้ว! วางลิงก์หรืออัปโหลดรูป/คลิปได้เลย");
   };
 
-  const handleProductCreated = (newProduct: ProductRecord) => {
+  const handleDeleteProduct = async (targetId: string) => {
+    try {
+      const res = await apiFetch<any>(`/api/products?id=${encodeURIComponent(targetId)}`, {
+        method: "DELETE",
+      });
+      if (res && res.success && Array.isArray(res.products)) {
+        setProducts(res.products);
+        if (activeProduct?.id === targetId) {
+          const next = res.products[0] || null;
+          setActiveProduct(next);
+          setVoiceoverUrl(next?.voiceoverUrl || undefined);
+          setVoiceoverDurationSec(next?.voiceoverDurationSec || undefined);
+          if (!next) setActiveTab("create");
+        }
+        showNotification("ลบรายการสินค้าเรียบร้อยแล้ว!");
+      }
+    } catch (err) {
+      console.error("Delete product error:", err);
+    }
+  };
+
+  const handleDeduplicateProducts = async () => {
+    try {
+      const res = await apiFetch<any>("/api/products?mode=deduplicate", {
+        method: "DELETE",
+      });
+      if (res && res.success && Array.isArray(res.products)) {
+        setProducts(res.products);
+        if (activeProduct && !res.products.some((p: ProductRecord) => p.id === activeProduct.id)) {
+          const next = res.products[0] || null;
+          setActiveProduct(next);
+          setVoiceoverUrl(next?.voiceoverUrl || undefined);
+          setVoiceoverDurationSec(next?.voiceoverDurationSec || undefined);
+        }
+        showNotification(res.message || "ลบรายการซ้ำเรียบร้อยแล้ว!");
+      }
+    } catch (err) {
+      console.error("Deduplicate error:", err);
+    }
+  };
+
+  const handleClearAllProducts = async () => {
+    if (!confirm("ยืนยันการลบรายการสินค้าทั้งหมดออกจากรายการหรือไม่?")) return;
+    try {
+      const res = await apiFetch<any>("/api/products?mode=clear-all", {
+        method: "DELETE",
+      });
+      if (res && res.success) {
+        setProducts([]);
+        setActiveProduct(null);
+        setVoiceoverUrl(undefined);
+        setVoiceoverDurationSec(undefined);
+        setActiveTab("create");
+        setIsManageModalOpen(false);
+        showNotification("ล้างรายการสินค้าทั้งหมดเรียบร้อยแล้ว!");
+      }
+    } catch (err) {
+      console.error("Clear all error:", err);
+    }
+  };
+
+  const handleProductCreated = (newProduct: ProductRecord, keptStoryboard?: boolean) => {
     setProducts((prev) => [newProduct, ...prev.filter((p) => p.id !== newProduct.id)]);
     setActiveProduct(newProduct);
     setVoiceoverUrl(newProduct.voiceoverUrl || undefined);
     setVoiceoverDurationSec(newProduct.voiceoverDurationSec || undefined);
     setActiveTab("storyboard");
+
+    if (keptStoryboard) {
+      showNotification("อัปเดตข้อมูลและรูป/คลิปเรียบร้อยแล้ว (คงสตอรี่บอร์ดและเสียงพากย์เดิม)!");
+      return;
+    }
+
     showNotification("สร้าง AI Storyboard สำเร็จแล้ว! กำลังเตรียมเสียงพากย์ AI...");
 
-    // Auto-synthesize voiceover in background so video is never silent
     const script = newProduct.storyboard?.narrationScript;
     if (script && script.trim() && !newProduct.voiceoverUrl) {
       apiFetch<any>("/api/synthesize-voice", {
@@ -119,14 +247,42 @@ export default function DashboardPage() {
 
   const handleUpdateStoryboard = (updatedStoryboard: StoryboardPlan) => {
     if (!activeProduct) return;
-    const updated = {
+    const updated: ProductRecord = {
       ...activeProduct,
       storyboard: updatedStoryboard,
+      styleDNA: updatedStoryboard.styleDNA || activeProduct.styleDNA,
     };
     setActiveProduct(updated);
     setProducts((prev) =>
       prev.map((p) => (p.id === updated.id ? updated : p))
     );
+  };
+
+  const handleAppendMedia = async (files: FileList) => {
+    if (!activeProduct) return;
+    const formData = new FormData();
+    formData.append("id", activeProduct.id);
+    formData.append("name", activeProduct.name);
+    formData.append("price", activeProduct.price);
+    formData.append("highlights", activeProduct.highlights);
+    formData.append("tone", activeProduct.tone);
+    formData.append("cta", activeProduct.cta);
+    formData.append("keepStoryboard", "true");
+    formData.append("existingImages", JSON.stringify(activeProduct.images || []));
+    formData.append("storyboard", JSON.stringify(activeProduct.storyboard));
+    Array.from(files).forEach((f) => formData.append("files", f));
+
+    const res = await apiFetch<any>("/api/products", {
+      method: "POST",
+      body: formData,
+    });
+    if (res && res.success && res.product) {
+      setActiveProduct(res.product);
+      setProducts((prev) =>
+        prev.map((p) => (p.id === res.product.id ? res.product : p))
+      );
+      showNotification("เพิ่มไฟล์รูป/คลิปวิดีโอเข้าในโปรเจกต์เรียบร้อยแล้ว!");
+    }
   };
 
   const handleRegenerateScript = async (provider: "claude" | "gemini" = "claude") => {
@@ -165,7 +321,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Convert active product into Remotion video props
   const currentVideoProps: ShopeeProductVideoProps = activeProduct
     ? {
         productName: activeProduct.name,
@@ -175,10 +330,12 @@ export default function DashboardPage() {
         scenes: activeProduct.storyboard.scenes,
         cta: activeProduct.storyboard.cta,
         theme: activeProduct.storyboard.theme,
-        styleDNA: activeProduct.storyboard.styleDNA,
+        styleDNA: activeProduct.storyboard.styleDNA || activeProduct.styleDNA,
+        captionSettings: activeProduct.storyboard.captionSettings,
         narrationScript: (activeProduct.storyboard as any)?.narrationScript,
         voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
         voiceoverDurationSec: voiceoverDurationSec || activeProduct.voiceoverDurationSec,
+        voiceLines: activeProduct.storyboard.voiceLines,
         bgmUrl: "/audio/bgm-upbeat.mp3",
         imageWarning: (activeProduct as any).imageWarning || undefined,
         originalUrl: activeProduct.import?.originalUrl,
@@ -187,9 +344,15 @@ export default function DashboardPage() {
         ...defaultShopeeVideoProps,
       };
 
+  const mediaStats = React.useMemo(() => {
+    const list = activeProduct?.images || [];
+    const videoCount = list.filter((u) => isVideoMedia(u)).length;
+    const imageCount = list.length - videoCount;
+    return { imageCount, videoCount };
+  }, [activeProduct?.images]);
+
   return (
     <div className="min-h-screen bg-base-200 text-base-content flex flex-col font-sans">
-      {/* Top Notification Toast */}
       {notification && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-neutral text-neutral-content text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2 border border-neutral-content/10">
           <Sparkles className="w-4 h-4 text-primary" />
@@ -199,62 +362,81 @@ export default function DashboardPage() {
 
       {/* Top Navigation Bar */}
       <header className="border-b border-base-300 bg-base-100/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary text-primary-content flex items-center justify-center shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-primary text-primary-content flex items-center justify-center shadow-xs shrink-0">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-base sm:text-lg text-base-content tracking-tight">
-                  Shopee Video Generator
+                <h1 className="font-bold text-base sm:text-lg text-base-content tracking-tight truncate">
+                  Shopee Video Pro All-in-One
                 </h1>
-                <span className="badge badge-primary badge-outline badge-xs py-2 px-2 font-medium">
-                  Video Studio
+                <span className="badge badge-primary badge-outline badge-xs py-2 px-2 font-medium hidden md:inline-flex">
+                  12 Themes • Video + Image
                 </span>
               </div>
-              <p className="text-xs text-base-content/60 hidden sm:block">
-                สร้างคลิปขายสินค้าพร้อมสคริปต์และเสียงพากย์ AI ในที่เดียว
+              <p className="text-xs text-base-content/60 hidden sm:block truncate">
+                รับลิงก์ • ใส่รูปและคลิปวิดีโอ • สร้างสตอรี่ • พากย์เสียง • ใส่ซับ • เรนเดอร์ MP4 จบในหน้าเดียว
               </p>
             </div>
           </div>
 
-          {/* Product Switcher, Status Bar, Error Center & New Button */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/studio" className="btn btn-primary btn-sm rounded-xl gap-2">
-              <ScissorsIcon className="w-4 h-4" />
-              <span>ตัดต่อคลิปจริง</span>
-            </Link>
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <SystemStatusBar />
             <ErrorCenterButton />
+
             {products.length > 0 && (
-              <select
-                value={activeProduct?.id || "new"}
-                onChange={(e) => {
-                  if (e.target.value === "new") {
-                    handleStartNewProduct();
-                  } else {
-                    const found = products.find((p) => p.id === e.target.value);
-                    if (found) {
-                      setActiveProduct(found);
-                      setVoiceoverUrl(found.voiceoverUrl || undefined);
-                      setVoiceoverDurationSec(found.voiceoverDurationSec || undefined);
-                      setActiveTab("storyboard");
+              <div className="flex items-center gap-1">
+                <select
+                  value={activeProduct?.id || "new"}
+                  onChange={(e) => {
+                    if (e.target.value === "new") {
+                      handleStartNewProduct();
+                    } else {
+                      const found = products.find((p) => p.id === e.target.value);
+                      if (found) {
+                        setActiveProduct(found);
+                        setVoiceoverUrl(found.voiceoverUrl || undefined);
+                        setVoiceoverDurationSec(found.voiceoverDurationSec || undefined);
+                      }
                     }
-                  }
-                }}
-                className="select select-bordered select-sm rounded-xl text-xs max-w-[180px] sm:max-w-[240px] truncate bg-base-100 border-base-300 text-base-content"
-              >
-                <option value="new">+ สร้างสินค้าใหม่...</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+                  }}
+                  className="select select-bordered select-sm rounded-xl text-xs max-w-[150px] sm:max-w-[210px] truncate bg-base-100 border-base-300 text-base-content"
+                >
+                  <option value="new">+ สร้างสินค้าใหม่...</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Quick Delete Active Product Button */}
+                {activeProduct && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteProduct(activeProduct.id)}
+                    title="ลบรายการสินค้านี้ออกจากประวัติ"
+                    className="btn btn-ghost btn-sm btn-square rounded-xl text-error hover:bg-error/10"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Open Manage / Clean Duplicates Modal */}
+                <button
+                  type="button"
+                  onClick={() => setIsManageModalOpen(true)}
+                  title="จัดการรายการสินค้า / ลบรายการที่ซ้ำกัน"
+                  className="btn btn-outline btn-xs rounded-xl gap-1 hidden sm:inline-flex"
+                >
+                  <FolderOpen className="w-3.5 h-3.5" />
+                  <span>จัดการ ({products.length})</span>
+                </button>
+              </div>
             )}
 
-            {/* Click to start new product */}
             <button
               type="button"
               onClick={handleStartNewProduct}
@@ -270,9 +452,8 @@ export default function DashboardPage() {
       {/* Main Content Dashboard */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Form & Storyboard Workflow (7 cols) */}
+          {/* Left Column: Unified 3-Step Workflow (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Step Tabs */}
             <div className="flex items-center gap-1.5 bg-base-100 p-1.5 rounded-2xl border border-base-300 shadow-xs text-xs font-semibold">
               <button
                 type="button"
@@ -283,7 +464,8 @@ export default function DashboardPage() {
                     : "text-base-content/70 hover:text-base-content hover:bg-base-200"
                 }`}
               >
-                <span>1. ข้อมูล & ภาพ</span>
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>1. ข้อมูล & รูป/คลิป {activeProduct ? "(แก้ไขได้)" : ""}</span>
               </button>
 
               <button
@@ -302,7 +484,7 @@ export default function DashboardPage() {
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>2. Storyboard & เสียงพากย์</span>
+                <span>2. สตอรี่บอร์ด • พากย์เสียง • ซับ</span>
               </button>
 
               <button
@@ -321,31 +503,33 @@ export default function DashboardPage() {
                 }`}
               >
                 <Video className="w-3.5 h-3.5" />
-                <span>3. เรนเดอร์ & แคปชั่น</span>
+                <span>3. เรนเดอร์ MP4 & แคปชั่น</span>
               </button>
             </div>
 
-            {/* Tab 1: Product Form */}
             {activeTab === "create" && (
               <ProductForm
-                key={formKey}
+                key={activeProduct ? `edit_${activeProduct.id}` : `new_${formKey}`}
+                initialProduct={activeProduct}
                 onProductCreated={handleProductCreated}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
               />
             )}
 
-            {/* Tab 2: Storyboard & AI Voice Editor */}
             {activeTab === "storyboard" && activeProduct && (
               <ScriptStoryboard
                 productName={activeProduct.name}
                 price={activeProduct.price}
                 highlights={activeProduct.highlights}
+                images={activeProduct.images}
                 storyboard={activeProduct.storyboard}
                 onUpdateStoryboard={handleUpdateStoryboard}
                 onRegenerate={handleRegenerateScript}
                 isRegenerating={isRegenerating}
                 voiceoverUrl={voiceoverUrl}
+                onAppendMedia={handleAppendMedia}
+                onNavigateToStep1={() => setActiveTab("create")}
                 onVoiceoverGenerated={(url, duration) => {
                   setVoiceoverUrl(url);
                   setVoiceoverDurationSec(duration);
@@ -365,7 +549,6 @@ export default function DashboardPage() {
               />
             )}
 
-            {/* Tab 3: Render, Audio & Captions Export */}
             {activeTab === "render" && (
               <RenderExportModal
                 productId={activeProduct?.id}
@@ -387,15 +570,14 @@ export default function DashboardPage() {
               />
             )}
 
-            {/* Always show Render trigger at bottom of Storyboard view */}
             {activeTab === "storyboard" && (
               <div className="bg-base-100 border border-base-300 rounded-2xl p-5 flex items-center justify-between shadow-xs">
                 <div>
                   <h4 className="font-bold text-sm text-base-content">
-                    พอใจกับสคริปต์และเสียงพากย์แล้วใช่ไหม?
+                    พอใจกับสตอรี่บอร์ด เสียงพากย์ และซับไตเติลแล้วใช่ไหม?
                   </h4>
                   <p className="text-xs text-base-content/60">
-                    ไปที่ขั้นตอนเรนเดอร์เพื่อสร้างไฟล์ MP4 พร้อมเสียง และรับแคปชั่นสำหรับโพสต์
+                    ไปที่ขั้นตอนเรนเดอร์เพื่อสร้างไฟล์ MP4 พร้อมเสียง และรับแพ็กเกจแคปชั่นสำหรับโพสต์ขาย
                   </p>
                 </div>
                 <button
@@ -418,7 +600,6 @@ export default function DashboardPage() {
               onToggleSafeZone={setShowSafeZone}
             />
 
-            {/* Active Product Quick Info Card */}
             {activeProduct ? (
               <div className="mt-4 bg-base-100 border border-base-300 rounded-2xl p-4 text-xs text-base-content/80 shadow-xs space-y-2">
                 <div className="flex items-center justify-between">
@@ -433,15 +614,21 @@ export default function DashboardPage() {
                   {activeProduct.name}
                 </div>
                 <div className="text-[11px] text-base-content/60 flex items-center justify-between pt-2 border-t border-base-300">
-                  <span>รูปภาพ: {activeProduct.images.length} ภาพ</span>
                   <span>
-                    เสียง: {voiceoverUrl ? "พากย์ AI + BGM" : "เพลง BGM"}
+                    สื่อ: รูป {mediaStats.imageCount} • คลิปวิดีโอ {mediaStats.videoCount}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("create")}
+                    className="text-primary font-semibold hover:underline"
+                  >
+                    + แก้ไขข้อมูล / เพิ่มรูปและคลิป
+                  </button>
                 </div>
               </div>
             ) : (
               <div className="mt-4 bg-base-100 border border-dashed border-base-300 rounded-2xl p-4 text-center text-xs text-base-content/60">
-                <span>กรอกข้อมูลและอัปโหลดรูปทางซ้ายมือ แล้วกด </span>
+                <span>วางลิงก์ Shopee หรืออัปโหลดรูป/คลิปทางซ้ายมือ แล้วกด </span>
                 <span className="text-primary font-semibold">"บันทึกสินค้า & สร้าง AI Script"</span>
                 <span> เพื่อเริ่มสร้างคลิป</span>
               </div>
@@ -450,9 +637,120 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Footer */}
+      {/* Manage & Clean Duplicate Products Modal */}
+      {isManageModalOpen && (
+        <div className="modal modal-open z-50">
+          <div className="modal-box rounded-2xl max-w-xl p-6 bg-base-100 border border-base-300 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-base-300">
+              <div>
+                <h3 className="font-bold text-base text-base-content">
+                  จัดการรายการสินค้า ({products.length} รายการ)
+                </h3>
+                <p className="text-xs text-base-content/60 mt-0.5">
+                  เลือกรายการเพื่อแก้ไข ลบรายการที่ไม่ต้องการ หรือล้างรายการที่ซ้ำกันในคลิกเดียว
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsManageModalOpen(false)}
+                className="btn btn-ghost btn-xs btn-circle"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-base-200/60 p-3 rounded-xl border border-base-300">
+              <button
+                type="button"
+                onClick={handleDeduplicateProducts}
+                className="btn btn-primary btn-xs rounded-lg gap-1.5 font-bold"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>ลบรายการที่ชื่อซ้ำกันอัตโนมัติ</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClearAllProducts}
+                className="btn btn-outline btn-error btn-xs rounded-lg gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>ล้างรายการทั้งหมด</span>
+              </button>
+            </div>
+
+            <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
+              {products.map((item) => {
+                const isSelected = activeProduct?.id === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex items-center justify-between gap-3 p-3 rounded-xl border text-xs ${
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "border-base-300 bg-base-100"
+                    }`}
+                  >
+                    <div
+                      onClick={() => {
+                        setActiveProduct(item);
+                        setVoiceoverUrl(item.voiceoverUrl || undefined);
+                        setVoiceoverDurationSec(item.voiceoverDurationSec || undefined);
+                        setIsManageModalOpen(false);
+                      }}
+                      className="min-w-0 flex-1 cursor-pointer"
+                    >
+                      <div className="font-bold text-base-content truncate">{item.name}</div>
+                      <div className="text-[11px] text-base-content/60 mt-0.5">
+                        ราคา: {item.price} • สื่อ: {item.images?.length || 0} ไฟล์
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveProduct(item);
+                          setVoiceoverUrl(item.voiceoverUrl || undefined);
+                          setVoiceoverDurationSec(item.voiceoverDurationSec || undefined);
+                          setActiveTab("create");
+                          setIsManageModalOpen(false);
+                        }}
+                        className="btn btn-outline btn-xs rounded-lg gap-1"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span>แก้รูป/คลิป</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProduct(item.id)}
+                        className="btn btn-ghost btn-xs text-error rounded-lg"
+                        title="ลบรายการนี้"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="modal-action pt-2 border-t border-base-300">
+              <button
+                type="button"
+                onClick={() => setIsManageModalOpen(false)}
+                className="btn btn-sm rounded-xl"
+              >
+                ปิดหน้าต่าง
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop bg-black/40" onClick={() => setIsManageModalOpen(false)} />
+        </div>
+      )}
+
       <footer className="border-t border-base-300 py-6 mt-12 bg-base-100/50 text-center text-xs text-base-content/60">
-        Shopee Video Generator • สร้างคลิปขายสินค้า พร้อมเผยแพร่
+        Shopee Video Pro Generator • รับลิงก์ สร้างสตอรี่ พากย์เสียง ใส่ซับ เรนเดอร์คลิปขายของครบจบในหน้าเดียว
       </footer>
     </div>
   );

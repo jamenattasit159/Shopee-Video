@@ -857,7 +857,7 @@ function validateAndNormalizeStoryboard(
       captionLines = splitSafeThaiLines(desc, 18, 4);
     }
 
-    const validLayouts: SceneLayout[] = ["hero-center", "polaroid-stack", "callout-circle"];
+    const validLayouts: SceneLayout[] = ["fullscreen-broll", "split-showcase", "bento-grid", "magazine-editorial", "hero-center", "polaroid-stack", "callout-circle"];
     let layout: SceneLayout =
       s.layout && validLayouts.includes(s.layout)
         ? s.layout
@@ -1302,6 +1302,10 @@ function generateFallbackStoryboard(
   ];
 
   const packBadges: Record<string, string> = {
+    "pro-minimal-luxury": "💎 คัดเกรดพรีเมียม",
+    "pro-flash-sale": "⚡ ดีลเดือดห้ามพลาด",
+    "pro-ugc-creator": "🎬 รีวิวของจริงตรงปก",
+    "pro-cyber-slate": "🚀 ไอเทมล้ำน่าใช้",
     "comic-popart": "💥 BAM! ปังมาก",
     "zine-newspaper": "📰 ข่าวด่วนวันนี้",
     "supermarket-flyer": "🔥 ด่วนลดพิเศษ",

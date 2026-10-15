@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:studio": "tsx --test scripts/studio.test.ts",
     "remotion:preview": "remotion preview remotion/index.ts",
     "remotion:render": "remotion render remotion/index.ts ShopeeProductVideo public/renders/output.mp4"
   },

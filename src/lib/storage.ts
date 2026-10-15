@@ -16,7 +16,7 @@ export async function ensureStorageDirectories(): Promise<void> {
     try {
       await fs.mkdir(dir, { recursive: true });
     } catch (mkdirErr: any) {
-      if (mkdirErr?.code !== 'EEXIST') {
+      if (mkdirErr?.code !== "EEXIST") {
         console.warn(`[storage] Could not create directory ${dir}:`, mkdirErr?.message);
       }
     }
@@ -25,7 +25,7 @@ export async function ensureStorageDirectories(): Promise<void> {
   try {
     await fs.access(DATA_FILE);
   } catch (accessErr: any) {
-    if (accessErr?.code === 'ENOENT') {
+    if (accessErr?.code === "ENOENT") {
       await fs.writeFile(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
     } else {
       console.warn(`[storage] Access error on ${DATA_FILE}:`, accessErr?.message);
@@ -61,6 +61,42 @@ export async function saveProduct(product: ProductRecord): Promise<void> {
   }
 
   await fs.writeFile(DATA_FILE, JSON.stringify(products, null, 2), "utf-8");
+}
+
+export async function deleteProduct(id: string): Promise<ProductRecord[]> {
+  await ensureStorageDirectories();
+  const products = await getProducts();
+  const filtered = products.filter((p) => p.id !== id);
+  await fs.writeFile(DATA_FILE, JSON.stringify(filtered, null, 2), "utf-8");
+  return filtered;
+}
+
+export async function deduplicateProducts(): Promise<{
+  products: ProductRecord[];
+  removedCount: number;
+}> {
+  await ensureStorageDirectories();
+  const products = await getProducts();
+  const seenNames = new Set<string>();
+  const unique: ProductRecord[] = [];
+
+  for (const p of products) {
+    const key = (p.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+    if (!seenNames.has(key)) {
+      seenNames.add(key);
+      unique.push(p);
+    }
+  }
+
+  const removedCount = products.length - unique.length;
+  await fs.writeFile(DATA_FILE, JSON.stringify(unique, null, 2), "utf-8");
+  return { products: unique, removedCount };
+}
+
+export async function clearAllProducts(): Promise<ProductRecord[]> {
+  await ensureStorageDirectories();
+  await fs.writeFile(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
+  return [];
 }
 
 export async function updateProductVideo(

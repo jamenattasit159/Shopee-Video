@@ -3,8 +3,6 @@ import { loadFont as loadMali } from "@remotion/google-fonts/Mali";
 import { loadFont as loadPrompt } from "@remotion/google-fonts/Prompt";
 import { loadFont as loadSarabun } from "@remotion/google-fonts/Sarabun";
 
-// Preload fonts for Thai typography in Remotion
-// RULE V2: Prompt (700-800), Kanit (600-700, FORBID 900), Mali (700)
 const promptData = loadPrompt("normal", {
   weights: ["700", "800"],
   subsets: ["thai", "latin"],
@@ -20,32 +18,37 @@ const maliData = loadMali("normal", {
   subsets: ["thai", "latin"],
 });
 
-// Captions: Sarabun bold for maximum legibility
 const sarabunData = loadSarabun("normal", {
   weights: ["700", "800"],
   subsets: ["thai", "latin"],
 });
 
 export const FONTS = {
-  heading: `${promptData.fontFamily}, ${kanitData.fontFamily}, sans-serif`,
-  body: `${kanitData.fontFamily}, sans-serif`,
-  handwriting: `${maliData.fontFamily}, cursive, sans-serif`,
-  caption: `${sarabunData.fontFamily}, ${kanitData.fontFamily}, sans-serif`,
+  heading: `${promptData.fontFamily}, ${kanitData.fontFamily}, Tahoma, "Leelawadee UI", "Noto Sans Thai", sans-serif`,
+  body: `${kanitData.fontFamily}, Tahoma, "Leelawadee UI", "Noto Sans Thai", sans-serif`,
+  handwriting: `${maliData.fontFamily}, Tahoma, cursive, sans-serif`,
+  caption: `${sarabunData.fontFamily}, ${kanitData.fontFamily}, Tahoma, "Leelawadee UI", sans-serif`,
 };
 
+/**
+ * Waits for Google Fonts with a strict 2.5-second timeout so delayRender() NEVER hangs
+ * when rendering offline or under slow connections.
+ */
 export const waitForFonts = async () => {
   try {
-    await Promise.all([
-      promptData.waitUntilDone?.(),
-      kanitData.waitUntilDone?.(),
-      maliData.waitUntilDone?.(),
-      sarabunData.waitUntilDone?.(),
+    await Promise.race([
+      Promise.all([
+        promptData.waitUntilDone?.(),
+        kanitData.waitUntilDone?.(),
+        maliData.waitUntilDone?.(),
+        sarabunData.waitUntilDone?.(),
+      ]),
+      new Promise((resolve) => setTimeout(resolve, 2500)),
     ]);
   } catch (err) {
     console.warn("[waitForFonts] Font loading warning:", err);
   }
 };
-
 
 export const PALETTE = {
   shopeeOrange: "#EE4D2D",
@@ -59,7 +62,6 @@ export const PALETTE = {
   white: "#FFFFFF",
   tapeBeige: "rgba(250, 240, 215, 0.88)",
   tapeYellow: "rgba(255, 235, 100, 0.88)",
-  // Solid fluorescent highlighter markers (Rule A2)
   markerYellow: "#FFE14D",
   markerPink: "#FF9ECF",
   markerMint: "#8DF0C8",

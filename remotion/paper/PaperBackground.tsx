@@ -14,6 +14,12 @@ interface PaperBackgroundProps {
   showTornBorders?: boolean;
 }
 
+const TORN_HEADER_CLIP =
+  "polygon(0% 0%, 100% 0%, 100% 72%, 94% 96%, 88% 76%, 81% 98%, 74% 78%, 67% 95%, 59% 75%, 51% 98%, 43% 76%, 35% 96%, 27% 78%, 19% 97%, 11% 75%, 4% 96%, 0% 78%)";
+
+const TORN_FOOTER_CLIP =
+  "polygon(0% 25%, 5% 4%, 12% 24%, 20% 2%, 28% 22%, 36% 5%, 44% 25%, 52% 3%, 60% 23%, 68% 4%, 76% 24%, 84% 3%, 92% 22%, 97% 5%, 100% 22%, 100% 100%, 0% 100%)";
+
 export const PaperBackground: React.FC<PaperBackgroundProps> = ({
   theme = "kraft",
   packId,
@@ -27,45 +33,31 @@ export const PaperBackground: React.FC<PaperBackgroundProps> = ({
     return (
       <AbsoluteFill style={{ overflow: "hidden" }}>
         {PACK_MAP[packId].renderBackground({ bg, overlayOpacity })}
-        {/* Paper Grain Overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            opacity: overlayOpacity,
-            pointerEvents: "none",
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E")`,
-            backgroundSize: "200px 200px",
-            mixBlendMode: "overlay",
-          }}
-        />
         {showTornBorders && (
           <>
             <div
               style={{
                 position: "absolute",
-                top: -10,
+                top: -8,
                 left: -20,
                 right: -20,
-                height: "50px",
+                height: "52px",
                 background: "#FFFBF2",
-                filter: "url(#torn)",
-                transform: `rotate(${boil.rotate * 0.4}deg)`,
-                boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+                clipPath: TORN_HEADER_CLIP,
+                transform: `rotate(${boil.rotate * 0.3}deg)`,
                 zIndex: 10,
               }}
             />
             <div
               style={{
                 position: "absolute",
-                bottom: -15,
+                bottom: -10,
                 left: -20,
                 right: -20,
                 height: "60px",
                 background: "#FFFBF2",
-                filter: "url(#torn)",
-                transform: `rotate(${-boil.rotate * 0.4}deg)`,
-                boxShadow: "0 -8px 16px rgba(0,0,0,0.15)",
+                clipPath: TORN_FOOTER_CLIP,
+                transform: `rotate(${-boil.rotate * 0.3}deg)`,
                 zIndex: 10,
               }}
             />
@@ -81,21 +73,21 @@ export const PaperBackground: React.FC<PaperBackgroundProps> = ({
         return {
           backgroundColor: bg || "#FFF8EA",
           backgroundImage: `
-            linear-gradient(to right, rgba(0, 0, 0, 0.07) 2px, transparent 2px),
-            linear-gradient(to bottom, rgba(0, 0, 0, 0.07) 2px, transparent 2px)
+            linear-gradient(to right, rgba(0, 0, 0, 0.06) 2px, transparent 2px),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 2px, transparent 2px)
           `,
           backgroundSize: "40px 40px",
         };
       case "halftone-orange":
         return {
           backgroundColor: bg || "#EE4D2D",
-          backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.28) 22%, transparent 24%)`,
+          backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.24) 22%, transparent 24%)`,
           backgroundSize: "28px 28px",
         };
       case "pastel-mint":
         return {
           backgroundColor: bg || "#8BE3C3",
-          backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.35) 18%, transparent 20%)`,
+          backgroundImage: `radial-gradient(circle, rgba(255, 255, 255, 0.3) 18%, transparent 20%)`,
           backgroundSize: "32px 32px",
         };
       case "kraft":
@@ -103,8 +95,8 @@ export const PaperBackground: React.FC<PaperBackgroundProps> = ({
         return {
           backgroundColor: bg || "#DDB88C",
           backgroundImage: `
-            radial-gradient(rgba(120, 80, 40, 0.12) 15%, transparent 16%),
-            radial-gradient(rgba(255, 255, 255, 0.1) 15%, transparent 16%)
+            radial-gradient(rgba(120, 80, 40, 0.1) 15%, transparent 16%),
+            radial-gradient(rgba(255, 255, 255, 0.08) 15%, transparent 16%)
           `,
           backgroundPosition: "0 0, 14px 14px",
           backgroundSize: "28px 28px",
@@ -114,50 +106,33 @@ export const PaperBackground: React.FC<PaperBackgroundProps> = ({
 
   return (
     <AbsoluteFill style={{ ...getBackgroundStyle(), overflow: "hidden" }}>
-      {/* Paper Grain Overlay (Hardware-accelerated cached pattern) */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          opacity: overlayOpacity,
-          pointerEvents: "none",
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E")`,
-          backgroundSize: "200px 200px",
-          mixBlendMode: "overlay",
-        }}
-      />
-
-      {/* Decorative Torn Paper Header Border */}
       {showTornBorders && (
         <div
           style={{
             position: "absolute",
-            top: -10,
+            top: -8,
             left: -20,
             right: -20,
-            height: "50px",
+            height: "52px",
             background: "#FFFBF2",
-            filter: "url(#torn)",
-            transform: `rotate(${boil.rotate * 0.4}deg)`,
-            boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+            clipPath: TORN_HEADER_CLIP,
+            transform: `rotate(${boil.rotate * 0.3}deg)`,
             zIndex: 10,
           }}
         />
       )}
 
-      {/* Decorative Torn Paper Footer Border */}
       {showTornBorders && (
         <div
           style={{
             position: "absolute",
-            bottom: -15,
+            bottom: -10,
             left: -20,
             right: -20,
             height: "60px",
             background: "#FFFBF2",
-            filter: "url(#torn)",
-            transform: `rotate(${-boil.rotate * 0.4}deg)`,
-            boxShadow: "0 -8px 16px rgba(0,0,0,0.15)",
+            clipPath: TORN_FOOTER_CLIP,
+            transform: `rotate(${-boil.rotate * 0.3}deg)`,
             zIndex: 10,
           }}
         />

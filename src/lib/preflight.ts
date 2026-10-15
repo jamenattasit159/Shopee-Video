@@ -145,6 +145,16 @@ export async function runPreflight(
       badImages.push(path.basename(imgUrl));
       continue;
     }
+    const ext = path.extname(diskPath).toLowerCase();
+    if ([".mp4", ".mov", ".webm", ".m4v"].includes(ext)) {
+      try {
+        const st = fsSync.statSync(diskPath);
+        if (!st || st.size === 0) badImages.push(path.basename(imgUrl));
+      } catch {
+        badImages.push(path.basename(imgUrl));
+      }
+      continue;
+    }
     try {
       await sharp(diskPath).metadata();
     } catch {

@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow production verification alongside a running dev server without sharing its build cache.
+  distDir: process.env.NEXT_BUILD_DIR || ".next",
   reactStrictMode: true,
   experimental: {
     serverComponentsExternalPackages: [

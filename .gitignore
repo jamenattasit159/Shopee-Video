@@ -36,11 +36,17 @@ next-env.d.ts
 
 # temp & renders
 .tmp/
+.diagnostics/
+.next-production-check/
 data/import-cache.json
 *.mp4
+*.mov
+*.webm
 /*.png
 public/renders/*.mp4
+public/renders/*.json
 !public/renders/.gitkeep
+public/audio/review-fixed/
 renders/*.mp4
 !renders/.gitkeep
 

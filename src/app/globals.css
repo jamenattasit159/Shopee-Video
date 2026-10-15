@@ -37,13 +37,12 @@
   --noise: 0;
 }
 
-.studio { color-scheme: dark; }
-.studio ::selection { background: var(--color-primary); color: var(--color-primary-content); }
-.studio :is(button, a, input, select, textarea, summary):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
-.studio :is(input, textarea) { caret-color: var(--color-primary); }
-.studio input[type="number"] { font-variant-numeric: tabular-nums; }
-.studio ::-webkit-scrollbar-track { background: var(--color-base-200); }
-.studio ::-webkit-scrollbar-thumb { background: var(--color-base-300); }
+
+
+
+
+
+
 
 :root {
   color-scheme: light;

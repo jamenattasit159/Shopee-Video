@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, staticFile } from "remotion";
+import { AbsoluteFill } from "remotion";
 import { CutoutImage } from "./paper/CutoutImage";
 import { PaperBackground, PaperTheme } from "./paper/PaperBackground";
 import { PaperFilters } from "./paper/PaperFilters";
@@ -23,14 +23,11 @@ export const CoverStill: React.FC<ShopeeProductVideoProps> = ({
     (images && images.length > 0 && images[0]) ||
     "/samples/tumbler-1.svg";
 
-  const resolvedHeroSrc = heroImage.startsWith("http") || heroImage.startsWith("data:")
-    ? heroImage
-    : staticFile(heroImage.replace(/^\//, ""));
-
   const headline = hook?.headline || productName || "สินค้าแนะนำ";
-  const headlineLines = hook?.headlineLines && hook.headlineLines.length > 0
-    ? hook.headlineLines
-    : [headline.slice(0, 14), headline.slice(14, 28)].filter(Boolean);
+  const headlineLines =
+    hook?.headlineLines && hook.headlineLines.length > 0
+      ? hook.headlineLines
+      : [headline.slice(0, 14), headline.slice(14, 28)].filter(Boolean);
 
   const subheadline = hook?.subheadline || "ช้อปปี้ป้ายยา คุ้มเกินราคา";
   const badgeText = hook?.badgeText || "🌟 ไอเทมเด็ด";
@@ -41,7 +38,11 @@ export const CoverStill: React.FC<ShopeeProductVideoProps> = ({
       <PaperFilters seed={styleDNA?.seed || 42} />
 
       {/* Layer 1: Texture & Background */}
-      <PaperBackground theme={paperTheme} bg={styleDNA?.bgColor || theme?.bgColor} />
+      <PaperBackground
+        packId={styleDNA?.pack}
+        theme={paperTheme}
+        bg={styleDNA?.bgColor || theme?.bgColor}
+      />
 
       {/* Layer 2: Decorative Washi Tape at Top */}
       <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
@@ -73,11 +74,11 @@ export const CoverStill: React.FC<ShopeeProductVideoProps> = ({
         )}
       </div>
 
-      {/* Layer 5: Hero Product Image Frame */}
+      {/* Layer 5: Hero Product Image/Video Frame */}
       <div className="absolute top-[680px] left-1/2 -translate-x-1/2 z-20">
         <CutoutImage
           id="cover-hero"
-          src={resolvedHeroSrc}
+          src={heroImage}
           isPolaroid
           polaroidCaption={productName.slice(0, 24)}
           baseRotate={-3}

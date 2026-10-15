@@ -19,6 +19,13 @@ interface TornStripProps {
   className?: string;
 }
 
+/**
+ * GPU-friendly jagged torn paper polygon clip-path (replaces CPU-heavy SVG feTurbulence url(#torn)
+ * that caused Headless Chromium to freeze machines at 1080x1920).
+ */
+const TORN_CLIP_POLYGON =
+  "polygon(0% 4%, 4% 0%, 9% 3%, 15% 0%, 22% 3%, 29% 1%, 36% 4%, 44% 0%, 52% 3%, 60% 1%, 68% 4%, 76% 0%, 84% 3%, 92% 1%, 97% 4%, 100% 2%, 99% 25%, 100% 50%, 99% 75%, 100% 96%, 95% 100%, 88% 97%, 80% 100%, 72% 97%, 64% 100%, 55% 97%, 47% 100%, 39% 97%, 31% 100%, 23% 97%, 15% 100%, 7% 97%, 2% 100%, 0% 95%, 1% 70%, 0% 45%, 1% 20%)";
+
 export const TornStrip: React.FC<TornStripProps> = ({
   id,
   text,
@@ -28,17 +35,15 @@ export const TornStrip: React.FC<TornStripProps> = ({
   textColor = PALETTE.ink,
   delay = 0,
   rotate = -1.5,
-  fontSize = 88, // V2 rule: Headline minimum 88px
+  fontSize = 88,
   padding = "18px 40px",
   style = {},
 }) => {
   const pop = usePop(delay);
-  const boil = useBoil(id, 3, { rot: 0.8, pos: 1.5, scale: 0.01 });
+  const boil = useBoil(id, 3, { rot: 0.6, pos: 1.2, scale: 0.008 });
 
-  // Clamp text rotation within ±3° as per Rule A2
-  const clampedRotate = Math.max(-3, Math.min(3, rotate + boil.rotate * 0.5));
+  const clampedRotate = Math.max(-3, Math.min(3, rotate + boil.rotate * 0.4));
 
-  // Determine lines: use text fitting if text or lines is provided, else render children
   let renderedContent: React.ReactNode = children;
   let effectiveFontSize = fontSize;
   let computedPlateWidth: number | undefined = undefined;
@@ -85,23 +90,24 @@ export const TornStrip: React.FC<TornStripProps> = ({
         maxWidth: computedPlateWidth ? `${computedPlateWidth}px` : "880px",
         transform: `translate(${boil.x}px, ${boil.y}px) rotate(${clampedRotate}deg) scale(${pop * boil.scale})`,
         transformOrigin: "center center",
+        filter: "drop-shadow(6px 10px 16px rgba(0, 0, 0, 0.28))",
         zIndex: 20,
         ...style,
       }}
     >
-      {/* 📜 LAYER 1: Background Paper Strip (WITH #torn filter) */}
+      {/* LAYER 1: GPU-Accelerated Torn Paper Strip */}
       <div
         style={{
           position: "absolute",
           inset: "-6px -14px",
           background: bg,
-          filter: "url(#torn)",
-          boxShadow: "6px 10px 18px rgba(0, 0, 0, 0.28)",
+          clipPath: TORN_CLIP_POLYGON,
+          borderRadius: "10px",
           zIndex: 1,
         }}
       />
 
-      {/* 🔤 LAYER 2: Text on top (ABSOLUTELY NO FILTER - 100% Crisp & Legible) */}
+      {/* LAYER 2: Crisp Text */}
       <div
         style={{
           position: "relative",
@@ -112,12 +118,12 @@ export const TornStrip: React.FC<TornStripProps> = ({
           color: textColor,
           fontSize: effectiveFontSize,
           lineHeight: 1.35,
-          letterSpacing: "0.02em", // Rule A2: 0.01em - 0.03em (No negative spacing)
+          letterSpacing: "0.02em",
           textAlign: "center",
-          whiteSpace: "nowrap", // Strict rule Part E: white-space: nowrap, NO word-break!
+          whiteSpace: "nowrap",
           wordBreak: "keep-all",
           overflowWrap: "normal",
-          WebkitTextStroke: "0.04em rgba(255, 255, 255, 0.4)",
+          WebkitTextStroke: "0.04em rgba(255, 255, 255, 0.35)",
           paintOrder: "stroke fill",
         }}
       >

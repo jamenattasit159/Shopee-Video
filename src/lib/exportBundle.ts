@@ -3,11 +3,15 @@ import fsSync from "fs";
 import path from "path";
 import * as archiverModule from "archiver";
 import sharp from "sharp";
-import { bundle } from "@remotion/bundler";
-import { getCompositions, renderStill } from "@remotion/renderer";
+import { execFile } from "child_process";
+import util from "util";
+import { ensureFfmpegInPath } from "./ffmpeg";
+const execFileAsync = util.promisify(execFile);
 import { ShopeeProductVideoProps, ProductRecord } from "../../remotion/types";
 import { CheckResult } from "./preflight";
 import { splitSafeThaiLines } from "../../remotion/lib/thaiKeep";
+import { displayPrice } from "../../scripts/render-layout.mjs";
+import { timelineCaptionCues } from "../../remotion/lib/videoTimeline";
 
 export interface BundleMeta {
   appVersion: string;
@@ -56,21 +60,29 @@ export interface ExportBundleResult {
  * Formats seconds into SRT subtitle timestamp (00:00:01,200)
  */
 function formatSrtTime(totalSec: number): string {
-  const safeSec = Math.max(0, totalSec);
-  const hours = Math.floor(safeSec / 3600);
-  const minutes = Math.floor((safeSec % 3600) / 60);
-  const seconds = Math.floor(safeSec % 60);
-  const millis = Math.floor((safeSec % 1) * 1000);
+  const totalMillis = Math.max(0, Math.round(totalSec * 1000));
+  const hours = Math.floor(totalMillis / 3600000);
+  const minutes = Math.floor((totalMillis % 3600000) / 60000);
+  const seconds = Math.floor((totalMillis % 60000) / 1000);
+  const millis = totalMillis % 1000;
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")},${String(millis).padStart(3, "0")}`;
 }
 
 /**
  * Generates captions.srt content based on voice lines or storyboard timing
  */
-export function generateSrtContent(project: ShopeeProductVideoProps): string {
+export function generateSrtContent(project: ShopeeProductVideoProps, timeline?: Array<{ id: string; startSec: number; durationSec: number; headline?: string; subheadline?: string; captionText?: string }>): string {
   const entries: Array<{ start: number; end: number; text: string }> = [];
 
-  if (project.voiceLines && project.voiceLines.length > 0) {
+  const preparedCues = timelineCaptionCues(project);
+  if (preparedCues.length) {
+    for (const cue of preparedCues) entries.push({ start: cue.startSec, end: cue.endSec, text: project.captionSettings?.language === "en" ? cue.en || cue.text : project.captionSettings?.language === "both" && cue.en ? cue.text + "\n" + cue.en : cue.text });
+  } else if (timeline?.length) {
+    for (const scene of timeline) {
+      const spoken = project.voiceLines?.find((line) => line.sceneId === scene.id && line.audioUrl);
+      entries.push({ start: scene.startSec, end: scene.startSec + scene.durationSec, text: spoken?.text || scene.captionText || [scene.headline, scene.subheadline].filter(Boolean).join("\n") });
+    }
+  } else if (project.voiceLines && project.voiceLines.length > 0) {
     let currentSec = 0.2;
     for (const vl of project.voiceLines) {
       const dur = vl.durationSec && vl.durationSec > 0 ? vl.durationSec : 3.0;
@@ -135,7 +147,7 @@ export async function generateCaptionText(
 ): Promise<string> {
   const prod = productRecord;
   const productName = project.productName || prod?.name || "สินค้าคุณภาพ";
-  const price = project.price || prod?.price || "฿199";
+  const price = displayPrice(project.price || prod?.price);
 
   // 1. Hook Line
   const hookHeadline = project.hook?.headline || "ใครกำลังมองหาตัวนี้อยู่บอกเลยว่าห้ามพลาด!";
@@ -183,7 +195,7 @@ export async function generateCaptionText(
 
   // 5. Disclosure (AI voice & ad disclosure from data/disclosure.json)
   let aiVoiceDisclaimer = "🎙️ คลิปวิดีโอนี้ใช้เสียงสังเคราะห์ด้วย AI";
-  let adDisclosure = "";
+  let adDisclosure = "ลิงก์แนะนำสินค้า ผู้จัดทำอาจได้รับค่าคอมมิชชันจากการสั่งซื้อ";
   try {
     const discPath = path.resolve(process.cwd(), "data", "disclosure.json");
     if (fsSync.existsSync(discPath)) {
@@ -192,20 +204,18 @@ export async function generateCaptionText(
       if (parsed.aiVoiceDisclaimer) aiVoiceDisclaimer = parsed.aiVoiceDisclaimer;
       if (parsed.advertisingDisclosure && parsed.advertisingDisclosure.trim()) {
         adDisclosure = parsed.advertisingDisclosure.trim();
-      } else {
-        adDisclosure = "[TODO: ระบุข้อความเปิดเผยโฆษณา/สปอนเซอร์ตามข้อกำหนดกฎหมาย]";
       }
     }
   } catch {
-    adDisclosure = "[TODO: ระบุข้อความเปิดเผยโฆษณา/สปอนเซอร์ตามข้อกำหนดกฎหมาย]";
+    // Keep the usable default when no custom disclosure can be read.
   }
 
   return `${hookHeadline}
-${productName} ราคาเพียง ${price} เท่านั้น!
+${productName}${price ? ` ราคา ${price}` : " • ตรวจสอบราคาล่าสุดที่หน้าสินค้า"}
 
 ${factsFormatted ? `รายละเอียดเด่น:\n${factsFormatted}\n\n` : ""}${linkLine}
 
-🎟️ โค้ดส่วนลดและส่งฟรีมีจำนวนจำกัด รีบกดสั่งซื้อก่อนหมดน้า
+ตรวจสอบราคา ตัวเลือกสินค้า และเงื่อนไขโปรโมชันที่ร้านค้าก่อนสั่งซื้อ
 
 ${hashtags}
 
@@ -250,33 +260,30 @@ function createZipArchive(filesToZip: Array<{ source: string; name: string }>, z
  */
 async function renderCoverImage(
   project: ShopeeProductVideoProps,
-  outputPath: string
+  outputPath: string,
+  renderedVideoPath?: string
 ): Promise<void> {
-  try {
-    const entryPoint = path.resolve(process.cwd(), "remotion", "index.ts");
-    const publicDir = path.resolve(process.cwd(), "public");
-
-    const bundleLocation = await bundle({ entryPoint, publicDir });
-    const compositions = await getCompositions(bundleLocation, { inputProps: project });
-    const comp = compositions.find((c) => c.id === "CoverStill") || compositions.find((c) => c.id === "ShopeeProductVideo");
-
-    if (comp) {
-      await renderStill({
-        composition: comp,
-        serveUrl: bundleLocation,
-        output: outputPath,
-        inputProps: project,
-        imageFormat: "jpeg",
-        jpegQuality: 92,
-      });
-      return;
+  // 1. Fast path: extract frame at 0.5s directly from the already-rendered MP4 via FFmpeg (0 extra Chromium instances!)
+  if (renderedVideoPath && fsSync.existsSync(renderedVideoPath)) {
+    try {
+      ensureFfmpegInPath();
+      await execFileAsync(
+        "ffmpeg",
+        ["-y", "-ss", "0.5", "-i", renderedVideoPath, "-frames:v", "1", "-q:v", "2", outputPath],
+        { timeout: 15000, windowsHide: true }
+      );
+      if (fsSync.existsSync(outputPath) && fsSync.statSync(outputPath).size > 500) {
+        return;
+      }
+    } catch (ffErr: any) {
+      console.warn("[exportBundle] Fast FFmpeg cover extraction fallback to Sharp:", ffErr?.message);
     }
-  } catch (err: any) {
-    console.warn("[exportBundle] Remotion renderStill cover failed, using Sharp high-res fallback:", err?.message);
   }
 
-  // Sharp fallback
-  const firstImage = (project.images && project.images[0]) || "/samples/tumbler-1.svg";
+  // 2. Sharp fallback from first non-video image
+  const firstImage =
+    (project.images && project.images.find((u) => !/\.(mp4|mov|webm|m4v)(\?|$)/i.test(u))) ||
+    "/samples/tumbler-1.svg";
   const firstImagePath = path.resolve(process.cwd(), "public", firstImage.replace(/^\//, ""));
 
   if (fsSync.existsSync(firstImagePath)) {
@@ -291,7 +298,6 @@ async function renderCoverImage(
     }
   }
 
-  // Blank canvas fallback if no image
   await sharp({
     create: {
       width: 1080,
@@ -351,10 +357,14 @@ export async function createExportBundle(params: {
   }
 
   // 3. Render cover.jpg
-  await renderCoverImage(project, coverDest);
+  await renderCoverImage(project, coverDest, renderedVideoPath);
 
   // 4. Generate captions.srt
-  const srtContent = generateSrtContent(project);
+  let renderManifest: any = null;
+  try {
+    renderManifest = JSON.parse(await fs.readFile(sourceVideoPath.replace(/\.mp4$/i, ".render.json"), "utf8"));
+  } catch { /* Remotion exports use storyboard timing. */ }
+  const srtContent = generateSrtContent({ ...project, captionCues: renderManifest?.captionCues || project.captionCues }, renderManifest?.scenes);
   await fs.writeFile(srtDest, srtContent, "utf-8");
 
   // 5. Generate caption.txt

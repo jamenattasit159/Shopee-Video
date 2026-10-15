@@ -1,9 +1,74 @@
 import React from "react";
-import { Img } from "remotion";
+import { Freeze, Img, OffthreadVideo, useCurrentFrame, useVideoConfig } from "remotion";
 import { FONTS } from "../lib/palette";
 import { useBoil, usePop } from "../lib/stopMotion";
-import { resolveMediaSrc } from "../utils";
+import { isVideoMedia, resolveMediaSrc } from "../utils";
 import { WashiTape } from "./WashiTape";
+
+interface MediaElementProps {
+  src: string;
+  style?: React.CSSProperties;
+  videoStartSec?: number;
+  videoEndSec?: number;
+  videoFillMode?: "freeze" | "error";
+  videoAudioMode?: "mute" | "mix";
+}
+
+/**
+ * Renders either a video clip (<OffthreadVideo>) or an image (<Img>) seamlessly.
+ */
+export const MediaElement: React.FC<MediaElementProps> = ({
+  src,
+  style,
+  videoStartSec = 0,
+  videoEndSec,
+  videoFillMode = "freeze",
+  videoAudioMode = "mute",
+}) => {
+  const { fps } = useVideoConfig();
+  const frame = useCurrentFrame();
+  const resolvedSrc = resolveMediaSrc(src);
+  const isVideo = isVideoMedia(src);
+
+  if (isVideo) {
+    const startFrom = Math.max(0, Math.round((videoStartSec || 0) * fps));
+    const isMuted = videoAudioMode !== "mix";
+    const endAt = videoEndSec === undefined ? undefined : Math.round(videoEndSec * fps);
+    const available = endAt === undefined ? Infinity : endAt - startFrom;
+    const frozen = frame >= available;
+    const media = (
+      <OffthreadVideo
+        src={resolvedSrc}
+        startFrom={startFrom}
+        endAt={endAt}
+        muted={isMuted || frozen}
+        volume={isMuted ? 0 : 0.25}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+          ...style,
+        }}
+      />
+    );
+    if (frozen && videoFillMode === "error") throw new Error('ช่วงคลิปสั้นกว่าฉาก');
+    return frozen ? <Freeze frame={Math.max(0, available - 1)}>{media}</Freeze> : media;
+  }
+
+  return (
+    <Img
+      src={resolvedSrc}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "contain",
+        display: "block",
+        ...style,
+      }}
+    />
+  );
+};
 
 interface CutoutImageProps {
   id: string;
@@ -16,6 +81,10 @@ interface CutoutImageProps {
   isPolaroid?: boolean;
   polaroidCaption?: string;
   showTape?: boolean;
+  videoStartSec?: number;
+  videoEndSec?: number;
+  videoFillMode?: "freeze" | "error";
+  videoAudioMode?: "mute" | "mix";
   children?: React.ReactNode;
   style?: React.CSSProperties;
 }
@@ -25,25 +94,27 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
   src,
   delay = 0,
   baseRotate = -2,
-  width = 820, // Rule D2: Scaled up 1.3-1.5x
+  width = 820,
   x = 0,
   y = 0,
   isPolaroid = false,
   polaroidCaption,
   showTape = false,
+  videoStartSec = 0,
+  videoEndSec,
+  videoFillMode,
+  videoAudioMode = "mute",
   children,
   style = {},
 }) => {
   const pop = usePop(delay);
   const boil = useBoil(id, 3, { rot: 0.8, pos: 2, scale: 0.01 });
-
-  const resolvedSrc = resolveMediaSrc(src);
+  const isVideo = isVideoMedia(src);
 
   // Clamp rotation
   const clampedRotate = Math.max(-5, Math.min(5, baseRotate + boil.rotate * 0.4));
 
   if (isPolaroid) {
-    // Polaroid caption rule: >= 44px, tilt <= 3°
     const polaroidTilt = Math.max(-3, Math.min(3, baseRotate));
 
     return (
@@ -77,18 +148,23 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
             width: "100%",
             aspectRatio: "1/1",
             overflow: "hidden",
-            backgroundColor: "#F8FAFC",
+            backgroundColor: "#0F172A",
             boxShadow: "inset 0 0 10px rgba(0,0,0,0.08)",
+            borderRadius: "14px",
           }}
         >
-          <Img
-            src={resolvedSrc}
+          <MediaElement
+            src={src}
+            videoStartSec={videoStartSec}
+            videoEndSec={videoEndSec}
+            videoFillMode={videoFillMode}
+            videoAudioMode={videoAudioMode}
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
-              padding: "16px",
-              display: "block",
+              objectFit: isVideo ? "cover" : "contain",
+              padding: isVideo ? "0px" : "12px",
+              backgroundColor: isVideo ? "#0F172A" : "#F8FAFC",
             }}
           />
         </div>
@@ -98,7 +174,7 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
               marginTop: "20px",
               textAlign: "center",
               fontFamily: FONTS.handwriting,
-              fontSize: "44px", // Rule A2: Polaroid caption >= 44px
+              fontSize: "44px",
               fontWeight: 700,
               color: "#1B1B1B",
               lineHeight: 1.2,
@@ -116,11 +192,10 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
       style={{
         position: "absolute",
         left: "50%",
-        top: "55%", // Rule D2: Centered around ~55% height
+        top: "55%",
         width,
         transform: `translate(-50%, -50%) translate(${x + boil.x}px, ${y + boil.y}px) rotate(${clampedRotate}deg) scale(${pop * boil.scale})`,
         transformOrigin: "center center",
-        // High-performance sticker border + hard offset shadow
         filter:
           "drop-shadow(0 0 10px #FFFFFF) drop-shadow(0 0 3px #FFFFFF) drop-shadow(10px 14px 0px rgba(0, 0, 0, 0.4))",
         zIndex: 15,
@@ -137,15 +212,36 @@ export const CutoutImage: React.FC<CutoutImageProps> = ({
           height={36}
         />
       )}
-      <Img
-        src={resolvedSrc}
-        style={{
-          width: "100%",
-          maxHeight: "880px",
-          objectFit: "contain",
-          display: "block",
-        }}
-      />
+      {isVideo ? (
+        <div
+          style={{
+            width: "100%",
+            height: "780px",
+            borderRadius: "32px",
+            overflow: "hidden",
+            border: "4px solid rgba(255,255,255,0.85)",
+            backgroundColor: "#0F172A",
+          }}
+        >
+          <MediaElement
+            src={src}
+            videoStartSec={videoStartSec}
+            videoEndSec={videoEndSec}
+            videoFillMode={videoFillMode}
+            videoAudioMode={videoAudioMode}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        </div>
+      ) : (
+        <MediaElement
+          src={src}
+          style={{
+            width: "100%",
+            maxHeight: "880px",
+            objectFit: "contain",
+          }}
+        />
+      )}
       {children}
     </div>
   );

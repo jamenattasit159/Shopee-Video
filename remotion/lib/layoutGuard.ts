@@ -6,11 +6,20 @@ export interface RectZone {
 }
 
 export const SAFE_ZONE = {
-  top: 180,
-  bottom: 1520, // 1920 - 400
-  left: 60,
-  right: 940, // 1080 - 140
+  top: 190,
+  bottom: 1520,
+  left: 68,
+  right: 910,
 };
+
+export function redZoneRects(width = 1080, height = 1920) {
+  const sx = width / 1080, sy = height / 1920;
+  return {
+    top: { x: 0, y: 0, width, height: SAFE_ZONE.top * sy },
+    bottom: { x: 0, y: SAFE_ZONE.bottom * sy, width, height: height - SAFE_ZONE.bottom * sy },
+    right: { x: SAFE_ZONE.right * sx, y: SAFE_ZONE.top * sy, width: width - SAFE_ZONE.right * sx, height: (SAFE_ZONE.bottom - SAFE_ZONE.top) * sy },
+  };
+}
 
 /**
  * Checks if two bounding boxes collide

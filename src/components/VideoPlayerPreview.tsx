@@ -2,7 +2,7 @@
 
 import { Player } from "@remotion/player";
 import { Eye, EyeOff, ShieldAlert, Smartphone, Sparkles, Volume2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeZoneOverlay } from "../../remotion/components/SafeZoneOverlay";
 import { calculateTotalFrames } from "../../remotion/Root";
 import { ShopeeProductVideo } from "../../remotion/ShopeeProductVideo";
@@ -36,7 +36,26 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
     }
   };
 
-  const durationInFrames = calculateTotalFrames(props, 30);
+  const [prepared, setPrepared] = useState<ShopeeProductVideoProps | null>(null);
+  const [preparationError, setPreparationError] = useState<string | null>(null);
+  const sourceKey = JSON.stringify(props);
+  useEffect(() => {
+    const controller = new AbortController();
+    setPrepared(null);
+    setPreparationError(null);
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/prepare-video", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ props: JSON.parse(sourceKey) }), signal: controller.signal });
+        const data = await response.json();
+        if (!response.ok) throw new Error(typeof data.error === "string" ? data.error : "เตรียมวิดีโอไม่สำเร็จ");
+        if (!controller.signal.aborted) setPrepared(data.props);
+      } catch (err) {
+        if (!controller.signal.aborted) setPreparationError(err instanceof Error ? err.message : "เตรียมวิดีโอไม่สำเร็จ");
+      }
+    }, 500);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [sourceKey]);
+  const durationInFrames = prepared ? calculateTotalFrames(prepared, 30) : 30;
   const durationSec = (durationInFrames / 30).toFixed(1);
 
   return (
@@ -107,9 +126,9 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
 
         {/* Video Player Display Container */}
         <div className="relative w-full rounded-[32px] overflow-hidden bg-black aspect-[9/16] shadow-inner">
-          <Player<any, ShopeeProductVideoProps>
+          {prepared && !preparationError ? <Player<any, ShopeeProductVideoProps>
             component={ShopeeProductVideo}
-            inputProps={props}
+            inputProps={prepared}
             durationInFrames={durationInFrames}
             compositionWidth={1080}
             compositionHeight={1920}
@@ -146,7 +165,9 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
             controls
             autoPlay={false}
             loop
-          />
+          /> : <div className="h-full flex flex-col items-center justify-center gap-3 p-6 text-center text-sm text-base-content bg-base-200">
+            {preparationError ? <><ShieldAlert className="w-8 h-8 text-error" /><p role="alert">{preparationError}</p></> : <><span className="loading loading-spinner text-primary" /><p>กำลังตรวจช่วงคลิปและจัดเวลาซับจากเสียง...</p></>}
+          </div>}
 
           {/* Red Zone Guide Overlay ONLY for browser preview - physically isolated from the video render! */}
           {showSafeZone && (
@@ -171,7 +192,7 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
         <div className="flex items-center gap-1.5 text-success font-medium">
           <Volume2 className="w-3.5 h-3.5 text-success" />
           <span>
-            {props.voiceoverUrl ? "มีเสียงพากย์ AI + เพลง BGM + SFX" : "มีเพลง BGM + เสียง SFX (เพิ่มเสียงพากย์ได้)"}
+            {(props.voiceoverUrl || props.voiceLines?.some((line) => line.audioUrl)) ? "มีเสียงพากย์ AI + เพลง BGM + SFX" : "มีเพลง BGM + เสียง SFX (เพิ่มเสียงพากย์ได้)"}
           </span>
         </div>
         <div className="text-base-content/40">

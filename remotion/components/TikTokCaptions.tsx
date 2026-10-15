@@ -3,17 +3,32 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { CaptionPage } from "../lib/captionTiming";
 import { FONTS } from "../lib/palette";
 import { THEME } from "../theme";
+import { CaptionPosition, CaptionStyleId } from "../types";
 
 interface TikTokCaptionsProps {
   pages: CaptionPage[];
   showEnglish: boolean;
+  styleVariant?: CaptionStyleId;
+  position?: CaptionPosition;
+  highlightColor?: string;
+  fontSize?: number;
 }
 
 /**
- * Word-by-word pop captions. The word being spoken pops and turns indigo;
- * upcoming words keep their layout slot (invisible) so lines never reflow.
+ * Multi-style Subtitle Engine for ShopeeProductVideo:
+ * - tiktok-pop: Word-by-word pop & scale with active word highlight
+ * - karaoke-pill: Rounded glass capsule where spoken words light up smoothly
+ * - clean-bar: Clean full-sentence readable broadcast bar
+ * - minimal-outline: Bold outlined text without background plate (ideal for full-screen video clips)
  */
-export const TikTokCaptions: React.FC<TikTokCaptionsProps> = ({ pages, showEnglish }) => {
+export const TikTokCaptions: React.FC<TikTokCaptionsProps> = ({
+  pages,
+  showEnglish,
+  styleVariant = "tiktok-pop",
+  position = "bottom",
+  highlightColor = "#FACC15",
+  fontSize,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { colors, captions: c } = THEME;
@@ -31,59 +46,120 @@ export const TikTokCaptions: React.FC<TikTokCaptionsProps> = ({ pages, showEngli
     extrapolateRight: "clamp",
   });
 
+  const posStyle: React.CSSProperties =
+    position === "top"
+      ? { top: 290 }
+      : position === "center"
+      ? { top: "52%", transform: `translateY(-50%) scale(${0.94 + pageIn * 0.06})` }
+      : { bottom: c.safeBottom, transform: `translateY(${(1 - pageIn) * 24}px) scale(${0.94 + pageIn * 0.06})` };
+
+  const resolvedFontSize = fontSize || c.fontSize;
+  const isMinimalOutline = styleVariant === "minimal-outline";
+  const isCleanBar = styleVariant === "clean-bar";
+  const isKaraokePill = styleVariant === "karaoke-pill";
+
+  const plateStyle: React.CSSProperties = isMinimalOutline
+    ? {
+        maxWidth: "100%",
+        padding: "8px 16px",
+        textAlign: "center",
+      }
+    : isKaraokePill
+    ? {
+        maxWidth: "100%",
+        padding: "16px 36px 18px",
+        borderRadius: 999,
+        backgroundColor: "rgba(15, 23, 42, 0.88)",
+        border: `3px solid ${highlightColor}`,
+        boxShadow: "0 14px 36px rgba(2, 6, 23, 0.55)",
+        textAlign: "center",
+      }
+    : isCleanBar
+    ? {
+        maxWidth: "100%",
+        padding: "16px 32px",
+        borderRadius: 20,
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        border: "2px solid rgba(15, 23, 42, 0.12)",
+        boxShadow: "0 14px 32px rgba(2, 6, 23, 0.35)",
+        textAlign: "center",
+      }
+    : {
+        maxWidth: "100%",
+        padding: "18px 32px 20px",
+        borderRadius: 24,
+        backgroundColor: `rgba(15, 23, 42, ${c.backingOpacity})`,
+        border: `2px solid ${colors.border}`,
+        boxShadow: "0 12px 32px rgba(2, 6, 23, 0.55)",
+        textAlign: "center",
+      };
+
   return (
     <div
       style={{
         position: "absolute",
         left: c.safeLeft,
         right: c.safeRight,
-        bottom: c.safeBottom,
         display: "flex",
         justifyContent: "center",
         zIndex: 80,
         pointerEvents: "none",
         opacity: pageOut,
-        transform: `translateY(${(1 - pageIn) * 24}px) scale(${0.94 + pageIn * 0.06})`,
+        ...posStyle,
       }}
     >
-      <div
-        style={{
-          maxWidth: "100%",
-          padding: "18px 32px 20px",
-          borderRadius: 24,
-          backgroundColor: `rgba(15, 23, 42, ${c.backingOpacity})`, // slate-900
-          border: `2px solid ${colors.border}`,
-          boxShadow: "0 12px 32px rgba(2, 6, 23, 0.55)",
-          textAlign: "center",
-        }}
-      >
+      <div style={plateStyle}>
         <div
           style={{
             fontFamily: FONTS.caption,
             fontWeight: c.fontWeight,
-            fontSize: c.fontSize,
+            fontSize: resolvedFontSize,
             lineHeight: c.lineHeight,
-            color: colors.text,
-            WebkitTextStroke: `${c.strokeWidth}em ${colors.bg}`,
+            color: isCleanBar ? "#0F172A" : colors.text,
+            WebkitTextStroke: isCleanBar
+              ? "none"
+              : isMinimalOutline
+              ? `0.12em #020617`
+              : `${c.strokeWidth}em ${colors.bg}`,
             paintOrder: "stroke fill",
           }}
         >
           {page.words.map((w, i) => {
             const shown = frame >= w.start;
             const active = shown && frame < w.end;
-            // +1 so a word is already partly visible on its first frame (no empty plate)
             const pop = spring({ frame: frame - w.start + 1, fps, config: { damping: 11, stiffness: 260, mass: 0.6 } });
+
+            if (isCleanBar) {
+              return (
+                <span
+                  key={i}
+                  style={{
+                    display: "inline-block",
+                    whiteSpace: "normal",
+                    overflowWrap: "anywhere",
+                    color: active ? "#EE4D2D" : "#0F172A",
+                    fontWeight: active ? 900 : 700,
+                  }}
+                >
+                  {w.text}
+                </span>
+              );
+            }
+
             const scale = shown ? (0.6 + pop * 0.4) * (active ? c.activeScale : 1) : 0.6;
             return (
               <span
                 key={i}
                 style={{
                   display: "inline-block",
-                  whiteSpace: "pre",
-                  opacity: shown ? Math.min(1, pop * 1.4) : 0,
-                  transform: `translateY(${shown ? (1 - pop) * 18 : 18}px) scale(${scale})`,
-                  color: active ? colors.accentSoft : colors.text,
-                  textShadow: active ? `0 0 24px ${colors.accent}` : "none",
+                  whiteSpace: "normal",
+                  overflowWrap: "anywhere",
+                  opacity: isKaraokePill ? (shown ? 1 : 0.42) : shown ? Math.min(1, pop * 1.4) : 0,
+                  transform: isKaraokePill
+                    ? `scale(${active ? 1.08 : 1})`
+                    : `translateY(${shown ? (1 - pop) * 18 : 18}px) scale(${scale})`,
+                  color: active ? highlightColor : colors.text,
+                  textShadow: active ? `0 0 24px ${highlightColor}88` : isMinimalOutline ? "0 6px 18px rgba(0,0,0,0.85)" : "none",
                 }}
               >
                 {w.text}
@@ -100,7 +176,7 @@ export const TikTokCaptions: React.FC<TikTokCaptionsProps> = ({ pages, showEngli
               fontWeight: 700,
               fontSize: c.englishFontSize,
               lineHeight: 1.3,
-              color: colors.textMuted,
+              color: isCleanBar ? "#475569" : colors.textMuted,
               opacity: enIn,
             }}
           >

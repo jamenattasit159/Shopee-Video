@@ -2,14 +2,16 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { FONTS } from "../lib/palette";
 import { splitSafeThaiLines } from "../lib/thaiKeep";
-import { CutoutImage } from "../paper/CutoutImage";
+import { CutoutImage, MediaElement } from "../paper/CutoutImage";
 import { Doodle } from "../paper/Doodle";
 import { TornStrip } from "../paper/TornStrip";
 import { HookData, PackId } from "../types";
 import { PACK_MAP } from "../packs";
 import { THEME } from "../theme";
+import { isVideoMedia } from "../utils";
 import {
   HighlightFrame,
+  isCollagePackId,
   LineReveal,
   PRODUCT_CARD_STYLE,
   SceneBackground,
@@ -24,7 +26,6 @@ interface HookSceneProps {
   accentColor?: string;
   packId?: PackId;
   bgColor?: string;
-  /** Subheadline is already shown by the word-by-word captions */
   hideSubtitle?: boolean;
 }
 
@@ -33,65 +34,120 @@ export const HookScene: React.FC<HookSceneProps> = ({
   imageSrc,
   primaryColor = THEME.colors.accent,
   accentColor = THEME.colors.accent,
-  packId,
+  packId = "pro-minimal-luxury",
+  bgColor,
   hideSubtitle,
 }) => {
   const frame = useCurrentFrame();
-
-  // Sub-beat at ~1.2s (frame 36) - playful shake/pulse
   const isSubBeat = frame >= 36;
-
   const pack = packId && PACK_MAP[packId] ? PACK_MAP[packId] : null;
+  const isVideo = isVideoMedia(imageSrc);
+  const isUgcOrVideoHook = packId === "pro-ugc-creator" || isVideo;
+  const isCollage = isCollagePackId(packId);
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <SceneBackground />
+      <SceneBackground
+        packId={packId}
+        bgColor={bgColor}
+        paperTheme={hook.paperTheme}
+        accentColor={primaryColor}
+      />
 
       <SceneShell punch>
-        {/* Product with slow zoom + capture-style highlight frame */}
-        <SlowZoom>
-          <CutoutImage
-            id="hook-product-cutout"
-            src={imageSrc}
-            delay={0}
-            baseRotate={-2}
-            width={840}
-            x={0}
-            y={40}
-            style={PRODUCT_CARD_STYLE}
-          >
-            {isSubBeat && (
+        {isUgcOrVideoHook ? (
+          /* Full-bleed or large cinema framing for video clips & UGC creator pack */
+          <AbsoluteFill>
+            <SlowZoom>
               <div
                 style={{
                   position: "absolute",
-                  top: "12%",
-                  right: "8px",
-                  backgroundColor: THEME.colors.accent,
-                  color: THEME.colors.text,
-                  fontFamily: FONTS.heading,
-                  fontWeight: 700,
-                  fontSize: "32px",
-                  padding: "8px 22px",
-                  borderRadius: "16px",
-                  transform: "rotate(4deg)",
-                  boxShadow: "0 10px 24px rgba(2,6,23,0.5)",
-                  whiteSpace: "nowrap",
-                  zIndex: 30,
+                  inset: packId === "pro-ugc-creator" ? "0px" : "150px 56px 360px 56px",
+                  borderRadius: packId === "pro-ugc-creator" ? "0px" : "40px",
+                  overflow: "hidden",
+                  boxShadow: "0 28px 60px rgba(0,0,0,0.55)",
+                  border: packId === "pro-ugc-creator" ? "none" : `4px solid ${primaryColor}`,
+                  backgroundColor: "#0F172A",
                 }}
               >
-                ✨ ไอเทมเด็ดช้อปปี้
+                <MediaElement
+                  src={imageSrc}
+                  videoStartSec={hook.videoStartSec}
+                  videoEndSec={hook.videoEndSec}
+                  videoFillMode={hook.videoFillMode}
+                  videoAudioMode={hook.videoAudioMode}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(180deg, rgba(2,6,23,0.68) 0%, rgba(2,6,23,0.12) 45%, rgba(2,6,23,0.75) 100%)",
+                  }}
+                />
               </div>
-            )}
-          </CutoutImage>
-        </SlowZoom>
-        <HighlightFrame x={150} y={700} width={720} height={600} delay={14} />
+            </SlowZoom>
+          </AbsoluteFill>
+        ) : (
+          <>
+            <SlowZoom>
+              <CutoutImage
+                id="hook-product-cutout"
+                src={imageSrc}
+                delay={0}
+                baseRotate={isCollage ? -2.5 : -1}
+                width={840}
+                x={0}
+                y={40}
+                showTape={isCollage}
+                videoStartSec={hook.videoStartSec}
+                  videoEndSec={hook.videoEndSec}
+                  videoFillMode={hook.videoFillMode}
+                videoAudioMode={hook.videoAudioMode}
+                style={isCollage ? undefined : PRODUCT_CARD_STYLE}
+              >
+                {isSubBeat && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "12%",
+                      right: "8px",
+                      backgroundColor: primaryColor,
+                      color: "#FFFFFF",
+                      fontFamily: FONTS.heading,
+                      fontWeight: 700,
+                      fontSize: "32px",
+                      padding: "8px 22px",
+                      borderRadius: "16px",
+                      transform: "rotate(4deg)",
+                      boxShadow: "0 10px 24px rgba(2,6,23,0.5)",
+                      whiteSpace: "nowrap",
+                      zIndex: 30,
+                    }}
+                  >
+                    ✨ ไอเทมเด็ดช้อปปี้
+                  </div>
+                )}
+              </CutoutImage>
+            </SlowZoom>
+            <HighlightFrame
+              x={150}
+              y={700}
+              width={720}
+              height={600}
+              delay={14}
+              accentColor={primaryColor}
+            />
+          </>
+        )}
 
         <AbsoluteFill
           style={{
-            paddingTop: "200px",
+            paddingTop: "220px",
             paddingBottom: "400px",
             paddingLeft: "70px",
-            paddingRight: "140px",
+            paddingRight: "180px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -105,8 +161,8 @@ export const HookScene: React.FC<HookSceneProps> = ({
                 <div
                   style={{
                     backgroundColor: THEME.colors.surfaceRaised,
-                    color: THEME.colors.accentSoft,
-                    border: `2px solid ${THEME.colors.accent}`,
+                    color: "#FFFFFF",
+                    border: `2px solid ${primaryColor}`,
                     fontFamily: FONTS.heading,
                     fontWeight: 700,
                     fontSize: "30px",
@@ -126,10 +182,10 @@ export const HookScene: React.FC<HookSceneProps> = ({
               id="hook-headline-strip"
               text={hook.headline}
               lines={hook.headlineLines}
-              bg={accentColor}
-              textColor={THEME.colors.text}
-              fontSize={88}
-              rotate={-1.5}
+              bg={primaryColor}
+              textColor="#FFFFFF"
+              fontSize={86}
+              rotate={isCollage ? -1.5 : 0}
               delay={0}
               padding="16px 36px"
               style={{ maxWidth: "880px" }}
@@ -145,6 +201,7 @@ export const HookScene: React.FC<HookSceneProps> = ({
                     : splitSafeThaiLines(hook.subheadline, 18, 4)
                 }
                 delay={8}
+                accentColor={accentColor}
               />
             </div>
           )}
@@ -152,7 +209,7 @@ export const HookScene: React.FC<HookSceneProps> = ({
           <Doodle
             id="hook-sparkle-1"
             type="sparkle"
-            color={THEME.colors.accentSoft}
+            color={accentColor}
             width={100}
             height={100}
             x={720}

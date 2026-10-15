@@ -5,9 +5,16 @@ import { splitSafeThaiLines } from "../lib/thaiKeep";
 import { CartCTA } from "../paper/CartCTA";
 import { CutoutImage } from "../paper/CutoutImage";
 import { TornStrip } from "../paper/TornStrip";
-import { CTAData } from "../types";
+import { CTAData, PackId } from "../types";
 import { THEME } from "../theme";
-import { LineReveal, PRODUCT_CARD_STYLE, SceneBackground, SceneShell, SlowZoom } from "./SceneMotion";
+import {
+  isCollagePackId,
+  LineReveal,
+  PRODUCT_CARD_STYLE,
+  SceneBackground,
+  SceneShell,
+  SlowZoom,
+} from "./SceneMotion";
 
 interface CTASceneProps {
   cta: CTAData;
@@ -16,7 +23,8 @@ interface CTASceneProps {
   productName?: string;
   primaryColor?: string;
   accentColor?: string;
-  /** Subtitle is already shown by the word-by-word captions */
+  packId?: PackId;
+  bgColor?: string;
   hideSubtitle?: boolean;
 }
 
@@ -25,18 +33,28 @@ export const CTAScene: React.FC<CTASceneProps> = ({
   imageSrc,
   price,
   productName,
+  primaryColor = THEME.colors.accent,
   accentColor = THEME.colors.accent,
+  packId = "pro-minimal-luxury",
+  bgColor,
   hideSubtitle,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isCollage = isCollagePackId(packId);
 
   const priceIn = spring({ frame: frame - 6, fps, config: { damping: 9, stiffness: 180, mass: 0.7 } });
   const pricePulse = 1 + Math.max(0, Math.sin((frame - 20) / 6)) * 0.03;
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <SceneBackground glowY="60%" />
+      <SceneBackground
+        glowY="60%"
+        packId={packId}
+        bgColor={bgColor}
+        paperTheme={cta.paperTheme}
+        accentColor={primaryColor}
+      />
 
       <SceneShell>
         <SlowZoom>
@@ -44,20 +62,25 @@ export const CTAScene: React.FC<CTASceneProps> = ({
             id="cta-product-cutout"
             src={imageSrc}
             delay={4}
-            baseRotate={-3}
+            baseRotate={isCollage ? -3 : -1}
             width={760}
             x={60}
             y={40}
-            style={PRODUCT_CARD_STYLE}
+            showTape={isCollage}
+            videoStartSec={cta.videoStartSec}
+                  videoEndSec={cta.videoEndSec}
+                  videoFillMode={cta.videoFillMode}
+            videoAudioMode={cta.videoAudioMode}
+            style={isCollage ? undefined : PRODUCT_CARD_STYLE}
           />
         </SlowZoom>
 
         <AbsoluteFill
           style={{
-            paddingTop: "200px",
+            paddingTop: "190px",
             paddingBottom: "380px",
             paddingLeft: "70px",
-            paddingRight: "140px",
+            paddingRight: "180px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -66,9 +89,9 @@ export const CTAScene: React.FC<CTASceneProps> = ({
           <div
             style={{
               marginBottom: "16px",
-              backgroundColor: THEME.colors.surfaceRaised,
-              color: THEME.colors.accentSoft,
-              border: `2px solid ${THEME.colors.accent}`,
+              backgroundColor: "rgba(15, 23, 42, 0.9)",
+              color: "#FFFFFF",
+              border: `2px solid ${primaryColor}`,
               fontFamily: FONTS.heading,
               fontWeight: 700,
               fontSize: "30px",
@@ -85,10 +108,10 @@ export const CTAScene: React.FC<CTASceneProps> = ({
               id="cta-main-title"
               text={cta.ctaTitle || "จิ้มตะกร้าส้มซ้ายล่างเลย!"}
               lines={cta.headlineLines}
-              bg={accentColor}
-              textColor={THEME.colors.text}
-              fontSize={88}
-              rotate={-1}
+              bg={primaryColor}
+              textColor="#FFFFFF"
+              fontSize={86}
+              rotate={isCollage ? -1 : 0}
               delay={2}
               padding="16px 36px"
               style={{ maxWidth: "880px" }}
@@ -104,6 +127,7 @@ export const CTAScene: React.FC<CTASceneProps> = ({
                     : splitSafeThaiLines(cta.ctaSubtitle, 18, 4)
                 }
                 delay={8}
+                accentColor={accentColor}
               />
             </div>
           )}
@@ -112,13 +136,13 @@ export const CTAScene: React.FC<CTASceneProps> = ({
           <div
             style={{
               position: "absolute",
-              left: "90px",
+              left: "86px",
               top: "800px",
               padding: "20px 36px 24px",
               borderRadius: "28px",
-              backgroundColor: THEME.colors.surface,
-              border: `3px solid ${THEME.colors.accent}`,
-              boxShadow: `0 0 48px ${THEME.colors.glow}, 0 16px 32px rgba(2,6,23,0.6)`,
+              backgroundColor: "rgba(15, 23, 42, 0.94)",
+              border: `4px solid ${primaryColor}`,
+              boxShadow: `0 0 48px ${primaryColor}55, 0 16px 32px rgba(2,6,23,0.6)`,
               transform: `rotate(-3deg) scale(${priceIn * pricePulse})`,
               transformOrigin: "left center",
               zIndex: 26,
@@ -129,7 +153,7 @@ export const CTAScene: React.FC<CTASceneProps> = ({
                 fontFamily: FONTS.heading,
                 fontWeight: 700,
                 fontSize: "32px",
-                color: THEME.colors.textMuted,
+                color: "#FDE047",
               }}
             >
               🏷️ ราคาพิเศษวันนี้
@@ -138,17 +162,17 @@ export const CTAScene: React.FC<CTASceneProps> = ({
               style={{
                 fontFamily: FONTS.heading,
                 fontWeight: 800,
-                fontSize: "128px",
+                fontSize: "120px",
                 lineHeight: 1.05,
-                color: THEME.colors.text,
-                textShadow: `0 0 32px ${THEME.colors.accent}`,
+                color: "#FFFFFF",
+                textShadow: `0 0 28px ${primaryColor}`,
               }}
             >
               {price}
             </div>
           </div>
 
-          {/* Points at the real Shopee basket — keeps Shopee orange on purpose */}
+          {/* Points at the real Shopee basket */}
           <CartCTA
             productName={productName}
             price={price}

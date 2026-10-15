@@ -30,13 +30,15 @@ import { LinkImport } from "./LinkImport";
 import { apiFetch } from "@/lib/apiFetch";
 
 interface ProductFormProps {
-  onProductCreated: (product: ProductRecord) => void;
+  initialProduct?: ProductRecord | null;
+  onProductCreated: (product: ProductRecord, keptStoryboard?: boolean) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   onCancelNew?: () => void;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
+  initialProduct,
   onProductCreated,
   isLoading,
   setIsLoading,
@@ -52,7 +54,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [tone, setTone] = useState("exciting");
   const [cta, setCta] = useState("พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!");
   const [styleMode, setStyleMode] = useState<"auto" | "custom">("auto");
-  const [chosenPack, setChosenPack] = useState<PackId>("kraft-scrapbook");
+  const [chosenPack, setChosenPack] = useState<PackId>("pro-minimal-luxury");
   const [aiProvider, setAiProvider] = useState<"claude" | "gemini">("claude");
 
   // Field source & status tracking for Review Screen
@@ -80,7 +82,34 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   // File uploads and previews
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [previewKinds, setPreviewKinds] = useState<Array<"image" | "video">>([]);
   const [useSampleImages, setUseSampleImages] = useState(false);
+  const [keepStoryboardOnSave, setKeepStoryboardOnSave] = useState<boolean>(false);
+
+  // Sync form fields when user selects an existing product to edit or add images/videos in Step 1
+  React.useEffect(() => {
+    if (initialProduct) {
+      setActiveDraft(null);
+      setName(initialProduct.name || "");
+      setPrice(initialProduct.price || "");
+      setHighlights(initialProduct.highlights || "");
+      setTone(initialProduct.tone || "exciting");
+      setCta(initialProduct.cta || "พิกัดในตะกร้าส้มซ้ายล่าง");
+      if (initialProduct.styleDNA?.pack) {
+        setChosenPack(initialProduct.styleDNA.pack);
+      }
+      const imgs = initialProduct.images || [];
+      setPreviewUrls(imgs);
+      setPreviewKinds(
+        imgs.map((u) => (/\.(mp4|mov|webm|m4v)(\?|$)/i.test(u) ? "video" : "image"))
+      );
+      setSelectedFiles([]);
+      setUseSampleImages(false);
+      setFieldSources({ name: "user", price: "user" });
+      setFieldStatuses({ name: "ok", price: "ok" });
+      setChecklist({ nameOk: true, priceOk: true, imageOk: imgs.length > 0, claimsOk: true });
+    }
+  }, [initialProduct?.id]);
 
   // OCR Loading state
   const [isOcrLoading, setIsOcrLoading] = useState(false);
@@ -289,21 +318,47 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files).slice(0, 5);
-      setSelectedFiles(filesArray);
+      const incoming = Array.from(e.target.files);
+      const existingServerUrls = useSampleImages
+        ? []
+        : previewUrls.filter((u) => !u.startsWith("blob:"));
+      const maxNewFiles = Math.max(0, 8 - existingServerUrls.length);
+      const combinedNewFiles = (useSampleImages ? incoming : [...selectedFiles, ...incoming]).slice(
+        0,
+        maxNewFiles
+      );
+      setSelectedFiles(combinedNewFiles);
       setUseSampleImages(false);
 
-      const objectUrls = filesArray.map((file) => URL.createObjectURL(file));
-      setPreviewUrls(objectUrls);
+      const newObjectUrls = combinedNewFiles.map((file) => URL.createObjectURL(file));
+      const allUrls = [...existingServerUrls, ...newObjectUrls].slice(0, 8);
+      const allKinds: Array<"image" | "video"> = [
+        ...existingServerUrls.map((u) =>
+          /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u) ? ("video" as const) : ("image" as const)
+        ),
+        ...combinedNewFiles.map((file) =>
+          file.type.startsWith("video/") || /\.(mp4|mov|webm|m4v)$/i.test(file.name)
+            ? ("video" as const)
+            : ("image" as const)
+        ),
+      ].slice(0, 8);
+
+      setPreviewUrls(allUrls);
+      setPreviewKinds(allKinds);
       setChecklist((p) => ({ ...p, imageOk: true }));
     }
   };
 
   const handleRemoveImage = (index: number) => {
+    const targetUrl = previewUrls[index];
     const updatedPreviews = previewUrls.filter((_, i) => i !== index);
-    const updatedFiles = selectedFiles.filter((_, i) => i !== index);
+    const updatedKinds = previewKinds.filter((_, i) => i !== index);
+    if (targetUrl && targetUrl.startsWith("blob:")) {
+      const blobUrlsBefore = previewUrls.slice(0, index).filter((u) => u.startsWith("blob:")).length;
+      setSelectedFiles((prev) => prev.filter((_, i) => i !== blobUrlsBefore));
+    }
     setPreviewUrls(updatedPreviews);
-    setSelectedFiles(updatedFiles);
+    setPreviewKinds(updatedKinds);
     if (updatedPreviews.length === 0) {
       setUseSampleImages(false);
       setChecklist((p) => ({ ...p, imageOk: false }));
@@ -372,12 +427,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setIsLoading(true);
     try {
       const formData = new FormData();
+      if (initialProduct?.id) {
+        formData.append("id", initialProduct.id);
+      }
+      if (keepStoryboardOnSave && initialProduct) {
+        formData.append("keepStoryboard", "true");
+      }
       formData.append("name", name);
       formData.append("price", price || "฿199");
       formData.append("highlights", highlights || "สินค้าคุณภาพ คุ้มค่าเกินราคา");
       formData.append("tone", tone);
       formData.append("cta", cta || "พิกัดในตะกร้าส้มซ้ายล่าง");
       formData.append("aiProvider", aiProvider);
+      formData.append("styleMode", styleMode);
+      formData.append("chosenPack", chosenPack);
 
       // ส่ง optional metadata หากมาจาก link import
       if (activeDraft) {
@@ -402,17 +465,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         }
       }
 
-      if (useSampleImages || selectedFiles.length === 0) {
-        const fallbackImgs =
-          previewUrls.length > 0
-            ? previewUrls
-            : ["/samples/tumbler-1.svg", "/samples/tumbler-2.svg", "/samples/tumbler-3.svg"];
-        formData.append("existingImages", JSON.stringify(fallbackImgs));
-      } else {
-        selectedFiles.forEach((file) => {
-          formData.append("files", file);
-        });
+      const serverUrls = previewUrls.filter((u) => !u.startsWith("blob:"));
+      if (serverUrls.length > 0) {
+        formData.append("existingImages", JSON.stringify(serverUrls));
+      } else if (selectedFiles.length === 0) {
+        formData.append(
+          "existingImages",
+          JSON.stringify(["/samples/tumbler-1.svg", "/samples/tumbler-2.svg", "/samples/tumbler-3.svg"])
+        );
       }
+      selectedFiles.forEach((file) => {
+        formData.append("files", file);
+      });
 
       const data = await apiFetch<any>("/api/products", {
         method: "POST",
@@ -420,7 +484,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       });
 
       if (data && data.success && data.product) {
-        onProductCreated(data.product);
+        onProductCreated(data.product, keepStoryboardOnSave && !!initialProduct);
       }
     } catch (err: any) {
       console.error("Product submit error:", err);
@@ -888,14 +952,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             )}
           </div>
 
-          {/* Image Uploads */}
+          {/* Image & Video Clip Uploads */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-semibold text-base-content">
-                5. รูปภาพสินค้า (1 - 5 รูป) <span className="text-error">*</span>
+                5. รูปภาพและคลิปวิดีโอสินค้า (ใส่ผสมกันได้ 1 - 8 ไฟล์) <span className="text-error">*</span>
               </label>
               <span className="text-xs text-base-content/60 font-medium">
-                {previewUrls.length} / 5 ภาพที่เลือก
+                {previewUrls.length} / 8 ไฟล์ที่เลือก
               </span>
             </div>
 
@@ -908,7 +972,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 multiple
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
                 className="hidden"
               />
               <div className="flex flex-col items-center justify-center gap-2">
@@ -916,33 +980,47 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <Upload className="w-5 h-5 text-primary" />
                 </div>
                 <div className="text-sm font-semibold text-base-content">
-                  คลิกเพื่ออัปโหลดรูปภาพสินค้าจากเครื่องของคุณ
+                  คลิกเพื่ออัปโหลด รูปภาพสินค้า หรือ คลิปวิดีโอรีวิว (ใส่รวมกันได้เลย)
                 </div>
                 <div className="text-xs text-base-content/60">
-                  รองรับ JPG, PNG, WebP (ถอดรหัสและตรวจสอบความสมบูรณ์อัตโนมัติด้วย Sharp)
+                  รองรับรูปภาพ (JPG, PNG, WebP) และคลิปวิดีโอ (MP4, MOV, WebM) สามารถเลือกตัดช่วงคลิปใน Step 2 ได้
                 </div>
               </div>
             </div>
 
             {/* Thumbnails list */}
             {previewUrls.length > 0 && (
-              <div className="grid grid-cols-5 gap-3 mt-3">
-                {previewUrls.map((url, idx) => (
+              <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-3 mt-3">
+                {previewUrls.map((url, idx) => {
+                  const isVid = previewKinds[idx] === "video" || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(url);
+                  return (
                   <div
                     key={idx}
                     className="relative group rounded-xl overflow-hidden border border-base-300 shadow-sm bg-base-200 aspect-square flex items-center justify-center transition-transform hover:-translate-y-0.5"
                   >
-                    <img
-                      src={url}
-                      alt={`Preview ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        console.warn(`Preview image load error for ${url}`);
-                        (e.currentTarget as HTMLImageElement).src = "/samples/tumbler-1.svg";
-                      }}
-                    />
-                    <div className="absolute top-1 left-1 bg-neutral/80 text-[10px] font-bold text-neutral-content px-1.5 py-0.5 rounded shadow-xs">
-                      #{idx + 1}
+                    {isVid ? (
+                      <video
+                        src={url}
+                        muted
+                        loop
+                        autoPlay
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={url}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.warn(`Preview image load error for ${url}`);
+                          (e.currentTarget as HTMLImageElement).src = "/samples/tumbler-1.svg";
+                        }}
+                      />
+                    )}
+                    <div className="absolute top-1 left-1 bg-neutral/85 text-[10px] font-bold text-neutral-content px-1.5 py-0.5 rounded shadow-xs flex items-center gap-1">
+                      <span>#{idx + 1}</span>
+                      {isVid && <span className="text-info">🎬 คลิป</span>}
                     </div>
                     <button
                       type="button"
@@ -955,7 +1033,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1025,10 +1104,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           )}
 
-          {/* Submit Button */}
-          <div className="space-y-1.5">
+          {/* Submit Buttons */}
+          <div className="space-y-2.5">
+            {initialProduct && !activeDraft && (
+              <button
+                type="submit"
+                disabled={isLoading}
+                onClick={() => setKeepStoryboardOnSave(true)}
+                className="btn btn-success text-white w-full py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 shadow-md text-base cursor-pointer font-bold"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                <span>บันทึกการแก้ไขข้อมูล & รูป/คลิป (คงบทพากย์และสตอรี่บอร์ดเดิม)</span>
+              </button>
+            )}
             <button
               type="submit"
+              onClick={() => setKeepStoryboardOnSave(false)}
               disabled={
                 isLoading ||
                 (activeDraft !== null &&

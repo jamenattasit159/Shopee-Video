@@ -1,9 +1,0 @@
-import { StudioProject } from '../studio';
-import { ProductRecord } from '../../../remotion/types';
-import { freshWorkspace, newScene, MediaAsset } from './types';
-export function migrateStudio(p:StudioProject){const project=freshWorkspace();project.name=p.name;project.captionStyle=p.captionStyle;project.assets=p.assets.map(a=>({...a,kind:'video' as const,durationFrames:Math.round(a.duration*30)}));project.scenes=p.clips.map((c,i)=>({...newScene(project.assets.find(a=>a.id===c.assetId)!),id:c.id,inFrame:Math.round(c.in*30),durationFrames:Math.round((c.out-c.in)*30),crop:c.position,overlayText:i===0?p.headline:i===p.clips.length-1?p.cta:'',audioMode:p.audio==='original'?'original' as const:'narration' as const}));return {project,warnings:['นำเข้าเป็นสำเนา งานเดิมยังอยู่']};}
-export function migrateProduct(p:ProductRecord){const project=freshWorkspace();project.name=p.name;project.product={name:p.name,price:p.price||'',highlights:p.highlights||''};project.assets=(p.images||[]).map((url,i):MediaAsset=>({id:`legacy-${i}`,name:`ภาพ ${i+1}`,url,kind:'image',width:1080,height:1080,durationFrames:0,hasAudio:false,captions:[]}));const sb=p.storyboard;
- const texts=[sb.hook?.headline,...(sb.scenes||[]).map(s=>`${s.highlightTitle||''} ${s.highlightDesc||''}`.trim()),sb.cta?.ctaTitle].filter(Boolean) as string[];
- project.scenes=texts.map((text,i)=>{const a=project.assets[i%project.assets.length];return a?{...newScene(a),displayText:text,overlayText:text.slice(0,120),audioMode:'narration' as const,layout:i===texts.length-1?'offer-close' as const:'product-callout' as const}:null;}).filter(Boolean) as typeof project.scenes;
- if(p.voiceoverUrl)project.legacyAudio={url:p.voiceoverUrl,durationFrames:Math.max(1,Math.round((p.voiceoverDurationSec||1)*30)),locked:true};
- return {project,warnings:['นำเข้างานเดิมเป็นสำเนา ตรวจบทและเวลาแต่ละฉากก่อนสร้างเสียงใหม่',...(p.voiceoverUrl?['เสียงเดิมเป็นไฟล์รวม หากแก้บทให้เปลี่ยนเป็นเสียงรายฉาก']:[])]};}
