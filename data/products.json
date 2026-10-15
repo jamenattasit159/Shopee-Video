@@ -1,5 +1,216 @@
 [
   {
+    "id": "prod_1792035966271",
+    "name": "แพมเพิสเด็ก 1 แถม 1 Penbose แพมเพิส Baby Pants ผ้าอ้อมเด็ก Diaper S M L XL XXL XXXL 4XL เด็ก ผ้าอ้อม",
+    "price": "฿158 (จากปกติ ฿199)",
+    "highlights": "แห้งสบายตลอดวัน, อ่อนโยนต่อผิวลูกน้อย, บางเบาระบายอากาศดี, โปรคุ้ม 1 แถม 1",
+    "tone": "exciting",
+    "cta": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!",
+    "images": [
+      "/uploads/1792035966272_0_th-11134207-7rasb-m27vem4fa0v532_resize_w450_nl.webp",
+      "/uploads/1792035966276_1_th-11134207-7rasc-m27veqrqh6lg5e_resize_w450_nl.webp",
+      "/uploads/1792035966281_2_th-11134207-7rash-m27vekb7xfvo2e_resize_w450_nl.webp",
+      "/uploads/1792035966284_3_th-11134207-7rask-m27vei09c92921_resize_w450_nl.webp",
+      "/uploads/1792035966289_4_th-11134207-81ztp-mrv0rull3tadac_resize_w450_nl.webp"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "ทุกคนนน เจอของเด็ดอีกแล้ว!",
+        "headlineLines": [
+          "ทุกคนนน เจอ",
+          "ของเด็ดอีกแล้ว!"
+        ],
+        "subheadline": "ลูกร้องงอแงเพราะผ้าอ้อม?",
+        "captionLines": [
+          "ลูกร้องงอแง",
+          "เพราะผ้าอ้อม?"
+        ],
+        "badgeText": "👶 สบายผิวลูกน้อย",
+        "highlightWord": "งอแง",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "แห้งสบายตลอดวัน",
+          "headlineLines": [
+            "แห้งส",
+            "บายตลอดวัน"
+          ],
+          "highlightDesc": "ซึมซับดีเยี่ยม ลูกแฮปปี้",
+          "captionLines": [
+            "ซึมซับดี",
+            "เยี่ยม ลูกแฮปปี้"
+          ],
+          "stickerText": "💧 ซึมซับดีเยี่ยม",
+          "highlightWord": "แห้งสบาย",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "อ่อนโยนต่อผิวลูกน้อย",
+          "headlineLines": [
+            "อ่อนโยนต่อ",
+            "ผิวลูกน้อย"
+          ],
+          "highlightDesc": "ปราศจากน้ำหอม ไร้สารเคมี",
+          "captionLines": [
+            "ปราศจากน้ำหอม ไร้สารเคมี"
+          ],
+          "stickerText": "🌿 อ่อนโยนต่อผิว",
+          "highlightWord": "ผิวบอบบาง",
+          "layout": "polaroid-stack",
+          "paperTheme": "cream-grid",
+          "imageIndex": 1,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "บางเบาระบายอากาศดี",
+          "headlineLines": [
+            "บางเบามาก",
+            "ระบายอากาศดี"
+          ],
+          "highlightDesc": "ผิวลูกไม่อับชื้น แฮปปี้ทั้งวัน",
+          "captionLines": [
+            "ผิวลูกไม่อับชื้น",
+            "แฮปปี้ทั้งวัน"
+          ],
+          "stickerText": "🌬️ ระบายอากาศดี",
+          "highlightWord": "บางเบา",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 2,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "โปรคุ้ม 1 แถม 1",
+          "headlineLines": [
+            "คุ้มตาแตก",
+            "แถม 1!"
+          ],
+          "highlightDesc": "ผ่านการทดสอบ ปลอดภัยต่อผิวบอบบางของ",
+          "captionLines": [
+            "ผ่านการทดสอบ ปลอดภัยต่",
+            "อผิวบอบบางของลูกน้อย"
+          ],
+          "stickerText": "🔥 ลดแรงคุ้มมาก",
+          "highlightWord": "1 แถม 1",
+          "layout": "polaroid-stack",
+          "paperTheme": "cream-grid",
+          "imageIndex": 3,
+          "durationSec": 4
+        }
+      ],
+      "cta": {
+        "ctaTitle": "จิ้มตะกร้าส้มซ้ายล่างเลย!",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "ซ้ายล่างเลย!"
+        ],
+        "ctaSubtitle": "ลดหนักเพื่อลูกน้อย รีบกดก่อนโค้ดหมด!",
+        "captionLines": [
+          "ลดหนักเพื่อลูกน้อย",
+          "รีบกดก่อนโค้ดหมด!"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#ec3713",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (pinboard-corkboard)"
+      },
+      "audioSuggestion": {
+        "mood": "ตื่นเต้น เร่งเร้า ชวนช้อป",
+        "musicGenre": "TikTok Upbeat Affiliate Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
+      },
+      "narrationScript": "ลูกน้อยงอแงเพราะผ้าอ้อมเปียกเหรอ? ปักหมุดไอเทมเด็ด Penbose ผ้าอ้อมเด็กตัวดัง! แห้งสบายตลอดวัน มีแถบวัดความชื้นเปลี่ยนง่าย อ่อนโยนต่อผิว ไม่มีน้ำหอม ไม่ระคายเคือง แถมบางเบาระบายอากาศดีสุดๆ โปร 1 แถม 1 ลดหนักเพื่อลูกน้อย ห้ามพลาด! จิ้มตะกร้าส้มเลยค่ะ!",
+      "styleDNA": {
+        "seed": 2139650417,
+        "pack": "pinboard-corkboard",
+        "palette": "pinboard-corkboard-triadic-10",
+        "primaryColor": "#ec3713",
+        "secondaryColor": "#cdee2b",
+        "accentColor": "#3b16f3",
+        "bgColor": "#d6ebd9",
+        "fontPair": "mali-playful",
+        "structure": "problem-solution",
+        "hookFormula": "relatable-pain",
+        "layouts": [
+          "hero-center",
+          "polaroid-stack",
+          "callout-circle"
+        ],
+        "transitions": [
+          "slap-strip",
+          "torn-wipe"
+        ],
+        "tempo": "chill",
+        "stickerShape": "tag",
+        "sfxKit": "retro-paper"
+      },
+      "voiceLines": [
+        {
+          "sceneId": "hook",
+          "role": "hook",
+          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! ลูกร้องงอแงเพราะผ้าอ้อม?"
+        },
+        {
+          "sceneId": "scene_0",
+          "role": "body",
+          "text": "แห้งสบายตลอดวัน ซึมซับดีเยี่ยม ลูกแฮปปี้"
+        },
+        {
+          "sceneId": "scene_1",
+          "role": "body",
+          "text": "แถมยังอ่อนโยนต่อผิวลูกน้อย"
+        },
+        {
+          "sceneId": "scene_2",
+          "role": "body",
+          "text": "แถมยังบางเบาระบายอากาศดี"
+        },
+        {
+          "sceneId": "scene_3",
+          "role": "body",
+          "text": "แถมยังโปรคุ้ม 1 แถม 1"
+        },
+        {
+          "sceneId": "cta",
+          "role": "cta",
+          "text": "ตอนนี้จัดโปรพิเศษเพียง ลดหนักเพื่อลูกน้อย พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!"
+        }
+      ],
+      "voicePresetId": "friendly-trust",
+      "voiceIntensity": "mid"
+    },
+    "createdAt": "2026-10-15T03:47:21.937Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/%E0%B9%81%E0%B8%9E%E0%B8%A1%E0%B9%80%E0%B8%9E%E0%B8%B4%E0%B8%AA%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-1-%E0%B9%81%E0%B8%96%E0%B8%A1-1-Penbose-%E0%B9%81%E0%B8%9E%E0%B8%A1%E0%B9%80%E0%B8%9E%E0%B8%B4%E0%B8%AA-Baby-Pants-%E0%B8%9C%E0%B9%89%E0%B8%B2%E0%B8%AD%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-Diaper-S-M-L-XL-XXL-XXXL-4XL-%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%9C%E0%B9%89%E0%B8%B2%E0%B8%AD%E0%B9%89%E0%B8%AD%E0%B8%A1-i.1373799899.26916591882",
+      "shopId": "1373799899",
+      "itemId": "26916591882",
+      "fetchedAt": "2026-10-15T03:19:08.504Z",
+      "confirmedAt": "2026-10-15T03:46:06.176Z"
+    },
+    "category": "Baby Care",
+    "facts": {
+      "brand": "Penbose",
+      "productType": "Baby Diapers",
+      "claimsInTitle": [
+        "1 แถม 1"
+      ]
+    },
+    "renderedVideoUrl": "/renders/shopee_prod_1792035966271_1792036333517.mp4"
+  },
+  {
     "id": "prod_1791791844541",
     "name": "DODOLOVE ทิชชู่เปียก Baby Wipes ผ้าเช็ดทำความสะอาดสำหรับเด็ก ออร์แกนิค ห่อใหญ่ 80 แผ่น",
     "price": "เพื่อแม่เราลดได้",

@@ -7,6 +7,31 @@
 
 --------------------------------------------------------------------------------
 
+[COMMIT RECORD #022]
+Commit Hash: 1d61a783b0d0d2d8cbc6c5f7e0b3b93814a85d57 (1d61a78)
+Author:      jamenattasit159 <nattasitkung.am@gmail.com>
+Date/Time:   Thu Oct 15 16:21:59 2026 +0700
+Branch:      main
+Subject:     chore(data): import Penbose baby diapers product data, TTS audio, and media assets
+รายละเอียดสิ่งที่แก้ไข:
+1. นำเข้าข้อมูลสินค้าใหม่ใน `data/products.json`:
+   - สินค้า: ผ้าอ้อมเด็ก Penbose Baby Pants (1 แถม 1) ขนาด S-4XL (รหัส prod_1792035966271)
+   - ข้อมูลสคริปต์วิดีโอ สตอรี่บอร์ด จุดเด่นสินค้า โทนสี (Paper Collage: pinboard-corkboard) และการตั้งค่าเสียงพากย์ (voicePreset: friendly-trust)
+2. เพิ่มไฟล์ภาพสินค้าและไฟล์เสียงพากย์ใน `public/uploads/`:
+   - ไฟล์ภาพสินค้าความละเอียดสูง 5 ภาพ (1792035966272_*.webp)
+   - ไฟล์เสียงพากย์สังเคราะห์ Edge-TTS 2 ไฟล์ (tts_51dd335534dcb0aef8ed8d75efa0f2a5_*.mp3)
+ไฟล์ที่เปลี่ยนแปลง (8 files):
+- data/products.json
+- public/uploads/1792035966272_0_th-11134207-7rasb-m27vem4fa0v532_resize_w450_nl.webp
+- public/uploads/1792035966276_1_th-11134207-7rasc-m27veqrqh6lg5e_resize_w450_nl.webp
+- public/uploads/1792035966281_2_th-11134207-7rash-m27vekb7xfvo2e_resize_w450_nl.webp
+- public/uploads/1792035966284_3_th-11134207-7rask-m27vei09c92921_resize_w450_nl.webp
+- public/uploads/1792035966289_4_th-11134207-81ztp-mrv0rull3tadac_resize_w450_nl.webp
+- public/uploads/tts_51dd335534dcb0aef8ed8d75efa0f2a5_1792036043899.mp3
+- public/uploads/tts_51dd335534dcb0aef8ed8d75efa0f2a5_1792036053656.mp3
+
+--------------------------------------------------------------------------------
+
 [COMMIT RECORD #021]
 Commit Hash: 59ac75e
 Author:      jamenattasit159 <nattasitkung.am@gmail.com>
