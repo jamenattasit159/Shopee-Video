@@ -108,9 +108,22 @@ export async function runFastFfmpegRender({ inputProps: props, outputPath, scale
   const { ffmpeg } = getRenderRuntime();
   await fs.mkdir(path.resolve('.tmp'), { recursive: true });
   const dir = await fs.mkdtemp(path.resolve('.tmp', 'fast-render-'));
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  const relativeVideoUrl = '/' + path.relative(path.resolve('public'), outputPath).replace(/\\/g, '/');
   const progress = async (percent, message, status = 'rendering') => {
-    if (progressFile) { await fs.mkdir(path.dirname(progressFile), { recursive: true }); await fs.writeFile(progressFile, JSON.stringify({ status, percent, message, updatedAt: Date.now() })); }
+    if (progressFile) {
+      await fs.mkdir(path.dirname(progressFile), { recursive: true });
+      await fs.writeFile(
+        progressFile,
+        JSON.stringify({
+          status,
+          percent,
+          message,
+          productId: props.productId,
+          videoUrl: relativeVideoUrl,
+          updatedAt: Date.now()
+        })
+      );
+    }
   };
   try {
     await progress(8, 'กำลังตรวจไฟล์ภาพ คลิป และเสียงก่อนเรนเดอร์...');

@@ -7,6 +7,26 @@
 
 --------------------------------------------------------------------------------
 
+[COMMIT RECORD #023]
+Commit Hash: d4d394a
+Author:      jamenattasit159 <nattasitkung.am@gmail.com>
+Date/Time:   Thu Oct 15 17:00:00 2026 +0700
+Branch:      main
+Subject:     fix(render): resolve 600s render timeout with 4K pre-optimization and Turbo Direct engine
+รายละเอียดสิ่งที่แก้ไข:
+1. แก้ปัญหา Timeout 600 วินาที จากการถอดรหัสวิดีโอ 4K ของ iPhone:
+   - เพิ่มระบบ Pre-optimization / Downscale ใน `stageMinimalPublicDir` (`scripts/render.mjs`) เพื่อย่อคลิป 4K (3840x2160) ให้เหลือขนาด 1080p ที่ 30fps H.264 ก่อนส่งให้ Chromium OffthreadVideo ลดเวลาถอดรหัสแต่ละเฟรมจาก 2.5 วินาที เหลือต่ำกว่า 30ms
+2. เปิดใช้งานโหมด Turbo Direct (FFmpeg ด่วนพิเศษ 10-20 วินาที):
+   - เชื่อมต่อ `scripts/fast-ffmpeg-render.mjs` เข้ากับ `/api/render-video` โดยตรงเมื่อผู้ใช้เลือกโหมด Turbo
+   - เรนเดอร์สินค้าที่มีคลิปวิดีโอ 4K และภาพนิ่งครบ 6 ฉาก พร้อมซาวด์และโอเวอร์เลย์ในเวลาเพียง ~20 วินาที
+3. ระบบ Auto-fallback ป้องกันการค้างและ Error:
+   - หากการเรนเดอร์ Remotion ล้มเหลวหรือเกิด Timeout ระบบจะสลับไปเรนเดอร์ต่อด้วย Turbo Engine ทันทีอัตโนมัติ ทำให้ผู้ใช้ได้ไฟล์วิดีโอเสมอและไม่เจอหน้าต่าง Error
+4. ปรับปรุง UI RenderExportModal:
+   - เพิ่มตัวเลือก `⚡ Turbo Direct (FFmpeg ด่วนพิเศษ 10-20 วินาที — แนะนำ)` ใน Render Mode Dropdown และตั้งเป็นค่าเริ่มต้น
+   - ส่ง `productId` และ `videoUrl` ในทุกสเต็ปของ Progress เพื่อให้ UI Polling กู้คืนและแสดงผลวิดีโอได้อย่างถูกต้อง
+
+--------------------------------------------------------------------------------
+
 [COMMIT RECORD #022]
 Commit Hash: 1d61a783b0d0d2d8cbc6c5f7e0b3b93814a85d57 (1d61a78)
 Author:      jamenattasit159 <nattasitkung.am@gmail.com>

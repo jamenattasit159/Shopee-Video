@@ -106,7 +106,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   const scale = Number(resolutionScale) === 0.667 ? 0.667 : 1;
-  const isRemotionRequested = true;
+  const isTurbo = renderMode === "turbo";
   const concurrency = renderMode === "fast" ? 2 : 1;
 
   const id = productId || `prod_${Date.now()}`;
@@ -130,7 +130,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const progressFile = path.join(tempDir, "render_progress.json");
   const videoUrl = `/renders/${filename}`;
 
-  await fs.writeFile(tempPropsFile, JSON.stringify(props, null, 2), "utf-8");
+  await fs.writeFile(tempPropsFile, JSON.stringify({ ...props, productId: id }, null, 2), "utf-8");
   await fs.writeFile(
     progressFile,
     JSON.stringify({
@@ -139,26 +139,82 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       productId: id,
       videoUrl,
       message:
-        isRemotionRequested
-          ? "กำลังเริ่มต้นเรนเดอร์แอนิเมชัน (พร้อมระบบป้องกัน Timeout อัตโนมัติ)..."
-          : "กำลังเริ่มต้นเรนเดอร์ด่วนพิเศษ (Turbo Direct Engine)...",
+        isTurbo
+          ? "กำลังเริ่มต้นเรนเดอร์ด่วนพิเศษ (Turbo Direct Engine)..."
+          : "กำลังเริ่มต้นเรนเดอร์แอนิเมชัน (พร้อมระบบป้องกัน Timeout อัตโนมัติ)...",
       updatedAt: Date.now(),
     }),
     "utf-8"
   );
 
-  const renderScriptPath = path.join(process.cwd(), "scripts", "render.mjs");
+  const fastScriptPath = path.join(process.cwd(), "scripts", "fast-ffmpeg-render.mjs");
+  const remotionScriptPath = path.join(process.cwd(), "scripts", "render.mjs");
   const logLines: string[] = [];
   let fallbackUsed = false;
 
   try {
     let result: { success: boolean; timedOut?: boolean; code?: number; error?: string };
 
-    result = await runWorkerScript(renderScriptPath, [
-      "--props-file", tempPropsFile, "--output", outputPublicPath,
-      "--engine", "remotion", "--concurrency", String(concurrency),
-      "--scale", String(scale), "--progress-file", progressFile,
-    ], 10 * 60 * 1000, logLines);
+    if (isTurbo) {
+      result = await runWorkerScript(
+        fastScriptPath,
+        [
+          "--props-file", tempPropsFile,
+          "--output", outputPublicPath,
+          "--scale", String(scale),
+          "--progress-file", progressFile,
+        ],
+        180000,
+        logLines
+      );
+    } else {
+      result = await runWorkerScript(
+        remotionScriptPath,
+        [
+          "--props-file", tempPropsFile,
+          "--output", outputPublicPath,
+          "--engine", "remotion",
+          "--concurrency", String(concurrency),
+          "--scale", String(scale),
+          "--progress-file", progressFile,
+        ],
+        10 * 60 * 1000,
+        logLines
+      );
+
+      // Auto-fallback to Turbo if Remotion failed or timed out
+      if (!result.success || !fsSync.existsSync(outputPublicPath)) {
+        console.warn(`[render-video] Remotion failed (${result.error}). Auto-fallback to Turbo Direct...`);
+        await fs.writeFile(
+          progressFile,
+          JSON.stringify({
+            status: "rendering",
+            percent: 50,
+            productId: id,
+            videoUrl,
+            message: "Remotion ใช้เวลานานเกินกำหนด กำลังสลับไปใช้ Turbo Engine อัตโนมัติ...",
+            updatedAt: Date.now(),
+          }),
+          "utf-8"
+        ).catch(() => {});
+
+        result = await runWorkerScript(
+          fastScriptPath,
+          [
+            "--props-file", tempPropsFile,
+            "--output", outputPublicPath,
+            "--scale", String(scale),
+            "--progress-file", progressFile,
+          ],
+          180000,
+          logLines
+        );
+
+        if (result.success && fsSync.existsSync(outputPublicPath)) {
+          fallbackUsed = true;
+        }
+      }
+    }
 
     if (!result.success || !fsSync.existsSync(outputPublicPath)) {
       const renderErr: any = new Error(
@@ -210,7 +266,9 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       videoUrl,
       filename,
       exportBundle,
-      message: "เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ",
+      message: fallbackUsed
+        ? "เรนเดอร์วิดีโอสำเร็จด้วยโหมดด่วนพิเศษ (Turbo Direct Fallback)"
+        : "เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ",
       updatedAt: Date.now(),
     }),
     "utf-8"

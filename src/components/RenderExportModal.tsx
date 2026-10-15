@@ -50,7 +50,7 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   const [renderedUrl, setRenderedUrl] = useState<string | null>(initialVideoUrl || null);
   const [renderMessage, setRenderMessage] = useState<string>("");
   const [renderProgress, setRenderProgress] = useState<number>(0);
-  const [renderMode, setRenderMode] = useState<"turbo" | "remotion" | "fast">("remotion");
+  const [renderMode, setRenderMode] = useState<"turbo" | "remotion" | "fast">("turbo");
   const [resolutionScale, setResolutionScale] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
   const [copiedCaptionIndex, setCopiedCaptionIndex] = useState<number | null>(null);
@@ -329,8 +329,9 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
               disabled={isRendering}
               className="select select-bordered select-sm w-full rounded-xl bg-base-100 text-xs font-medium"
             >
-              <option value="remotion">Remotion — แอนิเมชันตามพรีวิว (1 เธรด)</option>
-              <option value="fast">Remotion — แอนิเมชันตามพรีวิว (2 เธรด)</option>
+              <option value="turbo">⚡ Turbo Direct (FFmpeg ด่วนพิเศษ 10-20 วินาที — แนะนำ)</option>
+              <option value="remotion">Remotion — แอนิเมชันกราฟิกเต็มรูปแบบ (1 เธรด)</option>
+              <option value="fast">Remotion — แอนิเมชันกราฟิกเต็มรูปแบบ (2 เธรด)</option>
             </select>
           </div>
           <div>

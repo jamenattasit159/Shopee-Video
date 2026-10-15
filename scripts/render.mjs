@@ -42,7 +42,41 @@ async function stageMinimalPublicDir(inputProps) {
     const dstFile = path.join(stageDir, rel);
     if (fsSync.existsSync(srcFile)) {
       await fs.mkdir(path.dirname(dstFile), { recursive: true });
-      await fs.copyFile(srcFile, dstFile).catch(() => {});
+
+      // Reuse already staged & up-to-date files
+      if (fsSync.existsSync(dstFile)) {
+        try {
+          const srcStat = fsSync.statSync(srcFile);
+          const dstStat = fsSync.statSync(dstFile);
+          if (dstStat.mtimeMs >= srcStat.mtimeMs && dstStat.size > 0) {
+            continue;
+          }
+        } catch {}
+      }
+
+      let optimized = false;
+      // Pre-optimize 4K/high-res video clips to prevent Remotion Chromium OffthreadVideo timeouts
+      if (/\.(mp4|mov|webm|m4v)$/i.test(srcFile)) {
+        try {
+          const probeOut = execSync(
+            `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of json "${srcFile}"`,
+            { stdio: ["ignore", "pipe", "ignore"], windowsHide: true }
+          );
+          const probeData = JSON.parse(probeOut.toString());
+          const stream = probeData.streams?.[0];
+          if (stream && (stream.width > 1080 || stream.height > 1920 || stream.width > stream.height)) {
+            execSync(
+              `ffmpeg -y -i "${srcFile}" -vf "scale='min(1080,iw)':-2" -c:v libx264 -preset veryfast -crf 20 -r 30 -c:a copy "${dstFile}"`,
+              { stdio: "ignore", windowsHide: true }
+            );
+            optimized = true;
+          }
+        } catch {}
+      }
+
+      if (!optimized) {
+        await fs.copyFile(srcFile, dstFile).catch(() => {});
+      }
     }
   }
 
