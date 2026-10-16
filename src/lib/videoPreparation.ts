@@ -21,6 +21,15 @@ function mediaDuration(url: string) {
 export async function prepareVideoProps(input: ShopeeProductVideoProps): Promise<ShopeeProductVideoProps> {
   const props: ShopeeProductVideoProps = structuredClone(input);
   props.mediaDurations = {};
+  if (props.mascotUrl) mediaFile(props.mascotUrl);
+  if (props.mascotAnimation) {
+    const frames = props.mascotAnimation.frames;
+    if (!Array.isArray(frames) || !frames.length || frames.length > 120) throw new Error('ข้อมูล GIF มาสคอตไม่ถูกต้อง');
+    for (const frame of frames) {
+      if (!Number.isFinite(frame.durationMs) || frame.durationMs <= 0) throw new Error('เวลาของเฟรมมาสคอตไม่ถูกต้อง');
+      mediaFile(frame.url);
+    }
+  }
   for (const url of props.images || []) {
     mediaFile(url);
     if (/\.(mp4|mov|webm|m4v)(\?|$)/i.test(url)) props.mediaDurations[url] = mediaDuration(url);

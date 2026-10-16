@@ -278,7 +278,7 @@ export default function DashboardPage() {
     if (!activeProduct) return;
     const updated: ProductRecord = {
       ...activeProduct,
-      storyboard: updatedStoryboard,
+      storyboard: { mascotUrl: activeProduct.storyboard.mascotUrl, mascotAnimation: activeProduct.storyboard.mascotAnimation, ...updatedStoryboard },
       styleDNA: updatedStoryboard.styleDNA || activeProduct.styleDNA,
     };
     setActiveProduct(updated);
@@ -363,6 +363,7 @@ export default function DashboardPage() {
         captionSettings: activeProduct.storyboard.captionSettings,
         presentationStyle: activeProduct.storyboard.presentationStyle,
         mascotUrl: activeProduct.storyboard.mascotUrl,
+        mascotAnimation: activeProduct.storyboard.mascotAnimation,
         narrationScript: (activeProduct.storyboard as any)?.narrationScript,
         voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
         voiceoverDurationSec: voiceoverDurationSec || activeProduct.voiceoverDurationSec,
@@ -551,6 +552,7 @@ export default function DashboardPage() {
             {activeProduct && (
               <div className={activeTab === "storyboard" ? "space-y-6" : "hidden"}>
                 <ScriptStoryboard
+                  productId={activeProduct.id}
                   productName={activeProduct.name}
                   price={activeProduct.price}
                   highlights={activeProduct.highlights}

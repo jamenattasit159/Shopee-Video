@@ -46,8 +46,10 @@ import { VoiceCloningModal, ReplicatedVoiceItem } from "./VoiceCloningModal";
 import { VoiceStylePicker } from "./VoiceStylePicker";
 import { VoiceIntensity } from "@/lib/voicePresets";
 import { apiFetch } from "@/lib/apiFetch";
+import { MascotUpload } from "./MascotUpload";
 
 interface ScriptStoryboardProps {
+  productId?: string;
   productName: string;
   price: string;
   highlights: string;
@@ -214,6 +216,7 @@ function computeClientPhoneticPreview(
 }
 
 export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
+  productId,
   productName,
   price,
   highlights,
@@ -738,6 +741,11 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             : "มาสคอตนำเสนอคู่กับสินค้า พร้อมซับสติกเกอร์ตามเสียง ใช้รูปแบบเดียวกันทั้งพรีวิวและไฟล์ MP4"}
         </p>
       </div>
+      {productId && data.presentationStyle !== "original" && <MascotUpload productId={productId} value={data} onChange={(mascot) => {
+        const updated = { ...data, ...mascot };
+        setData(updated);
+        onUpdateStoryboard(updated);
+      }} />}
       {data.presentationStyle === "original" && (
       <div className="bg-base-200/50 border border-base-300 rounded-2xl p-5 space-y-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

@@ -181,6 +181,7 @@ export interface AudioSuggestion {
 }
 
 export interface StoryboardPlan {
+  mascotAnimation?: import("./lib/mascotAnimation").MascotAnimation;
   presentationStyle?: "notebook-presenter" | "original";
   mascotUrl?: string;
   hook: HookData;
@@ -197,6 +198,7 @@ export interface StoryboardPlan {
 }
 
 export interface ShopeeProductVideoProps {
+  mascotAnimation?: import("./lib/mascotAnimation").MascotAnimation;
   [key: string]: any;
   presentationStyle?: "notebook-presenter" | "original";
   mascotUrl?: string;

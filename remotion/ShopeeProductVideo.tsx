@@ -123,6 +123,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
   narrationScript,
   presentationStyle = "notebook-presenter",
   mascotUrl,
+  mascotAnimation,
 }) => {
   const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -298,6 +299,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             index={index}
             imageSrc={getImageForIndex(item.mediaIndex)}
             mascotUrl={mascotUrl}
+            mascotAnimation={mascotAnimation}
             price={price}
             captionCues={captionCues}
             captionSettings={captionSettings}

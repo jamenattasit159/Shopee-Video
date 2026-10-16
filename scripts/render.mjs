@@ -31,6 +31,7 @@ async function stageMinimalPublicDir(inputProps) {
     inputProps.voiceoverUrl,
     inputProps.bgmUrl,
     inputProps.mascotUrl ?? "/mascot/presenter.png",
+    ...(inputProps.mascotAnimation?.frames || []).map((frame) => frame.url),
     ...(inputProps.voiceLines || []).map((l) => l?.audioUrl),
   ]);
 

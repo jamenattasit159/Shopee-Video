@@ -6,6 +6,7 @@ import { splitSafeThaiLines } from "../lib/thaiKeep";
 import { MediaElement } from "../paper/CutoutImage";
 import type { CaptionCue, CaptionSettings, CTAData, HookData, SceneData } from "../types";
 import { resolveMediaSrc } from "../utils";
+import { mascotFrameUrl, MascotAnimation } from "../lib/mascotAnimation";
 
 export const DEFAULT_PRESENTER = "/mascot/presenter.png";
 const INK = PALETTE.ink;
@@ -30,12 +31,13 @@ export const NotebookPresenterScene: React.FC<{
   index: number;
   imageSrc: string;
   mascotUrl?: string;
+  mascotAnimation?: MascotAnimation;
   price: string;
   captionCues?: CaptionCue[];
   captionSettings?: CaptionSettings;
   startFrame?: number;
   still?: boolean;
-}> = ({ data, role, index, imageSrc, mascotUrl = DEFAULT_PRESENTER, price, captionCues = [], captionSettings, startFrame = 0, still = false }) => {
+}> = ({ data, role, index, imageSrc, mascotUrl = DEFAULT_PRESENTER, mascotAnimation, price, captionCues = [], captionSettings, startFrame = 0, still = false }) => {
   const currentFrame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const frame = still ? 45 : currentFrame;
@@ -77,7 +79,7 @@ export const NotebookPresenterScene: React.FC<{
       <div style={{ position: "absolute", height: 35, width: 150, left: 145, top: -18, background: "rgba(231,198,130,0.75)", transform: "rotate(-6deg)" }} />
       <div style={{ position: "absolute", bottom: 14, left: 16, right: 16, textAlign: "center", fontFamily: FONTS.handwriting, fontSize: 25 }}>{role === "cta" ? clean((data as CTAData).buttonText) || "พิกัดในตะกร้า" : "ดูใกล้ ๆ น่าใช้แค่ไหน"}</div>
     </div>
-    {mascotUrl && <Img src={resolveMediaSrc(mascotUrl)} style={{ position: "absolute", left: 32, top: 810, width: 455, height: 569, objectFit: "contain", mixBlendMode: "multiply", transformOrigin: "50% 95%", transform: `translateY(${drift * 4 + (1 - enter) * 30}px) rotate(${drift * 0.7}deg)`, opacity: Math.min(1, enter * 2) }} />}
+    {mascotUrl && <Img src={resolveMediaSrc(mascotFrameUrl(mascotUrl, mascotAnimation, seconds))} style={{ position: "absolute", left: 32, top: 810, width: 455, height: 569, objectFit: "contain", mixBlendMode: mascotUrl === DEFAULT_PRESENTER ? "multiply" : "normal", transformOrigin: "50% 95%", transform: mascotUrl === DEFAULT_PRESENTER && !mascotAnimation ? `translateY(${drift * 4 + (1 - enter) * 30}px) rotate(${drift * 0.7}deg)` : undefined, opacity: Math.min(1, enter * 2) }} />}
     <div style={{ position: "absolute", top: 1280, left: 430, width: 440, display: "flex", justifyContent: "center", transform: "rotate(2deg)", fontSize: role === "cta" ? 42 : 28, fontWeight: 700, textAlign: "center" }}>
       <Sticker color={role === "cta" ? PALETTE.markerYellow : "white"} style={{ maxWidth: "100%", overflowWrap: "anywhere", ...(role === "cta" && price ? { fontSize: Math.min(42, fitText({ text: price, fontFamily: FONTS.heading, fontWeight: 700, withinWidth: 370 }).fontSize) } : {}) }}>
         {role === "cta" ? price || clean((data as CTAData).buttonText) : description || badge}
