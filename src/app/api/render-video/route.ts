@@ -9,11 +9,17 @@ import { withErrorHandling } from "@/lib/serverError";
 import { createExportBundle } from "@/lib/exportBundle";
 import { prepareVideoProps } from "@/lib/videoPreparation";
 
-export const GET = withErrorHandling(async () => {
+export const GET = withErrorHandling(async (req: NextRequest) => {
   const progressFile = path.join(process.cwd(), ".tmp", "render_progress.json");
   try {
     const raw = await fs.readFile(progressFile, "utf-8");
-    return NextResponse.json({ ok: true, progress: JSON.parse(raw) });
+    const progress = JSON.parse(raw);
+    const productId = req.nextUrl.searchParams.get("productId");
+    const requestId = req.nextUrl.searchParams.get("requestId");
+    if ((productId && progress.productId !== productId) || (requestId && progress.requestId !== requestId)) {
+      return NextResponse.json({ ok: true, progress: { status: "idle", percent: 0 } });
+    }
+    return NextResponse.json({ ok: true, progress });
   } catch {
     return NextResponse.json({
       ok: true,
@@ -95,7 +101,7 @@ function runWorkerScript(
 
 export const POST = withErrorHandling(async (req: NextRequest) => {
   const body = await req.json();
-  const { productId, props: requestedProps, renderMode = "remotion", resolutionScale = 1 } = body;
+  const { productId, requestId = `render_${Date.now()}`, props: requestedProps, renderMode = "remotion", resolutionScale = 1 } = body;
   const props = requestedProps ? await prepareVideoProps(requestedProps) : null;
 
   if (!props) {
@@ -105,8 +111,11 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     throw err;
   }
 
-  const scale = Number(resolutionScale) === 0.667 ? 0.667 : 1;
-  const isTurbo = renderMode === "turbo";
+  const scale = Number(resolutionScale) === 0.667 ? 2 / 3 : 1;
+  // The presenter layout must use the same composition as the live preview.
+  // Direct FFmpeg has a different scene layout and cannot preserve this template.
+  const preserveTemplate = props.presentationStyle !== "original";
+  const isTurbo = renderMode === "turbo" && !preserveTemplate;
   const concurrency = renderMode === "fast" ? 2 : 1;
 
   const id = productId || `prod_${Date.now()}`;
@@ -130,11 +139,12 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const progressFile = path.join(tempDir, "render_progress.json");
   const videoUrl = `/renders/${filename}`;
 
-  await fs.writeFile(tempPropsFile, JSON.stringify({ ...props, productId: id }, null, 2), "utf-8");
+  await fs.writeFile(tempPropsFile, JSON.stringify({ ...props, productId: id, renderRequestId: requestId }, null, 2), "utf-8");
   await fs.writeFile(
     progressFile,
     JSON.stringify({
       status: "starting",
+      requestId,
       percent: 4,
       productId: id,
       videoUrl,
@@ -183,12 +193,13 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       );
 
       // Auto-fallback to Turbo if Remotion failed or timed out
-      if (!result.success || !fsSync.existsSync(outputPublicPath)) {
+      if (!preserveTemplate && (!result.success || !fsSync.existsSync(outputPublicPath))) {
         console.warn(`[render-video] Remotion failed (${result.error}). Auto-fallback to Turbo Direct...`);
         await fs.writeFile(
           progressFile,
           JSON.stringify({
             status: "rendering",
+            requestId,
             percent: 50,
             productId: id,
             videoUrl,
@@ -226,6 +237,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
         progressFile,
         JSON.stringify({
           status: "error",
+          requestId,
           percent: 0,
           productId: id,
           message: renderErr.message,
@@ -239,50 +251,57 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     await fs.unlink(tempPropsFile).catch(() => {});
   }
 
-  if (productId) {
-    await updateProductVideo(productId, videoUrl);
-  }
-
-  let exportBundle = null;
   try {
-    const productRecord = productId ? await getProductById(productId) : null;
-    exportBundle = await createExportBundle({
-      renderedVideoPath: outputPublicPath,
-      project: props,
-      productRecord: productRecord || undefined,
-      preflightResults: body.preflightResults,
-      acknowledgedWarnings: body.acknowledgedWarnings,
-    });
-  } catch (bundleErr: any) {
-    console.warn("[render-video] Export bundle generation warning:", bundleErr?.message);
-  }
+    if (productId) {
+      await updateProductVideo(productId, videoUrl);
+    }
 
-  await fs.writeFile(
-    progressFile,
-    JSON.stringify({
-      status: "complete",
-      percent: 100,
-      productId: id,
+    let exportBundle = null;
+    try {
+      const productRecord = productId ? await getProductById(productId) : null;
+      exportBundle = await createExportBundle({
+        renderedVideoPath: outputPublicPath,
+        project: props,
+        productRecord: productRecord || undefined,
+        preflightResults: body.preflightResults,
+        acknowledgedWarnings: body.acknowledgedWarnings,
+      });
+    } catch (bundleErr: any) {
+      console.warn("[render-video] Export bundle generation warning:", bundleErr?.message);
+    }
+
+    await fs.writeFile(
+      progressFile,
+      JSON.stringify({
+        status: "complete",
+        requestId,
+        percent: 100,
+        productId: id,
+        videoUrl,
+        filename,
+        exportBundle,
+        message: fallbackUsed
+          ? "เรนเดอร์วิดีโอสำเร็จด้วยโหมดด่วนพิเศษ (Turbo Direct Fallback)"
+          : "เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ",
+        updatedAt: Date.now(),
+      }),
+      "utf-8"
+    ).catch(() => {});
+
+    return NextResponse.json({
+      ok: true,
+      success: true,
       videoUrl,
       filename,
       exportBundle,
+      fallbackUsed,
       message: fallbackUsed
         ? "เรนเดอร์วิดีโอสำเร็จด้วยโหมดด่วนพิเศษ (Turbo Direct Fallback)"
         : "เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ",
-      updatedAt: Date.now(),
-    }),
-    "utf-8"
-  ).catch(() => {});
-
-  return NextResponse.json({
-    ok: true,
-    success: true,
-    videoUrl,
-    filename,
-    exportBundle,
-    fallbackUsed,
-    message: fallbackUsed
-      ? "เรนเดอร์วิดีโอสำเร็จด้วยโหมดด่วนพิเศษ (Turbo Direct Fallback)"
-      : "เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ",
-  });
+    });
+  } catch (error) {
+    await fs.writeFile(progressFile, JSON.stringify({ status: "error", requestId, productId: id,
+      percent: 0, message: "เรนเดอร์วิดีโอแล้ว แต่บันทึกผลไม่สำเร็จ กรุณาตรวจสอบพื้นที่จัดเก็บและเซิร์ฟเวอร์", updatedAt: Date.now() }), "utf-8").catch(() => {});
+    throw error;
+  }
 });

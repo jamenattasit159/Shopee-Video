@@ -24,6 +24,7 @@ import { apiFetch } from "@/lib/apiFetch";
 import { PreflightCheckCard } from "./PreflightCheckCard";
 import { PreflightSummary } from "@/lib/preflight";
 import { ExportBundleResult } from "@/lib/exportBundle";
+import { recoverRenderProgress, RenderAttempt, RenderProgress } from "@/lib/renderRecovery";
 
 interface RenderExportModalProps {
   productId?: string;
@@ -62,6 +63,36 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   const [exportBundle, setExportBundle] = useState<ExportBundleResult | null>(null);
   const [isOpeningFolder, setIsOpeningFolder] = useState<boolean>(false);
   const [folderOpenFeedback, setFolderOpenFeedback] = useState<string | null>(null);
+  const attemptRef = React.useRef<RenderAttempt>({ productId });
+  const terminalRef = React.useRef(false);
+  const lastStatusAtRef = React.useRef(Date.now());
+
+  const applyProgress = (progress: RenderProgress, expected = attemptRef.current) => {
+    const recovered = recoverRenderProgress(progress, expected);
+    if (!recovered || terminalRef.current) return null;
+    lastStatusAtRef.current = Date.now();
+    setIsRendering(recovered.isRendering);
+    setError(recovered.error);
+    setRenderProgress(recovered.percent);
+    setRenderMessage(recovered.message);
+    if (!recovered.isRendering) terminalRef.current = true;
+    if (recovered.videoUrl) {
+      setRenderedUrl(recovered.videoUrl);
+      setRenderTimestamp(Date.now());
+      setExportBundle(recovered.exportBundle || null);
+      onVideoRendered?.(recovered.videoUrl);
+    }
+    return recovered;
+  };
+
+  const readProgress = async (attempt = attemptRef.current) => {
+    const query = new URLSearchParams();
+    if (attempt.productId) query.set("productId", attempt.productId);
+    if (attempt.requestId) query.set("requestId", attempt.requestId);
+    const response = await fetch(`/api/render-video?${query}`, { cache: "no-store" });
+    if (!response.ok) throw new Error("อ่านสถานะเรนเดอร์ไม่สำเร็จ");
+    return (await response.json()).progress as RenderProgress;
+  };
 
   // Sync if initialVideoUrl changes
   React.useEffect(() => {
@@ -74,77 +105,47 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
   // Check ongoing or completed render on mount and on productId change
   React.useEffect(() => {
     let isSubscribed = true;
+    attemptRef.current = { productId };
+    terminalRef.current = false;
+    setIsRendering(false);
+    setError(null);
+    setExportBundle(null);
+    setRenderedUrl(initialVideoUrl || null);
+    const statusAttempt = attemptRef.current;
     const checkStatus = async () => {
       try {
-        const res = await fetch(`/api/render-video?productId=${encodeURIComponent(productId || "")}`);
-        const data = await res.json();
-        if (!isSubscribed) return;
-        if (data?.progress) {
-          const prog = data.progress;
-          if (prog.status === "rendering" || prog.status === "starting" || prog.status === "bundling") {
-            const ageSec = (Date.now() - (prog.updatedAt || 0)) / 1000;
-            if (ageSec < 600) {
-              setIsRendering(true);
-              setRenderProgress(prog.percent || 10);
-              setRenderMessage(prog.message || "กำลังเรนเดอร์วิดีโอ...");
-            }
-          } else if (prog.status === "complete" && prog.videoUrl) {
-            if (!initialVideoUrl && (!prog.productId || prog.productId === productId)) {
-              setRenderedUrl(prog.videoUrl);
-              setRenderTimestamp(Date.now());
-              if (prog.exportBundle) {
-                setExportBundle(prog.exportBundle);
-              }
-              if (onVideoRendered) {
-                onVideoRendered(prog.videoUrl);
-              }
-            }
-          }
-        }
+        const progress = await readProgress({ productId });
+        if (!isSubscribed || attemptRef.current !== statusAttempt) return;
+        if (progress?.requestId) attemptRef.current = { productId, requestId: progress.requestId };
+        applyProgress(progress);
       } catch {}
     };
     checkStatus();
     return () => {
       isSubscribed = false;
     };
-  }, [productId, initialVideoUrl]);
+  }, [productId]);
 
   React.useEffect(() => {
     if (!isRendering) return;
     setRenderProgress((prev) => Math.max(prev, 5));
+    let isSubscribed = true;
     const timer = setInterval(async () => {
+      if (Date.now() - lastStatusAtRef.current > 600000) {
+        terminalRef.current = true;
+        setIsRendering(false);
+        setError("ติดต่อสถานะงานเรนเดอร์ไม่ได้เกิน 10 นาที กรุณาตรวจสอบเซิร์ฟเวอร์ก่อนเริ่มใหม่");
+        return;
+      }
       try {
-        const res = await fetch(`/api/render-video?productId=${encodeURIComponent(productId || "")}`);
-        const data = await res.json();
-        if (data?.progress) {
-          const prog = data.progress;
-          if (typeof prog.percent === "number") {
-            setRenderProgress(prog.percent);
-          }
-          if (prog.message) {
-            setRenderMessage(prog.message);
-          }
-          if (prog.status === "complete" && prog.videoUrl) {
-            setIsRendering(false);
-            setRenderedUrl(prog.videoUrl);
-            setRenderTimestamp(Date.now());
-            setRenderMessage("เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ!");
-            if (prog.exportBundle) {
-              setExportBundle(prog.exportBundle);
-            }
-            if (onVideoRendered) {
-              onVideoRendered(prog.videoUrl);
-            }
-          } else if (prog.status === "error") {
-            setIsRendering(false);
-            setError(prog.message || "เกิดข้อผิดพลาดในการเรนเดอร์");
-          }
-        }
+        const attempt = attemptRef.current;
+        const progress = await readProgress(attempt);
+        if (isSubscribed && attemptRef.current === attempt) applyProgress(progress, attempt);
       } catch {
         // ignore poll error
       }
     }, 1500);
-    return () => clearInterval(timer);
+    return () => { isSubscribed = false; clearInterval(timer); };
   }, [isRendering, productId]);
 
   const handleFixNavigation = (where?: { sceneId?: string; field?: string }) => {
@@ -165,6 +166,11 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
 
     setIsRendering(true);
     setError(null);
+    setExportBundle(null);
+    terminalRef.current = false;
+    lastStatusAtRef.current = Date.now();
+    const attempt = { productId: productId || `prod_${Date.now()}`, requestId: crypto.randomUUID() };
+    attemptRef.current = attempt;
 
     let activeVoiceUrl = videoProps.voiceoverUrl;
     let activeVoiceDuration = videoProps.voiceoverDurationSec;
@@ -198,12 +204,14 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
           throw new Error("สร้างเสียงพากย์ไม่สำเร็จ กรุณาสร้างเสียงใหม่ในหน้า Storyboard");
         }
       } catch (voiceErr) {
+        if (attemptRef.current !== attempt) return;
         setError(voiceErr instanceof Error ? voiceErr.message : "สร้างเสียงพากย์ไม่สำเร็จ");
         setIsRendering(false);
         return;
       }
     }
 
+    if (attemptRef.current !== attempt) return;
     setRenderMessage("กำลังเตรียมข้อมูลเพื่อสร้างวิดีโอ...");
 
     try {
@@ -211,7 +219,8 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
       const data = await apiFetch<any>("/api/render-video", {
         method: "POST",
         body: {
-          productId: productId || `prod_${Date.now()}`,
+          productId: attempt.productId,
+          requestId: attempt.requestId,
           renderMode,
           resolutionScale,
           preflightResults: preflightSummary?.results || [],
@@ -222,9 +231,14 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
             voiceoverDurationSec: activeVoiceDuration,
           },
         },
-      });
+      }, { silent: true });
+
+      if (attemptRef.current !== attempt) return;
 
       if (data && data.success && data.videoUrl) {
+        terminalRef.current = true;
+        setIsRendering(false);
+        setError(null);
         setRenderedUrl(data.videoUrl);
         setRenderTimestamp(Date.now());
         setRenderMessage("เรนเดอร์วิดีโอและสร้าง Export Bundle สำเร็จ!");
@@ -238,9 +252,25 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
         throw new Error(data?.error || "เกิดข้อผิดพลาดในการเรนเดอร์");
       }
     } catch (err: any) {
-      console.error(err);
-      setError(err?.messageTh || err?.message || "Failed to render video");
-    } finally {
+      // The browser can lose the long response while the local worker continues.
+      // A late rejection must not overwrite an already completed poll result.
+      if (attemptRef.current !== attempt || terminalRef.current) return;
+      const transportFailure = !err?.appError?.code || ["NETWORK_OFFLINE", "UNKNOWN"].includes(err.appError.code);
+      try {
+        const progress = await readProgress(attempt);
+        if (attemptRef.current !== attempt || terminalRef.current) return;
+        if ((transportFailure || progress?.status === "complete" || progress?.status === "error") && applyProgress(progress, attempt)) return;
+      } catch {}
+      if (attemptRef.current !== attempt || terminalRef.current) return;
+      if (transportFailure) {
+        setError(null);
+        setRenderMessage("การตอบกลับขาดช่วง กำลังติดตามสถานะงานเรนเดอร์ต่อ...");
+        setIsRendering(true);
+        return;
+      }
+      setError(err?.appError?.code && err.appError.code !== "NETWORK_OFFLINE"
+        ? err.message
+        : "ติดต่อสถานะงานเรนเดอร์ไม่ได้ งานอาจยังทำงานอยู่ กรุณาตรวจสถานะอีกครั้งก่อนเริ่มงานใหม่");
       setIsRendering(false);
     }
   };

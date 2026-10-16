@@ -361,6 +361,8 @@ export default function DashboardPage() {
         theme: activeProduct.storyboard.theme,
         styleDNA: activeProduct.storyboard.styleDNA || activeProduct.styleDNA,
         captionSettings: activeProduct.storyboard.captionSettings,
+        presentationStyle: activeProduct.storyboard.presentationStyle,
+        mascotUrl: activeProduct.storyboard.mascotUrl,
         narrationScript: (activeProduct.storyboard as any)?.narrationScript,
         voiceoverUrl: voiceoverUrl || activeProduct.voiceoverUrl,
         voiceoverDurationSec: voiceoverDurationSec || activeProduct.voiceoverDurationSec,

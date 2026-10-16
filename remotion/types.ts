@@ -181,6 +181,8 @@ export interface AudioSuggestion {
 }
 
 export interface StoryboardPlan {
+  presentationStyle?: "notebook-presenter" | "original";
+  mascotUrl?: string;
   hook: HookData;
   scenes: SceneData[];
   cta: CTAData;
@@ -196,6 +198,8 @@ export interface StoryboardPlan {
 
 export interface ShopeeProductVideoProps {
   [key: string]: any;
+  presentationStyle?: "notebook-presenter" | "original";
+  mascotUrl?: string;
   productName: string;
   price: string;
   images: string[];

@@ -30,6 +30,7 @@ async function stageMinimalPublicDir(inputProps) {
     ...(inputProps.cutoutImages || []),
     inputProps.voiceoverUrl,
     inputProps.bgmUrl,
+    inputProps.mascotUrl ?? "/mascot/presenter.png",
     ...(inputProps.voiceLines || []).map((l) => l?.audioUrl),
   ]);
 
@@ -101,6 +102,7 @@ async function main() {
       concurrency = Math.max(1, Math.min(4, parseInt(args[++i], 10) || 1));
     } else if (args[i] === "--scale" && args[i + 1]) {
       scale = Math.max(0.5, Math.min(1, parseFloat(args[++i]) || 1));
+      if (Math.abs(scale - 0.667) < 0.000001) scale = 2 / 3;
     } else if (args[i] === "--engine" && args[i + 1]) {
       engine = args[++i];
     } else if (args[i] === "--progress-file" && args[i + 1]) {
@@ -128,7 +130,13 @@ async function main() {
   const writeProgress = async (data) => {
     try {
       await fs.mkdir(path.dirname(progressFile), { recursive: true });
-      await fs.writeFile(progressFile, JSON.stringify({ updatedAt: Date.now(), ...data }), "utf-8");
+      await fs.writeFile(progressFile, JSON.stringify({
+        updatedAt: Date.now(), productId: inputProps.productId,
+        requestId: inputProps.renderRequestId,
+        videoUrl: `/renders/${path.basename(outputPath)}`,
+        ...data,
+        ...(data.status === "complete" && inputProps.renderRequestId ? { status: "finalizing", percent: 99, message: "เรนเดอร์เสร็จแล้ว กำลังสร้าง Export Bundle..." } : {}),
+      }), "utf-8");
     } catch {}
   };
 
@@ -215,7 +223,7 @@ async function main() {
       },
     });
 
-    await fs.writeFile(outputPath.replace(/\.mp4$/i, ".render.json"), JSON.stringify({ engine: "remotion", pack: inputProps.styleDNA?.pack || "pro-minimal-luxury", captionCues: inputProps.captionCues, fps: composition.fps, durationSec: composition.durationInFrames / composition.fps }, null, 2));
+    await fs.writeFile(outputPath.replace(/\.mp4$/i, ".render.json"), JSON.stringify({ engine: "remotion", presentationStyle: inputProps.presentationStyle || "notebook-presenter", pack: inputProps.styleDNA?.pack || "pro-minimal-luxury", captionCues: inputProps.captionCues, fps: composition.fps, durationSec: composition.durationInFrames / composition.fps }, null, 2));
     await writeProgress({
       status: "complete",
       percent: 100,

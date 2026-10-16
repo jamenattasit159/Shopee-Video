@@ -716,6 +716,29 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
       </div>
 
       {/* Style DNA & Visual Pack Bar (12 Packs + 7 Layouts) */}
+      <div className="space-y-2">
+        <label htmlFor="video-presentation-style" className="text-sm font-semibold text-base-content">รูปแบบการนำเสนอ</label>
+        <select
+          id="video-presentation-style"
+          className="select select-bordered w-full rounded-xl sm:max-w-sm"
+          value={data.presentationStyle || "notebook-presenter"}
+          aria-describedby="video-presentation-help"
+          onChange={(event) => {
+            const updated = { ...data, presentationStyle: event.target.value as "notebook-presenter" | "original" };
+            setData(updated);
+            onUpdateStoryboard(updated);
+          }}
+        >
+          <option value="notebook-presenter">สมุดกระดาษ + มาสคอตของคุณ</option>
+          <option value="original">ธีมและเลย์เอาต์เดิม</option>
+        </select>
+        <p id="video-presentation-help" className="text-sm text-base-content/65">
+          {data.presentationStyle === "original"
+            ? "เลือกธีม สี และเลย์เอาต์ของแต่ละฉากได้ด้านล่าง"
+            : "มาสคอตนำเสนอคู่กับสินค้า พร้อมซับสติกเกอร์ตามเสียง ใช้รูปแบบเดียวกันทั้งพรีวิวและไฟล์ MP4"}
+        </p>
+      </div>
+      {data.presentationStyle === "original" && (
       <div className="bg-base-200/50 border border-base-300 rounded-2xl p-5 space-y-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -814,6 +837,8 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
           </div>
         </div>
       </div>
+
+      )}
 
       {/* Professional AI Voiceover (TTS) + Pronunciation & Thai Accent Tuner */}
       <div className="bg-base-200/50 border border-base-300 rounded-2xl p-5 space-y-4 shadow-xs">
@@ -1224,7 +1249,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
                 onChange={(e) => updateCaptionSettings({ style: e.target.value as CaptionStyleId })}
                 className="select select-bordered select-sm w-full rounded-xl bg-base-100 text-xs font-medium"
               >
-                <option value="tiktok-pop">TikTok Pop (เด้งทีละคำยอดฮิต)</option>
+                <option value="tiktok-pop">{data.presentationStyle === "original" ? "TikTok Pop (เด้งทีละคำยอดฮิต)" : "สติกเกอร์กระดาษ (ขึ้นตามช่วงเสียง)"}</option>
                 <option value="karaoke-pill">Karaoke Pill (แคปซูลโมเดิร์น)</option>
                 <option value="clean-bar">Clean Bar (แถบซับขาวคลีนอ่านง่าย)</option>
                 <option value="minimal-outline">Minimal Outline (ขอบหนาไร้พื้นหลัง ไม่บังคลิป)</option>
@@ -1355,7 +1380,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-primary uppercase tracking-wide flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-            <span>ช่วงที่ 2: Body นำเสนอจุดเด่นสินค้า (เลือกภาพ/คลิป และ Layout รายฉากได้)</span>
+            <span>ช่วงที่ 2: Body นำเสนอจุดเด่นสินค้า{data.presentationStyle === "original" ? " (เลือกภาพ/คลิป และ Layout รายฉากได้)" : " (เลือกภาพหรือคลิปสำหรับแต่ละฉาก)"}</span>
           </h3>
           <span className="text-xs text-base-content/60 font-medium">
             {data.scenes.length} ฉาก
@@ -1376,7 +1401,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
                   <span>ฉากจุดเด่นที่ {idx + 1}</span>
                 </span>
 
-                <div className="flex items-center gap-2">
+                {data.presentationStyle === "original" && <div className="flex items-center gap-2">
                   <span className="text-base-content/60 font-medium">รูปแบบการจัดวาง:</span>
                   <select
                     value={scene.layout || ALL_SCENE_LAYOUTS[idx % ALL_SCENE_LAYOUTS.length].id}
@@ -1389,7 +1414,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
                       </option>
                     ))}
                   </select>
-                </div>
+                </div>}
               </div>
 
               {renderMediaSelector(

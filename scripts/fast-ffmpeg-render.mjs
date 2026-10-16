@@ -115,7 +115,8 @@ export async function runFastFfmpegRender({ inputProps: props, outputPath, scale
       await fs.writeFile(
         progressFile,
         JSON.stringify({
-          status,
+          status: status === 'complete' && props.renderRequestId ? 'finalizing' : status,
+          requestId: props.renderRequestId,
           percent,
           message,
           productId: props.productId,

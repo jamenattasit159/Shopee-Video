@@ -16,6 +16,7 @@ import { resolveMediaSrc } from "./utils";
 import { THEME } from "./theme";
 import { buildVideoTimeline } from "./lib/videoTimeline";
 import { TikTokCaptions } from "./components/TikTokCaptions";
+import { NotebookPresenterScene } from "./components/NotebookPresenterScene";
 
 export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
   productName: "แก้วเก็บความเย็น Tyeso สแตนเลส 304",
@@ -120,6 +121,8 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
   captionCues,
   mediaDurations,
   narrationScript,
+  presentationStyle = "notebook-presenter",
+  mascotUrl,
 }) => {
   const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -287,7 +290,21 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
       </Sequence>
 
       {/* 🎬 5. TRANSITION SERIES */}
-      <TransitionSeries>
+      {presentationStyle === "notebook-presenter" ? timeline.scenes.map((item, index) => (
+        <Sequence key={item.id} from={item.from} durationInFrames={item.durationInFrames}>
+          <NotebookPresenterScene
+            data={{ ...item.data, ...sceneMedia(index) } as any}
+            role={item.role}
+            index={index}
+            imageSrc={getImageForIndex(item.mediaIndex)}
+            mascotUrl={mascotUrl}
+            price={price}
+            captionCues={captionCues}
+            captionSettings={captionSettings}
+            startFrame={item.from}
+          />
+        </Sequence>
+      )) : <TransitionSeries>
         {/* Scene 1: Hook */}
         <TransitionSeries.Sequence durationInFrames={hookDurationFrames + TRANSITION_FRAMES}>
           <HookScene
@@ -351,10 +368,10 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             hideSubtitle={hideSubtitle[hideSubtitle.length - 1]}
           />
         </TransitionSeries.Sequence>
-      </TransitionSeries>
+      </TransitionSeries>}
 
       {/* 💬 7. SUBTITLES & POP CAPTIONS */}
-      {captionsOn && (
+      {captionsOn && (presentationStyle !== "notebook-presenter" || activeCaptionSettings.style !== "tiktok-pop") && (
         <TikTokCaptions
           pages={captionPages}
           showEnglish={language === "both"}
@@ -366,7 +383,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
       )}
 
       {/* ⏱️ 6. TOP PROGRESS BAR */}
-      <div
+      {presentationStyle !== "notebook-presenter" && <div
         style={{
           position: "absolute",
           top: "18px",
@@ -387,7 +404,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             borderRadius: "999px",
           }}
         />
-      </div>
+      </div>}
     </AbsoluteFill>
   );
 };
