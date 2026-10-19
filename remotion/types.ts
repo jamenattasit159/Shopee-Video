@@ -109,6 +109,8 @@ export interface HookData {
   durationMode?: "voice" | "manual";
   videoAudioMode?: "mute" | "mix";
   customCaption?: string;
+  /** 2–3 short checklist items that pop in beside the product frame. */
+  popPoints?: string[];
 }
 
 export interface SceneData {
@@ -130,6 +132,8 @@ export interface SceneData {
   durationMode?: "voice" | "manual";
   videoAudioMode?: "mute" | "mix";
   customCaption?: string;
+  /** 2–3 short checklist items that pop in beside the product frame. */
+  popPoints?: string[];
 }
 
 export interface CTAData {
@@ -149,6 +153,8 @@ export interface CTAData {
   durationMode?: "voice" | "manual";
   videoAudioMode?: "mute" | "mix";
   customCaption?: string;
+  /** 2–3 short checklist items that pop in beside the product frame. */
+  popPoints?: string[];
 }
 
 export interface CollageScene {

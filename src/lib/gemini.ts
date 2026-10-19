@@ -145,6 +145,7 @@ Return ONLY a valid JSON object matching this schema:
     "subheadline": "Catchy intrigue subtitle (max 28 chars)",
     "captionLines": ["Line 1 (<= 18 chars)", "Line 2 (<= 18 chars)"],
     "badgeText": "Badge tag with emoji",
+    "popPoints": ["2-3 ultra-short checklist items, <= 10 chars each, no emoji (e.g. \"ผม\", \"หน้า\", \"ผิวกาย\")"],
     "highlightWord": "Word to highlight with marker",
     "paperTheme": "kraft",
     "durationSec": 3
@@ -156,6 +157,7 @@ Return ONLY a valid JSON object matching this schema:
       "highlightDesc": "Distinct benefit without repeating price (max 28 chars)",
       "captionLines": ["Line 1 (<= 18 chars)", "Line 2 (<= 18 chars)"],
       "stickerText": "Sticker tag with emoji",
+      "popPoints": ["2-3 ultra-short checklist items grounded in facts, <= 10 chars each, no emoji"],
       "highlightWord": "Word to highlight",
       "layout": "hero-center",
       "paperTheme": "cream-grid",
@@ -770,6 +772,14 @@ function deriveIntelligentBenefits(
   return defaultList[index % defaultList.length];
 }
 
+function cleanPopPoints(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const items = raw
+    .map((v) => String(v).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^(?:\d+[\s.)\-]+|[•\-\*]\s*)/, "").trim())
+    .filter((v) => v.length > 0 && v.length <= 16);
+  return items.length >= 2 ? items.slice(0, 3) : undefined;
+}
+
 function validateAndNormalizeStoryboard(
   data: any,
   params: ScriptGenerationParams,
@@ -824,6 +834,7 @@ function validateAndNormalizeStoryboard(
     captionLines: hookCaptionLines.slice(0, 2),
     badgeText: data.hook?.badgeText || "🔥 ป้ายยาไอเทมเด็ด",
     highlightWord: data.hook?.highlightWord,
+    popPoints: cleanPopPoints(data.hook?.popPoints),
     paperTheme: data.hook?.paperTheme || "kraft",
     durationSec: Number(data.hook?.durationSec) || 3,
   };
@@ -882,6 +893,7 @@ function validateAndNormalizeStoryboard(
       captionLines: captionLines.slice(0, 2),
       stickerText,
       highlightWord: s.highlightWord || smart.word,
+      popPoints: cleanPopPoints(s.popPoints),
       layout,
       paperTheme,
       imageIndex: typeof s.imageIndex === "number" ? s.imageIndex : idx,

@@ -5,8 +5,14 @@ import { FONTS, PALETTE } from "../lib/palette";
 import { splitSafeThaiLines } from "../lib/thaiKeep";
 import { MediaElement } from "../paper/CutoutImage";
 import type { CaptionCue, CaptionSettings, CTAData, HookData, SceneData } from "../types";
-import { resolveMediaSrc } from "../utils";
+import { isVideoMedia, resolveMediaSrc } from "../utils";
 import { mascotFrameUrl, MascotAnimation } from "../lib/mascotAnimation";
+import { CheckChips } from "./CheckChips";
+import { PopHeadline } from "./PopHeadline";
+
+/** Product frame box on the 1080×1920 canvas: kept inside the safe zone (x ≤ 910, y ≤ 1520). */
+const FRAME = { left: 290, top: 640, width: 610, height: 760 };
+const short = (items: string[], max: number) => items.length >= 2 && items.length <= 3 && items.every((t) => t.length > 0 && t.length <= max);
 
 export const DEFAULT_PRESENTER = "/mascot/presenter.png";
 const INK = PALETTE.ink;
@@ -45,8 +51,16 @@ export const NotebookPresenterScene: React.FC<{
   const headline = clean("headline" in data ? data.headline : "highlightTitle" in data ? data.highlightTitle : data.ctaTitle);
   const description = clean("subheadline" in data ? data.subheadline : "highlightDesc" in data ? data.highlightDesc : "ctaSubtitle" in data ? data.ctaSubtitle : "");
   const badge = clean("stickerText" in data ? data.stickerText : "badgeText" in data ? data.badgeText : "") || (role === "hook" ? "ไอเทมน่าใช้" : role === "cta" ? "พิกัดสินค้า" : "รู้จักให้มากขึ้น");
-  const lines = splitSafeThaiLines(headline, 17, 4);
-  const headlineFontSize = Math.min(76, ...lines.map((text) => fitText({ text, fontFamily: FONTS.heading, fontWeight: 800, withinWidth: 780 }).fontSize));
+  const givenLines = (data.headlineLines || []).map(clean).filter(Boolean);
+  const lines = givenLines.length > 0 && givenLines.length <= 3 ? givenLines : splitSafeThaiLines(headline, 14, 3);
+  const grow = spring({ frame, fps, config: { damping: 12, stiffness: 160, mass: 0.8 } });
+  const givenPoints = (data.popPoints || []).map(clean).filter(Boolean);
+  const captionPoints = (data.captionLines || []).map(clean).filter(Boolean);
+  const chips = role === "cta"
+    ? (description ? [description] : [])
+    : short(givenPoints, 16) ? givenPoints
+    : short(captionPoints, 16) ? captionPoints
+    : description ? splitSafeThaiLines(description, 14, 3) : [];
   const color = LABELS[index % LABELS.length];
   const grid = index % 2 === 1;
   const seconds = (currentFrame + startFrame) / fps;
@@ -55,7 +69,7 @@ export const NotebookPresenterScene: React.FC<{
   const caption = cue ? (language === "en" ? cue.en || cue.text : cue.text) : "";
   // Phrase stickers retain the real alignment interval; no invented word timestamps.
   const captionParts = caption ? splitSafeThaiLines(caption, 12, 6) : [];
-  const captionTop = captionSettings?.position === "top" ? 600 : captionSettings?.position === "center" ? 1020 : 1390;
+  const captionTop = captionSettings?.position === "top" ? 600 : captionSettings?.position === "center" ? 1020 : 1430;
   const drift = Math.sin(Math.floor(frame / 4) / 7);
   return <AbsoluteFill style={{ backgroundColor: PAPERS[index % PAPERS.length], color: INK, fontFamily: FONTS.heading, overflow: "hidden" }}>
     <AbsoluteFill style={{ opacity: 0.3, backgroundImage: grid
@@ -69,22 +83,23 @@ export const NotebookPresenterScene: React.FC<{
     <div style={{ position: "absolute", top: 245, left: 150, width: 660, textAlign: "center", transform: `rotate(-1deg) scale(${0.96 + enter * 0.04})`, fontSize: badge.length > 24 ? 30 : 38, fontWeight: 700 }}>
       <Sticker color={color} style={{ color: "white", borderRadius: 2, borderStyle: "dashed", padding: "15px 24px" }}>{badge}</Sticker>
     </div>
-    <div style={{ position: "absolute", left: 85, top: 380, width: 800, textAlign: "center", fontSize: headlineFontSize, fontWeight: 800, lineHeight: 1.25, WebkitTextStroke: "12px white", paintOrder: "stroke fill", filter: `drop-shadow(3px 5px 0 ${INK})`, transform: `translateY(${(1 - enter) * 24}px)`, opacity: Math.min(1, enter * 2) }}>
-      {lines.map((line, i) => <div key={i}>{line}</div>)}
+    <div style={{ position: "absolute", left: 80, top: 345, width: 820, height: 280, display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <PopHeadline lines={lines} highlightWord={"highlightWord" in data ? clean(data.highlightWord) : undefined} accent={color} frame={frame} fps={fps} width={820} maxHeight={270} />
     </div>
-    {role === "cta" && description && <div style={{ position: "absolute", top: 590, left: 100, width: 770, textAlign: "center", fontSize: 30, lineHeight: 1.4 }}>{description}</div>}
 
-    <div style={{ position: "absolute", left: 430, top: 700, width: 445, height: 550, padding: "16px 16px 64px", background: "white", border: `4px solid ${INK}`, borderRadius: "10px 6px 14px 8px", boxShadow: `7px 9px 0 ${INK}25`, transform: `translateY(${(1 - enter) * 90}px) rotate(${index % 2 ? 2 : -2}deg) scale(${0.92 + enter * 0.08})`, opacity: Math.min(1, enter * 2) }}>
-      <MediaElement src={imageSrc} videoStartSec={data.videoStartSec} videoEndSec={data.videoEndSec} videoFillMode={data.videoFillMode} videoAudioMode={data.videoAudioMode} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-      <div style={{ position: "absolute", height: 35, width: 150, left: 145, top: -18, background: "rgba(231,198,130,0.75)", transform: "rotate(-6deg)" }} />
-      <div style={{ position: "absolute", bottom: 14, left: 16, right: 16, textAlign: "center", fontFamily: FONTS.handwriting, fontSize: 25 }}>{role === "cta" ? clean((data as CTAData).buttonText) || "พิกัดในตะกร้า" : "ดูใกล้ ๆ น่าใช้แค่ไหน"}</div>
+    <div style={{ position: "absolute", ...FRAME, padding: 14, background: "white", border: `4px solid ${INK}`, borderRadius: "10px 6px 14px 8px", boxShadow: `9px 11px 0 ${INK}25`, transform: `translateY(${(1 - enter) * 60}px) rotate(${index % 2 ? 1.5 : -1.5}deg) scale(${0.6 + grow * 0.4})`, opacity: Math.min(1, grow * 3) }}>
+      <MediaElement src={imageSrc} videoStartSec={data.videoStartSec} videoEndSec={data.videoEndSec} videoFillMode={data.videoFillMode} videoAudioMode={data.videoAudioMode} style={{ width: "100%", height: "100%", objectFit: isVideoMedia(imageSrc) ? "cover" : "contain", borderRadius: 4 }} />
+      <div style={{ position: "absolute", height: 38, width: 170, left: FRAME.width / 2 - 85, top: -20, background: "rgba(231,198,130,0.75)", transform: "rotate(-6deg)" }} />
     </div>
-    {mascotUrl && <Img src={resolveMediaSrc(mascotFrameUrl(mascotUrl, mascotAnimation, seconds))} style={{ position: "absolute", left: 32, top: 810, width: 455, height: 569, objectFit: "contain", mixBlendMode: mascotUrl === DEFAULT_PRESENTER ? "multiply" : "normal", transformOrigin: "50% 95%", transform: mascotUrl === DEFAULT_PRESENTER && !mascotAnimation ? `translateY(${drift * 4 + (1 - enter) * 30}px) rotate(${drift * 0.7}deg)` : undefined, opacity: Math.min(1, enter * 2) }} />}
-    <div style={{ position: "absolute", top: 1280, left: 430, width: 440, display: "flex", justifyContent: "center", transform: "rotate(2deg)", fontSize: role === "cta" ? 42 : 28, fontWeight: 700, textAlign: "center" }}>
-      <Sticker color={role === "cta" ? PALETTE.markerYellow : "white"} style={{ maxWidth: "100%", overflowWrap: "anywhere", ...(role === "cta" && price ? { fontSize: Math.min(42, fitText({ text: price, fontFamily: FONTS.heading, fontWeight: 700, withinWidth: 370 }).fontSize) } : {}) }}>
-        {role === "cta" ? price || clean((data as CTAData).buttonText) : description || badge}
+    {chips.length > 0 && <div style={{ position: "absolute", right: 1080 - FRAME.left - FRAME.width + 10, top: 770 }}>
+      <CheckChips items={chips} accent={color} frame={frame} fps={fps} showCheck={role !== "cta"} sfx={!still} />
+    </div>}
+    {mascotUrl && <Img src={resolveMediaSrc(mascotFrameUrl(mascotUrl, mascotAnimation, seconds))} style={{ position: "absolute", left: 16, top: 990, width: 340, height: 425, objectFit: "contain", mixBlendMode: mascotUrl === DEFAULT_PRESENTER ? "multiply" : "normal", transformOrigin: "50% 95%", transform: mascotUrl === DEFAULT_PRESENTER && !mascotAnimation ? `translateY(${drift * 4 + (1 - enter) * 30}px) rotate(${drift * 0.7}deg)` : undefined, opacity: Math.min(1, enter * 2) }} />}
+    {role === "cta" && <div style={{ position: "absolute", top: 1300, left: 380, width: 500, display: "flex", justifyContent: "center", transform: "rotate(2deg)", fontSize: 42, fontWeight: 700, textAlign: "center" }}>
+      <Sticker color={PALETTE.markerYellow} style={{ maxWidth: "100%", overflowWrap: "anywhere", ...(price ? { fontSize: Math.min(42, fitText({ text: price, fontFamily: FONTS.heading, fontWeight: 700, withinWidth: 430 }).fontSize) } : {}) }}>
+        {price || clean((data as CTAData).buttonText)}
       </Sticker>
-    </div>
+    </div>}
     {captionSettings?.enabled !== false && (!captionSettings?.style || captionSettings.style === "tiktok-pop") && captionParts.length > 0 && <div style={{ position: "absolute", left: 78, top: captionTop, width: 810, display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: 12, fontFamily: FONTS.caption, fontSize: captionSettings?.fontSize || 42, fontWeight: 800 }}>
       {captionParts.map((part, i) => <Sticker key={i} color={i % 2 ? "white" : captionSettings?.highlightColor || PALETTE.markerYellow} style={{ padding: "8px 16px", transform: `rotate(${i % 2 ? 1 : -2}deg)`, maxWidth: "100%", overflowWrap: "anywhere" }}>{part}</Sticker>)}
       {language === "both" && cue?.en && <div style={{ width: "100%", fontSize: 28, textAlign: "center", background: PAPERS[index % PAPERS.length] }}>{cue.en}</div>}
