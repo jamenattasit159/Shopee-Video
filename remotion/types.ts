@@ -111,6 +111,8 @@ export interface HookData {
   customCaption?: string;
   /** 2–3 short checklist items that pop in beside the product frame. */
   popPoints?: string[];
+  /** Mascot gesture for this scene; picked automatically when unset. */
+  mascotPose?: import("./lib/mascotAnimation").MascotPose;
 }
 
 export interface SceneData {
@@ -134,6 +136,8 @@ export interface SceneData {
   customCaption?: string;
   /** 2–3 short checklist items that pop in beside the product frame. */
   popPoints?: string[];
+  /** Mascot gesture for this scene; picked automatically when unset. */
+  mascotPose?: import("./lib/mascotAnimation").MascotPose;
 }
 
 export interface CTAData {
@@ -155,6 +159,8 @@ export interface CTAData {
   customCaption?: string;
   /** 2–3 short checklist items that pop in beside the product frame. */
   popPoints?: string[];
+  /** Mascot gesture for this scene; picked automatically when unset. */
+  mascotPose?: import("./lib/mascotAnimation").MascotPose;
 }
 
 export interface CollageScene {

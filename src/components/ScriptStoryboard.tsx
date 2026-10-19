@@ -48,6 +48,7 @@ import { VoiceStylePicker } from "./VoiceStylePicker";
 import { VoiceIntensity } from "@/lib/voicePresets";
 import { apiFetch } from "@/lib/apiFetch";
 import { MascotUpload } from "./MascotUpload";
+import { availableMascotPoses, MascotPoseSelect } from "./MascotPoseSelect";
 
 interface ScriptStoryboardProps {
   productId?: string;
@@ -401,6 +402,8 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
     setData(updated);
     onUpdateStoryboard(updated);
   };
+
+  const mascotPoses = data.presentationStyle !== "original" ? availableMascotPoses(data.mascotAnimation) : [];
 
   const updateScene = (idx: number, field: string, val: any) => {
     const newScenes = [...data.scenes];
@@ -1417,6 +1420,8 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             />
           </div>
         </div>
+
+        <MascotPoseSelect id="mascot-pose-hook" value={data.hook.mascotPose} poses={mascotPoses} onChange={(pose) => updateHook("mascotPose", pose)} />
       </div>
 
       {/* 2. Body Scenes Editor (3-12s) */}
@@ -1508,6 +1513,8 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
                   className="input input-bordered w-full rounded-xl bg-base-100 text-base-content border-base-300 focus:border-primary text-xs shadow-xs"
                 />
               </div>
+
+              <MascotPoseSelect id={`mascot-pose-scene-${idx}`} value={scene.mascotPose} poses={mascotPoses} onChange={(pose) => updateScene(idx, "mascotPose", pose)} />
             </div>
           ))}
         </div>
@@ -1588,6 +1595,8 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             />
           </div>
         </div>
+
+        <MascotPoseSelect id="mascot-pose-cta" value={data.cta.mascotPose} poses={mascotPoses} onChange={(pose) => updateCta("mascotPose", pose)} />
       </div>
 
       {/* 4. POST CAPTIONS & HASHTAGS */}

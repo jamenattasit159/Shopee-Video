@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
 import { getProductById, saveProduct } from "@/lib/storage";
-import { MAX_MASCOT_BYTES, storeMascot } from "@/lib/mascotUpload";
+import { MAX_MASCOT_BYTES, reanalyseMascot, storeMascot } from "@/lib/mascotUpload";
 import { withErrorHandling } from "@/lib/serverError";
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
@@ -12,6 +12,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   let mascot: Awaited<ReturnType<typeof storeMascot>> | { mascotUrl: undefined; mascotAnimation: undefined };
   if (form.get("reset") === "true") {
     mascot = { mascotUrl: undefined, mascotAnimation: undefined };
+  } else if (form.get("analyze") === "true") {
+    const { mascotUrl, mascotAnimation } = product.storyboard;
+    if (!mascotUrl || !mascotAnimation?.frames?.length) return NextResponse.json({ error: "มาสคอตนี้มีภาพเดียว ไม่ต้องแยกท่าทาง" }, { status: 400 });
+    try {
+      mascot = { mascotUrl, mascotAnimation: await reanalyseMascot(mascotAnimation, path.resolve("public/uploads")) };
+    } catch {
+      return NextResponse.json({ error: "อ่านไฟล์มาสคอตเดิมไม่ได้ กรุณาอัปโหลดใหม่อีกครั้ง" }, { status: 400 });
+    }
   } else {
     const file = form.get("file");
     if (!(file instanceof File) || file.size > MAX_MASCOT_BYTES || !file.size) {

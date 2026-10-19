@@ -17,6 +17,7 @@ import { THEME } from "./theme";
 import { buildVideoTimeline } from "./lib/videoTimeline";
 import { TikTokCaptions } from "./components/TikTokCaptions";
 import { NotebookPresenterScene } from "./components/NotebookPresenterScene";
+import { planMascotPoses } from "./lib/mascotAnimation";
 
 export const defaultShopeeVideoProps: ShopeeProductVideoProps = {
   productName: "แก้วเก็บความเย็น Tyeso สแตนเลส 304",
@@ -208,6 +209,8 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
     return { videoStartSec: item.videoStartSec, videoEndSec: item.videoEndSec, videoFillMode: item.fillMode };
   };
 
+  const mascotClips = planMascotPoses(mascotAnimation, timeline.scenes.map((item) => ({ role: item.role, requested: item.data?.mascotPose })));
+
   const hasVoice = !!voiceoverUrl || !!voiceLines?.some((l) => l.audioUrl);
   const bgmLevel = hasVoice ? THEME.audio.bgmVolumeUnderVoice : THEME.audio.bgmVolume;
 
@@ -300,6 +303,7 @@ export const ShopeeProductVideo: React.FC<ShopeeProductVideoProps> = ({
             imageSrc={getImageForIndex(item.mediaIndex)}
             mascotUrl={mascotUrl}
             mascotAnimation={mascotAnimation}
+            mascotClip={mascotClips[index]}
             price={price}
             captionCues={captionCues}
             captionSettings={captionSettings}

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { RotateCcw, Upload } from "lucide-react";
-import type { MascotAnimation } from "../../remotion/lib/mascotAnimation";
+import { RotateCcw, Sparkles, Upload } from "lucide-react";
+import { MASCOT_POSE_LABELS, type MascotAnimation } from "../../remotion/lib/mascotAnimation";
 
 interface MascotSelection { mascotUrl?: string; mascotAnimation?: MascotAnimation; }
 export function MascotUpload({ productId, value, onChange }: {
@@ -22,7 +22,7 @@ export function MascotUpload({ productId, value, onChange }: {
     return () => pending.current?.abort();
   }, [productId]);
 
-  const save = async (file?: File) => {
+  const save = async (file?: File, analyze = false) => {
     if (file && (!file.size || file.size > 10 * 1024 * 1024)) {
       setError("กรุณาเลือกไฟล์ขนาดไม่เกิน 10 MB");
       return;
@@ -35,7 +35,7 @@ export function MascotUpload({ productId, value, onChange }: {
     try {
       const form = new FormData();
       form.set("productId", productId);
-      if (file) form.set("file", file); else form.set("reset", "true");
+      if (file) form.set("file", file); else if (analyze) form.set("analyze", "true"); else form.set("reset", "true");
       const response = await fetch("/api/mascot", { method: "POST", body: form, signal: controller.signal });
       const result = await response.json();
       if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "อัปโหลดมาสคอตไม่สำเร็จ");
@@ -48,10 +48,13 @@ export function MascotUpload({ productId, value, onChange }: {
     }
   };
 
+  const poses = value.mascotAnimation?.poses || [];
+  const needsAnalysis = !!value.mascotAnimation && !value.mascotAnimation.poses;
+
   return <section className="space-y-3" aria-labelledby="mascot-upload-title" aria-busy={uploading}>
     <div className="flex items-center justify-between gap-3">
       <h3 id="mascot-upload-title" className="text-sm font-semibold">มาสคอตของคลิปนี้</h3>
-      <span className="badge badge-outline badge-sm">{value.mascotAnimation ? "ภาพเคลื่อนไหว" : value.mascotUrl ? "ภาพที่อัปโหลด" : "ตัวละครเริ่มต้น"}</span>
+      <span className="badge badge-outline badge-sm">{poses.length ? `${poses.length} ท่า` : value.mascotAnimation ? "ภาพเคลื่อนไหว" : value.mascotUrl ? "ภาพที่อัปโหลด" : "ตัวละครเริ่มต้น"}</span>
     </div>
     <div className="flex items-center gap-4">
       <div className="flex h-28 w-24 shrink-0 items-center justify-center rounded-xl bg-base-200 p-2">
@@ -65,7 +68,19 @@ export function MascotUpload({ productId, value, onChange }: {
         <p id="mascot-file-help" className="text-xs text-base-content/65">PNG, JPG, WebP หรือ GIF ไม่เกิน 10 MB / 120 เฟรม แนะนำพื้นหลังโปร่งใส บันทึกแยกตามสินค้า</p>
       </div>
     </div>
+    {poses.length > 0 && <div className="space-y-2">
+      <p className="text-xs text-base-content/65">ระบบเลือกท่าให้เข้ากับแต่ละฉากอัตโนมัติ เปลี่ยนเองได้ในแต่ละฉากด้านล่าง</p>
+      <ul className="flex flex-wrap gap-2" aria-label="ท่าทางที่ตรวจพบ">
+        {poses.map((clip, i) => <li key={i} className="flex items-center gap-2 rounded-xl bg-base-200 py-1 pl-1 pr-3 text-xs">
+          <img src={clip.frames[0]?.url} alt="" className="size-8 rounded-lg bg-base-100 object-contain" />
+          {MASCOT_POSE_LABELS[clip.pose]}
+        </li>)}
+      </ul>
+    </div>}
     <div className="flex flex-wrap items-center gap-3">
+      {needsAnalysis && <button type="button" className="btn btn-primary btn-sm rounded-xl" disabled={uploading} onClick={() => void save(undefined, true)}>
+        <Sparkles className="size-4" aria-hidden="true" />แยกท่าทางให้เลือกตามฉาก
+      </button>}
       <button type="button" className="btn btn-ghost btn-sm rounded-xl" disabled={uploading || !value.mascotUrl} onClick={() => void save()}>
         <RotateCcw className="size-4" aria-hidden="true" />ใช้มาสคอตเริ่มต้น
       </button>

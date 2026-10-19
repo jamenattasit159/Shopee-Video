@@ -6,7 +6,8 @@ import { splitSafeThaiLines } from "../lib/thaiKeep";
 import { MediaElement } from "../paper/CutoutImage";
 import type { CaptionCue, CaptionSettings, CTAData, HookData, SceneData } from "../types";
 import { isVideoMedia, resolveMediaSrc } from "../utils";
-import { mascotFrameUrl, MascotAnimation } from "../lib/mascotAnimation";
+import { mascotFrameUrl, MascotAnimation, MascotPoseClip } from "../lib/mascotAnimation";
+import { MascotPaperCut } from "./MascotPaperCut";
 import { CheckChips } from "./CheckChips";
 import { PopHeadline } from "./PopHeadline";
 
@@ -38,12 +39,14 @@ export const NotebookPresenterScene: React.FC<{
   imageSrc: string;
   mascotUrl?: string;
   mascotAnimation?: MascotAnimation;
+  /** Pose chosen for this scene; when set the mascot holds it instead of cycling every GIF frame. */
+  mascotClip?: MascotPoseClip;
   price: string;
   captionCues?: CaptionCue[];
   captionSettings?: CaptionSettings;
   startFrame?: number;
   still?: boolean;
-}> = ({ data, role, index, imageSrc, mascotUrl = DEFAULT_PRESENTER, mascotAnimation, price, captionCues = [], captionSettings, startFrame = 0, still = false }) => {
+}> = ({ data, role, index, imageSrc, mascotUrl = DEFAULT_PRESENTER, mascotAnimation, mascotClip, price, captionCues = [], captionSettings, startFrame = 0, still = false }) => {
   const currentFrame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const frame = still ? 45 : currentFrame;
@@ -94,7 +97,14 @@ export const NotebookPresenterScene: React.FC<{
     {chips.length > 0 && <div style={{ position: "absolute", right: 1080 - FRAME.left - FRAME.width + 10, top: 770 }}>
       <CheckChips items={chips} accent={color} frame={frame} fps={fps} showCheck={role !== "cta"} sfx={!still} />
     </div>}
-    {mascotUrl && <Img src={resolveMediaSrc(mascotFrameUrl(mascotUrl, mascotAnimation, seconds))} style={{ position: "absolute", left: 16, top: 990, width: 340, height: 425, objectFit: "contain", mixBlendMode: mascotUrl === DEFAULT_PRESENTER ? "multiply" : "normal", transformOrigin: "50% 95%", transform: mascotUrl === DEFAULT_PRESENTER && !mascotAnimation ? `translateY(${drift * 4 + (1 - enter) * 30}px) rotate(${drift * 0.7}deg)` : undefined, opacity: Math.min(1, enter * 2) }} />}
+    {mascotUrl === DEFAULT_PRESENTER
+      ? <Img src={resolveMediaSrc(mascotFrameUrl(mascotUrl, mascotAnimation, seconds))} style={{ position: "absolute", left: 16, top: 990, width: 340, height: 425, objectFit: "contain", mixBlendMode: "multiply", transformOrigin: "50% 95%", transform: !mascotAnimation ? `translateY(${drift * 4 + (1 - enter) * 30}px) rotate(${drift * 0.7}deg)` : undefined, opacity: Math.min(1, enter * 2) }} />
+      : mascotUrl && <MascotPaperCut
+        id={`s${index}`}
+        frame={frame}
+        src={resolveMediaSrc(mascotClip ? mascotFrameUrl(mascotUrl, mascotClip, frame / fps) : mascotFrameUrl(mascotUrl, mascotAnimation, seconds))}
+        style={{ position: "absolute", left: 16, top: 990, width: 340, height: 425, objectFit: "contain", transformOrigin: "50% 95%", transform: `translateY(${(1 - enter) * 30}px)`, opacity: Math.min(1, enter * 2) }}
+      />}
     {role === "cta" && <div style={{ position: "absolute", top: 1300, left: 380, width: 500, display: "flex", justifyContent: "center", transform: "rotate(2deg)", fontSize: 42, fontWeight: 700, textAlign: "center" }}>
       <Sticker color={PALETTE.markerYellow} style={{ maxWidth: "100%", overflowWrap: "anywhere", ...(price ? { fontSize: Math.min(42, fitText({ text: price, fontFamily: FONTS.heading, fontWeight: 700, withinWidth: 430 }).fontSize) } : {}) }}>
         {price || clean((data as CTAData).buttonText)}

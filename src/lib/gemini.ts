@@ -12,6 +12,7 @@ import {
 import { loadStyleHistory, pickStyleDNA } from "./styleDirector";
 import { buildNaturalNarrationText } from "./narrationHelper";
 import { splitSafeThaiLines, validateLine } from "../../remotion/lib/thaiKeep";
+import { isMascotPose } from "../../remotion/lib/mascotAnimation";
 import { getRecommendedPresetForCategory } from "./voicePresets";
 
 export {
@@ -145,6 +146,7 @@ Return ONLY a valid JSON object matching this schema:
     "subheadline": "Catchy intrigue subtitle (max 28 chars)",
     "captionLines": ["Line 1 (<= 18 chars)", "Line 2 (<= 18 chars)"],
     "badgeText": "Badge tag with emoji",
+    "mascotPose": "Presenter gesture that fits this hook: one of \"present\", \"surprised\", \"megaphone\", \"wave\", \"thumbs-up\", \"point\", \"think\", \"confident\", \"ok\", \"excited\", \"whisper\", \"clap\"",
     "popPoints": ["2-3 ultra-short checklist items, <= 10 chars each, no emoji (e.g. \"ผม\", \"หน้า\", \"ผิวกาย\")"],
     "highlightWord": "Word to highlight with marker",
     "paperTheme": "kraft",
@@ -157,6 +159,7 @@ Return ONLY a valid JSON object matching this schema:
       "highlightDesc": "Distinct benefit without repeating price (max 28 chars)",
       "captionLines": ["Line 1 (<= 18 chars)", "Line 2 (<= 18 chars)"],
       "stickerText": "Sticker tag with emoji",
+      "mascotPose": "Presenter gesture that fits this benefit: one of \"present\", \"surprised\", \"megaphone\", \"wave\", \"thumbs-up\", \"point\", \"think\", \"confident\", \"ok\", \"excited\", \"whisper\", \"clap\"",
       "popPoints": ["2-3 ultra-short checklist items grounded in facts, <= 10 chars each, no emoji"],
       "highlightWord": "Word to highlight",
       "layout": "hero-center",
@@ -171,6 +174,7 @@ Return ONLY a valid JSON object matching this schema:
     "ctaSubtitle": "Incentive like free shipping or coupon",
     "captionLines": ["เก็บโค้ดส่งฟรี", "ลดเพิ่มทันที"],
     "buttonText": "ช้อปเลยที่ Shopee",
+    "mascotPose": "Presenter gesture for the call to action, usually \"point\" or \"megaphone\"",
     "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
     "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
     "paperTheme": "halftone-orange",
@@ -835,6 +839,7 @@ function validateAndNormalizeStoryboard(
     badgeText: data.hook?.badgeText || "🔥 ป้ายยาไอเทมเด็ด",
     highlightWord: data.hook?.highlightWord,
     popPoints: cleanPopPoints(data.hook?.popPoints),
+    mascotPose: isMascotPose(data.hook?.mascotPose) ? data.hook.mascotPose : undefined,
     paperTheme: data.hook?.paperTheme || "kraft",
     durationSec: Number(data.hook?.durationSec) || 3,
   };
@@ -894,6 +899,7 @@ function validateAndNormalizeStoryboard(
       stickerText,
       highlightWord: s.highlightWord || smart.word,
       popPoints: cleanPopPoints(s.popPoints),
+      mascotPose: isMascotPose(s.mascotPose) ? s.mascotPose : undefined,
       layout,
       paperTheme,
       imageIndex: typeof s.imageIndex === "number" ? s.imageIndex : idx,
@@ -953,6 +959,7 @@ function validateAndNormalizeStoryboard(
     buttonText: data.cta?.buttonText || "ช้อปเลยที่ Shopee",
     badgeText: data.cta?.badgeText || "⚡ สิทธิ์มีจำนวนจำกัด",
     basketNote: data.cta?.basketNote || "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+    mascotPose: isMascotPose(data.cta?.mascotPose) ? data.cta.mascotPose : undefined,
     paperTheme: data.cta?.paperTheme || "halftone-orange",
     durationSec: Number(data.cta?.durationSec) || 3,
   };
