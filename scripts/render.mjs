@@ -1,6 +1,8 @@
 import { bundle } from "@remotion/bundler";
-import { getCompositions, renderMedia } from "@remotion/renderer";
+import { selectComposition, renderMedia } from "@remotion/renderer";
 import { execSync } from "child_process";
+import crypto from "crypto";
+import os from "os";
 import fs from "fs/promises";
 import fsSync from "fs";
 import path from "path";
@@ -11,8 +13,7 @@ import { pathToFileURL } from "node:url";
  * Usage:
  * node scripts/render.mjs --props-file <path_to_json> --output <path_to_mp4> [--concurrency 1] [--scale 1] [--engine turbo|remotion] [--progress-file <path>]
  */
-async function stageMinimalPublicDir(inputProps) {
-  const stageDir = path.resolve(".tmp", "public_stage");
+async function stageMinimalPublicDir(inputProps, stageDir) {
   await fs.mkdir(stageDir, { recursive: true });
 
   // Copy static small folders (samples, audio, sfx) once
@@ -85,11 +86,57 @@ async function stageMinimalPublicDir(inputProps) {
   return stageDir;
 }
 
+// Hash of everything that ends up inside the webpack bundle. When unchanged we reuse
+// the previous bundle and skip 10-40s of webpack work per render.
+function computeBundleHash() {
+  const hash = crypto.createHash("sha256");
+  const walk = (dir) => {
+    if (!fsSync.existsSync(dir)) return;
+    for (const ent of fsSync.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) {
+        if (ent.name === "node_modules" || ent.name === "_deprecated") continue;
+        walk(full);
+      } else if (/\.(tsx?|jsx?|css|json)$/.test(ent.name)) {
+        const st = fsSync.statSync(full);
+        hash.update(`${full}:${st.size}:${st.mtimeMs}`);
+      }
+    }
+  };
+  walk(path.resolve("remotion"));
+  walk(path.resolve("src/lib"));
+  for (const f of ["package-lock.json", "tsconfig.json", "remotion.config.ts"]) {
+    if (fsSync.existsSync(f)) hash.update(`${f}:${fsSync.statSync(f).mtimeMs}`);
+  }
+  return hash.digest("hex").slice(0, 16);
+}
+
+async function getCachedBundle(entryPoint) {
+  const cacheRoot = path.resolve(".tmp", "remotion-bundle");
+  const bundleDir = path.join(cacheRoot, computeBundleHash());
+  if (fsSync.existsSync(path.join(bundleDir, "bundle.js"))) {
+    return { bundleLocation: bundleDir, cached: true };
+  }
+  // Drop stale bundles so .tmp does not grow forever.
+  await fs.rm(cacheRoot, { recursive: true, force: true }).catch(() => {});
+  const emptyPublic = path.resolve(".tmp", "empty_public");
+  await fs.mkdir(emptyPublic, { recursive: true });
+  const bundleLocation = await bundle({ entryPoint, publicDir: emptyPublic, outDir: bundleDir });
+  return { bundleLocation, cached: false };
+}
+
+function resolveConcurrency(requested) {
+  // Each Remotion tab is single-threaded; leave headroom for FFmpeg + the Next server.
+  const cores = os.cpus()?.length || 4;
+  const auto = Math.max(2, Math.min(8, Math.floor(cores / 2)));
+  return requested > 0 ? Math.min(requested, auto) : auto;
+}
+
 async function main() {
   const args = process.argv.slice(2);
   let propsFile = null;
   let outputFile = null;
-  let concurrency = 1;
+  let concurrency = 0; // 0 = auto (half of logical cores)
   let scale = 1;
   let engine = "remotion";
   let progressFile = path.resolve(".tmp/render_progress.json");
@@ -100,7 +147,7 @@ async function main() {
     } else if (args[i] === "--output" && args[i + 1]) {
       outputFile = args[++i];
     } else if (args[i] === "--concurrency" && args[i + 1]) {
-      concurrency = Math.max(1, Math.min(4, parseInt(args[++i], 10) || 1));
+      concurrency = Math.max(0, parseInt(args[++i], 10) || 0);
     } else if (args[i] === "--scale" && args[i + 1]) {
       scale = Math.max(0.5, Math.min(1, parseFloat(args[++i]) || 1));
       if (Math.abs(scale - 0.667) < 0.000001) scale = 2 / 3;
@@ -168,23 +215,20 @@ async function main() {
     }
 
     const entryPoint = path.resolve("remotion/index.ts");
-    const stagedPublicDir = await stageMinimalPublicDir(inputProps);
-
-    const bundleLocation = await bundle({
-      entryPoint,
-      publicDir: stagedPublicDir,
-    });
+    const { bundleLocation, cached } = await getCachedBundle(entryPoint);
+    console.log(`[render] bundle ${cached ? "cache hit" : "rebuilt"}: ${bundleLocation}`);
+    // Stage only this video's media straight into the bundle's public folder.
+    await stageMinimalPublicDir(inputProps, path.join(bundleLocation, "public"));
 
     await writeProgress({ status: "rendering", percent: 15, message: "เริ่มเรนเดอร์แอนิเมชันวิดีโอ..." });
 
-    const compositions = await getCompositions(bundleLocation, {
+    const composition = await selectComposition({
+      serveUrl: bundleLocation,
+      id: "ShopeeProductVideo",
       inputProps,
     });
-
-    const composition = compositions.find((c) => c.id === "ShopeeProductVideo");
-    if (!composition) {
-      throw new Error("Composition 'ShopeeProductVideo' not found");
-    }
+    const effectiveConcurrency = resolveConcurrency(concurrency);
+    console.log(`[render] concurrency=${effectiveConcurrency}`);
 
     let lastLoggedPercent = -1;
     let lastWriteTime = 0;
@@ -193,15 +237,18 @@ async function main() {
       serveUrl: bundleLocation,
       codec: "h264",
       imageFormat: "jpeg",
-      jpegQuality: 88,
+      jpegQuality: 85,
+      x264Preset: "veryfast",
       outputLocation: outputPath,
       inputProps,
-      concurrency,
+      concurrency: effectiveConcurrency,
       scale,
       timeoutInMilliseconds: 60000,
       offthreadVideoCacheSizeInBytes: 128 * 1024 * 1024,
       chromiumOptions: {
         enableMultiProcessOnLinux: true,
+        // Use the GPU (via ANGLE) for shadows/filters instead of software rendering.
+        gl: "angle",
       },
       onProgress: ({ progress, renderedFrames, totalFrames }) => {
         const percent = Math.min(99, Math.max(15, Math.floor(15 + progress * 84)));

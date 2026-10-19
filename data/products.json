@@ -1,118 +1,100 @@
 [
   {
-    "id": "prod_1792035966271",
-    "name": "แพมเพิสเด็ก 1 แถม 1 Penbose แพมเพิส Baby Pants ผ้าอ้อมเด็ก Diaper S M L XL XXL XXXL 4XL เด็ก ผ้าอ้อม",
-    "price": "฿158 (จากปกติ ฿199)",
-    "highlights": "แห้งสบายตลอดวัน, อ่อนโยนต่อผิวลูกน้อย, บางเบาระบายอากาศดี, โปรคุ้ม 1 แถม 1",
+    "id": "prod_1792322218529",
+    "name": "Bond Shower Gel Head to Toe Active Rush 150 ml",
+    "price": "ลดราคาเพิ่มความหอม",
+    "highlights": "เจลอาบน้ำและสระผมในขวดเดียว, สะอาดสดชื่นตั้งแต่หัวจรดเท้า, ใช้ได้ทุกวัน, กลิ่นหอม Active Rush",
     "tone": "exciting",
-    "cta": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
     "images": [
-      "/uploads/1792035966272_0_th-11134207-7rasb-m27vem4fa0v532_resize_w450_nl.webp",
-      "/uploads/1792035966276_1_th-11134207-7rasc-m27veqrqh6lg5e_resize_w450_nl.webp",
-      "/uploads/1792035966281_2_th-11134207-7rash-m27vekb7xfvo2e_resize_w450_nl.webp",
-      "/uploads/1792035966284_3_th-11134207-7rask-m27vei09c92921_resize_w450_nl.webp",
-      "/uploads/1792035966289_4_th-11134207-81ztp-mrv0rull3tadac_resize_w450_nl.webp"
+      "/uploads/1792322218535_0_IMG_9454.mov",
+      "/uploads/1792322218546_1_IMG_9455.mov",
+      "/uploads/1792322218557_2_th-11134207-81zte-mhriaa2gj1ttbc.webp",
+      "/uploads/1792322218560_3_th-11134207-81ztg-mjdsycmeb11e21.webp",
+      "/uploads/1792322218565_4_th-11134207-81zto-mjdsyipuaiv8f9.webp"
     ],
     "storyboard": {
       "hook": {
-        "headline": "ทุกคนนน เจอของเด็ดอีกแล้ว!",
+        "headline": "หมดปัญหา! ผมมันตัวเหม็น?",
         "headlineLines": [
-          "ทุกคนนน เจอ",
-          "ของเด็ดอีกแล้ว!"
+          "หมดปัญหา!",
+          "ผมมันตัวเหม็น?"
         ],
-        "subheadline": "ลูกร้องงอแงเพราะผ้าอ้อม?",
+        "subheadline": "🔥 คุ้มตาแตก ไอเทมดีบอกต่อ",
         "captionLines": [
-          "ลูกร้องงอแง",
-          "เพราะผ้าอ้อม?"
+          "🔥 คุ้มตาแตก",
+          "ไอเทมดีบอกต่อ"
         ],
-        "badgeText": "👶 สบายผิวลูกน้อย",
-        "highlightWord": "งอแง",
+        "badgeText": "✨ หอมสะอาดมั่นใจ",
+        "highlightWord": "หมดปัญหา",
         "paperTheme": "kraft",
         "durationSec": 3
       },
       "scenes": [
         {
-          "highlightTitle": "แห้งสบายตลอดวัน",
+          "highlightTitle": "อาบสระในขวดเดียว",
           "headlineLines": [
-            "แห้งส",
-            "บายตลอดวัน"
+            "อาบสระ",
+            "ในขวดเดียว"
           ],
-          "highlightDesc": "ซึมซับดีเยี่ยม ลูกแฮปปี้",
+          "highlightDesc": "ประหยัดเวลา ชีวิตดีขึ้นเยอะ",
           "captionLines": [
-            "ซึมซับดี",
-            "เยี่ยม ลูกแฮปปี้"
+            "ประหยัดเวลา",
+            "ชีวิตดีขึ้นเยอะ"
           ],
-          "stickerText": "💧 ซึมซับดีเยี่ยม",
-          "highlightWord": "แห้งสบาย",
+          "stickerText": "💧 สะอาดสดชื่น",
+          "highlightWord": "ขวดเดียว",
           "layout": "hero-center",
           "paperTheme": "cream-grid",
           "imageIndex": 0,
           "durationSec": 4
         },
         {
-          "highlightTitle": "อ่อนโยนต่อผิวลูกน้อย",
+          "highlightTitle": "กลิ่น Active Rush",
           "headlineLines": [
-            "อ่อนโยนต่อ",
-            "ผิวลูกน้อย"
+            "กลิ่น",
+            "Active Rush"
           ],
-          "highlightDesc": "ปราศจากน้ำหอม ไร้สารเคมี",
+          "highlightDesc": "หอมสะอาด มั่นใจทั้งวัน",
           "captionLines": [
-            "ปราศจากน้ำหอม ไร้สารเคมี"
+            "หอมสะอาด",
+            "มั่นใจทั้งวัน"
           ],
-          "stickerText": "🌿 อ่อนโยนต่อผิว",
-          "highlightWord": "ผิวบอบบาง",
-          "layout": "polaroid-stack",
+          "stickerText": "✨ เพิ่มความหอม",
+          "highlightWord": "มั่นใจ",
+          "layout": "fullscreen-broll",
           "paperTheme": "cream-grid",
           "imageIndex": 1,
           "durationSec": 4
         },
         {
-          "highlightTitle": "บางเบาระบายอากาศดี",
+          "highlightTitle": "ใช้ได้ทุกวัน",
           "headlineLines": [
-            "บางเบามาก",
-            "ระบายอากาศดี"
+            "ไอเทมดี",
+            "ใช้ได้ทุกวัน"
           ],
-          "highlightDesc": "ผิวลูกไม่อับชื้น แฮปปี้ทั้งวัน",
+          "highlightDesc": "ผิวสะอาด สดชื่น",
           "captionLines": [
-            "ผิวลูกไม่อับชื้น",
-            "แฮปปี้ทั้งวัน"
+            "ผิวสะอาด สดชื่น"
           ],
-          "stickerText": "🌬️ ระบายอากาศดี",
-          "highlightWord": "บางเบา",
+          "stickerText": "🌿 อ่อนโยนทุกวัน",
+          "highlightWord": "ทุกวัน",
           "layout": "hero-center",
           "paperTheme": "cream-grid",
           "imageIndex": 2,
-          "durationSec": 4
-        },
-        {
-          "highlightTitle": "โปรคุ้ม 1 แถม 1",
-          "headlineLines": [
-            "คุ้มตาแตก",
-            "แถม 1!"
-          ],
-          "highlightDesc": "ผ่านการทดสอบ ปลอดภัยต่อผิวบอบบางของ",
-          "captionLines": [
-            "ผ่านการทดสอบ ปลอดภัยต่",
-            "อผิวบอบบางของลูกน้อย"
-          ],
-          "stickerText": "🔥 ลดแรงคุ้มมาก",
-          "highlightWord": "1 แถม 1",
-          "layout": "polaroid-stack",
-          "paperTheme": "cream-grid",
-          "imageIndex": 3,
-          "durationSec": 4
+          "durationSec": 3
         }
       ],
       "cta": {
-        "ctaTitle": "จิ้มตะกร้าส้มซ้ายล่างเลย!",
+        "ctaTitle": "ดีลเดือด ห้ามพลาด!",
         "headlineLines": [
-          "จิ้มตะกร้าส้ม",
-          "ซ้ายล่างเลย!"
+          "ดีลเดือด",
+          "ห้ามพลาด!"
         ],
-        "ctaSubtitle": "ลดหนักเพื่อลูกน้อย รีบกดก่อนโค้ดหมด!",
+        "ctaSubtitle": "พิกัดตะกร้าส้ม ลดแรง",
         "captionLines": [
-          "ลดหนักเพื่อลูกน้อย",
-          "รีบกดก่อนโค้ดหมด!"
+          "พิกัดตะกร้าส้ม",
+          "ลดแรงจัดเต็ม"
         ],
         "buttonText": "ช้อปเลยที่ Shopee",
         "badgeText": "⚡ โค้ดส่งฟรีจำนวนจำกัด",
@@ -121,9 +103,243 @@
         "durationSec": 3
       },
       "theme": {
-        "primaryColor": "#ec3713",
-        "accentColor": "#3b16f3",
-        "bgColor": "#d6ebd9",
+        "primaryColor": "#EE4D2D",
+        "accentColor": "#DC2626",
+        "bgColor": "#1A0805",
+        "textColor": "#1B1B1B",
+        "styleName": "Paper Collage (pro-flash-sale)"
+      },
+      "audioSuggestion": {
+        "mood": "ตื่นเต้น เร่งเร้า ชวนช้อป",
+        "musicGenre": "TikTok Upbeat Affiliate Beat",
+        "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
+      },
+      "narrationScript": "ใครกำลังมองหาตัวช่วยให้อาบน้ำสระผมจบในขวดเดียว ต้องนี่เลย Bond Head to Toe Active Rush เจลอาบน้ำและสระผมกลิ่นหอมสดชื่นตั้งแต่หัวจรดเท้า ใช้ได้ทุกวัน ไม่ต้องพกหลายขวดให้วุ่นวาย ผิวสะอาดมั่นใจตลอดวัน รีบกดเลยที่ตะกร้าส้ม!",
+      "styleDNA": {
+        "seed": 1376398190,
+        "pack": "pro-flash-sale",
+        "palette": "pro-flash-sale-signature",
+        "primaryColor": "#EE4D2D",
+        "secondaryColor": "#F59E0B",
+        "accentColor": "#DC2626",
+        "bgColor": "#1A0805",
+        "fontPair": "kanit-punch",
+        "structure": "problem-solution",
+        "hookFormula": "pov",
+        "layouts": [
+          "fullscreen-broll",
+          "split-showcase",
+          "bento-grid"
+        ],
+        "transitions": [
+          "torn-wipe",
+          "slap-strip"
+        ],
+        "tempo": "chill",
+        "stickerShape": "cloud",
+        "sfxKit": "retro-paper"
+      },
+      "voiceLines": [
+        {
+          "sceneId": "hook",
+          "role": "hook",
+          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! หมดปัญหา! ผมมันตัวเหม็น?"
+        },
+        {
+          "sceneId": "scene_0",
+          "role": "body",
+          "text": "อาบสระในขวดเดียว ประหยัดเวลา ชีวิตดีขึ้นเยอะ"
+        },
+        {
+          "sceneId": "scene_1",
+          "role": "body",
+          "text": "แถมยังกลิ่น Active Rush"
+        },
+        {
+          "sceneId": "scene_2",
+          "role": "body",
+          "text": "แถมยังใช้ได้ทุกวัน"
+        },
+        {
+          "sceneId": "cta",
+          "role": "cta",
+          "text": "ตอนนี้จัดโปรพิเศษเพียง ลดราคาเพิ่มความหอม พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!"
+        }
+      ],
+      "voicePresetId": "vendor-live",
+      "voiceIntensity": "mid",
+      "captionSettings": {
+        "enabled": true,
+        "style": "tiktok-pop",
+        "position": "bottom",
+        "language": "th",
+        "highlightColor": "#FACC15"
+      }
+    },
+    "styleDNA": {
+      "seed": 1376398190,
+      "pack": "pro-flash-sale",
+      "palette": "pro-flash-sale-signature",
+      "primaryColor": "#EE4D2D",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#DC2626",
+      "bgColor": "#1A0805",
+      "fontPair": "kanit-punch",
+      "structure": "problem-solution",
+      "hookFormula": "pov",
+      "layouts": [
+        "fullscreen-broll",
+        "split-showcase",
+        "bento-grid"
+      ],
+      "transitions": [
+        "torn-wipe",
+        "slap-strip"
+      ],
+      "tempo": "chill",
+      "stickerShape": "cloud",
+      "sfxKit": "retro-paper"
+    },
+    "createdAt": "2026-10-18T11:18:11.208Z",
+    "import": {
+      "originalUrl": "https://shopee.co.th/Bond-Shower-Gel-Head-to-Toe-Active-Rush-150-ml-i.7880270.45402102407",
+      "shopId": "7880270",
+      "itemId": "45402102407",
+      "fetchedAt": "2026-10-18T11:13:03.737Z",
+      "confirmedAt": "2026-10-18T11:16:58.392Z"
+    },
+    "category": "Personal Care",
+    "facts": {
+      "brand": "Bond",
+      "productType": "Shower Gel",
+      "count": "150 ml",
+      "claimsInTitle": [
+        "Head to Toe",
+        "Active Rush"
+      ]
+    }
+  },
+  {
+    "id": "prod_1792206336769",
+    "name": "แพมเพิส Little Sheep รุ่น Royal Soft ผ้าอ้อมเด็กแบบเทป",
+    "price": "ลดหนักเพื่อลูกๆ",
+    "highlights": "นุ่มพิเศษ, ซึมซับดีเยี่ยม, ขอบเอวกระชับ, ป้องกันรั่วซึม, แถบวัดความชื้น",
+    "tone": "exciting",
+    "cta": "พิกัดในตะกร้าส้มซ้ายล่าง รีบกดก่อนโค้ดหมด!",
+    "images": [
+      "/uploads/1792206336786_1_th-11134207-7rasg-m4zuobfg0ypi5a.webp",
+      "/uploads/1792206336789_2_th-11134207-7rasm-m3ypziv6n7k466.webp",
+      "/uploads/1792206336792_3_th-11134207-81ztq-mj9clwv8rxtxfd.webp",
+      "/uploads/1792318859481_0_91a7aee19fb2438c8a6fe8766f254abb.mov"
+    ],
+    "storyboard": {
+      "hook": {
+        "headline": "📌ปักหมุดของดีด่วน!",
+        "headlineLines": [
+          "📌ปักหมุด",
+          "ของดีด่วน!"
+        ],
+        "subheadline": "POV: แม่เจอผ้าอ้อมลูกเลิฟ",
+        "captionLines": [
+          "แม่ๆ ต้องรู้",
+          "ไอเทมเด็ดผ้าอ้อม"
+        ],
+        "badgeText": "👶 ถูกใจลูกน้อย",
+        "highlightWord": "ผ้าอ้อม",
+        "paperTheme": "kraft",
+        "durationSec": 3
+      },
+      "scenes": [
+        {
+          "highlightTitle": "ผิวนุ่มละมุน",
+          "headlineLines": [
+            "ผิวนุ่มละมุน"
+          ],
+          "highlightDesc": "นุ่มพิเศษ สบายผิวสุดๆ",
+          "captionLines": [
+            "นุ่มพิเศษ สบายผิวสุดๆ"
+          ],
+          "stickerText": "👶 สบายผิวลูกน้อย",
+          "highlightWord": "นุ่ม",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 0,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "ซึมซับดีเยี่ยม",
+          "headlineLines": [
+            "ซึมซับไวมาก",
+            "แห้งสบายตัว"
+          ],
+          "highlightDesc": "หมดกังวลเรื่องอับชื้น",
+          "captionLines": [
+            "ไม่เหนอะหนะ",
+            "หลับยาวได้เลย"
+          ],
+          "stickerText": "💦 ซึมไวไม่เหนอะ",
+          "highlightWord": "ซึมซับ",
+          "layout": "bento-grid",
+          "paperTheme": "cream-grid",
+          "imageIndex": 1,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "ขอบเอวกระชับ",
+          "headlineLines": [
+            "ขอบเอวกระชับ"
+          ],
+          "highlightDesc": "ลูกน้อยแอคทีฟได้เต็มที่",
+          "captionLines": [
+            "เคลื่อนไหวสะดวก",
+            "ไม่หกไม่ไหล"
+          ],
+          "stickerText": "🛡️ ป้องกันแน่น",
+          "highlightWord": "กระชับ",
+          "layout": "hero-center",
+          "paperTheme": "cream-grid",
+          "imageIndex": 2,
+          "durationSec": 4
+        },
+        {
+          "highlightTitle": "แถบวัดความชื้น",
+          "headlineLines": [
+            "แถบวัดความชื้น"
+          ],
+          "highlightDesc": "รู้ทันทุกครั้งที่ต้องเปลี่ยน",
+          "captionLines": [
+            "เปลี่ยนง่าย",
+            "ไม่พลาดทุกเวลา"
+          ],
+          "stickerText": "✅ สะดวกคุณแม่",
+          "highlightWord": "ความชื้น",
+          "layout": "bento-grid",
+          "paperTheme": "cream-grid",
+          "imageIndex": 3,
+          "durationSec": 4
+        }
+      ],
+      "cta": {
+        "ctaTitle": "จิ้มตะกร้าส้ม",
+        "headlineLines": [
+          "จิ้มตะกร้าส้ม",
+          "มุมซ้ายล่าง!"
+        ],
+        "ctaSubtitle": "ลดแรง! โค้ดส่งฟรีด่วน",
+        "captionLines": [
+          "รีบกดก่อนหมด",
+          "ลดหนักเพื่อลูก"
+        ],
+        "buttonText": "ช้อปเลยที่ Shopee",
+        "badgeText": "⚡ โค้ดส่งฟรีด่วน",
+        "basketNote": "พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง 🛒",
+        "paperTheme": "halftone-orange",
+        "durationSec": 3
+      },
+      "theme": {
+        "primaryColor": "#8C5E2E",
+        "accentColor": "#B45309",
+        "bgColor": "#B58450",
         "textColor": "#1B1B1B",
         "styleName": "Paper Collage (pinboard-corkboard)"
       },
@@ -132,83 +348,112 @@
         "musicGenre": "TikTok Upbeat Affiliate Beat",
         "soundEffectTips": "เสียง Paper Slap ตอนเปลี่ยนฉาก และ Cash Ding ตอนโชว์ราคา"
       },
-      "narrationScript": "ลูกน้อยงอแงเพราะผ้าอ้อมเปียกเหรอ? ปักหมุดไอเทมเด็ด Penbose ผ้าอ้อมเด็กตัวดัง! แห้งสบายตลอดวัน มีแถบวัดความชื้นเปลี่ยนง่าย อ่อนโยนต่อผิว ไม่มีน้ำหอม ไม่ระคายเคือง แถมบางเบาระบายอากาศดีสุดๆ โปร 1 แถม 1 ลดหนักเพื่อลูกน้อย ห้ามพลาด! จิ้มตะกร้าส้มเลยค่ะ!",
+      "narrationScript": "โอ้โห แม่ๆ ต้องปักหมุดด่วนเลยค่ะ! เจอของดีผ้าอ้อมลูกรัก Little Sheep รุ่น Royal Soft นุ่มพิเศษ สบายผิวลูกสุดๆ ซึมซับดีเยี่ยม แห้งสบายตัว หมดกังวลเรื่องอับชื้น ขอบเอวก็กระชับ กันรั่วซึม ลูกน้อยแอคทีฟได้เต็มที่ แถมมีแถบวัดความชื้น บอกคุณแม่ได้เป๊ะๆ ว่าเมื่อไหร่ต้องเปลี่ยน! รีบจิ้มตะกร้าส้มเลยค่ะ โค้ดลดแรงรออยู่!",
       "styleDNA": {
-        "seed": 2139650417,
+        "seed": 886485034,
         "pack": "pinboard-corkboard",
-        "palette": "pinboard-corkboard-triadic-10",
-        "primaryColor": "#ec3713",
-        "secondaryColor": "#cdee2b",
-        "accentColor": "#3b16f3",
-        "bgColor": "#d6ebd9",
-        "fontPair": "mali-playful",
-        "structure": "problem-solution",
-        "hookFormula": "relatable-pain",
+        "palette": "pinboard-corkboard-signature",
+        "primaryColor": "#8C5E2E",
+        "secondaryColor": "#D97706",
+        "accentColor": "#B45309",
+        "bgColor": "#B58450",
+        "fontPair": "prompt-heavy",
+        "structure": "unboxing-vibe",
+        "hookFormula": "pov",
         "layouts": [
-          "hero-center",
-          "polaroid-stack",
-          "callout-circle"
+          "bento-grid",
+          "callout-circle",
+          "polaroid-stack"
         ],
         "transitions": [
           "slap-strip",
           "torn-wipe"
         ],
-        "tempo": "chill",
-        "stickerShape": "tag",
-        "sfxKit": "retro-paper"
+        "tempo": "hyper",
+        "stickerShape": "cloud",
+        "sfxKit": "tactile-pop"
       },
       "voiceLines": [
         {
           "sceneId": "hook",
           "role": "hook",
-          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! ลูกร้องงอแงเพราะผ้าอ้อม?"
+          "text": "ทุกคนนน เจอของเด็ดอีกแล้ว! 📌ปักหมุดของดีด่วน!"
         },
         {
           "sceneId": "scene_0",
           "role": "body",
-          "text": "แห้งสบายตลอดวัน ซึมซับดีเยี่ยม ลูกแฮปปี้"
+          "text": "ผิวนุ่มละมุน นุ่มพิเศษ สบายผิวสุดๆ"
         },
         {
           "sceneId": "scene_1",
           "role": "body",
-          "text": "แถมยังอ่อนโยนต่อผิวลูกน้อย"
+          "text": "แถมยังซึมซับดีเยี่ยม"
         },
         {
           "sceneId": "scene_2",
           "role": "body",
-          "text": "แถมยังบางเบาระบายอากาศดี"
+          "text": "แถมยังขอบเอวกระชับ"
         },
         {
           "sceneId": "scene_3",
           "role": "body",
-          "text": "แถมยังโปรคุ้ม 1 แถม 1"
+          "text": "แถมยังแถบวัดความชื้น"
         },
         {
           "sceneId": "cta",
           "role": "cta",
-          "text": "ตอนนี้จัดโปรพิเศษเพียง ลดหนักเพื่อลูกน้อย พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!"
+          "text": "ตอนนี้จัดโปรพิเศษเพียง ลดหนักเพื่อลูกๆ พิกัดอยู่ที่ตะกร้าส้มมุมซ้ายล่าง รีบกดก่อนของหมดน้า!"
         }
       ],
-      "voicePresetId": "friendly-trust",
-      "voiceIntensity": "mid"
+      "voicePresetId": "vendor-live",
+      "voiceIntensity": "mid",
+      "captionSettings": {
+        "enabled": true,
+        "style": "tiktok-pop",
+        "position": "bottom",
+        "language": "th",
+        "highlightColor": "#FACC15"
+      }
     },
-    "createdAt": "2026-10-15T03:47:21.937Z",
+    "styleDNA": {
+      "seed": 886485034,
+      "pack": "pinboard-corkboard",
+      "palette": "pinboard-corkboard-signature",
+      "primaryColor": "#8C5E2E",
+      "secondaryColor": "#D97706",
+      "accentColor": "#B45309",
+      "bgColor": "#B58450",
+      "fontPair": "prompt-heavy",
+      "structure": "unboxing-vibe",
+      "hookFormula": "pov",
+      "layouts": [
+        "bento-grid",
+        "callout-circle",
+        "polaroid-stack"
+      ],
+      "transitions": [
+        "slap-strip",
+        "torn-wipe"
+      ],
+      "tempo": "hyper",
+      "stickerShape": "cloud",
+      "sfxKit": "tactile-pop"
+    },
+    "createdAt": "2026-10-17T03:06:40.966Z",
     "import": {
-      "originalUrl": "https://shopee.co.th/%E0%B9%81%E0%B8%9E%E0%B8%A1%E0%B9%80%E0%B8%9E%E0%B8%B4%E0%B8%AA%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-1-%E0%B9%81%E0%B8%96%E0%B8%A1-1-Penbose-%E0%B9%81%E0%B8%9E%E0%B8%A1%E0%B9%80%E0%B8%9E%E0%B8%B4%E0%B8%AA-Baby-Pants-%E0%B8%9C%E0%B9%89%E0%B8%B2%E0%B8%AD%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-Diaper-S-M-L-XL-XXL-XXXL-4XL-%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-%E0%B8%9C%E0%B9%89%E0%B8%B2%E0%B8%AD%E0%B9%89%E0%B8%AD%E0%B8%A1-i.1373799899.26916591882",
-      "shopId": "1373799899",
-      "itemId": "26916591882",
-      "fetchedAt": "2026-10-15T03:19:08.504Z",
-      "confirmedAt": "2026-10-15T03:46:06.176Z"
+      "originalUrl": "https://shopee.co.th/(-%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B9%80%E0%B8%97%E0%B8%9B-1-%E0%B9%81%E0%B8%9E%E0%B9%87%E0%B8%84-",
+      "shopId": null,
+      "itemId": null,
+      "fetchedAt": "2026-10-17T03:04:57.102Z",
+      "confirmedAt": "2026-10-17T03:05:36.663Z"
     },
-    "category": "Baby Care",
+    "category": "general",
     "facts": {
-      "brand": "Penbose",
-      "productType": "Baby Diapers",
-      "claimsInTitle": [
-        "1 แถม 1"
-      ]
+      "productType": "แบบเทป",
+      "count": "1",
+      "pack": "แพ็ค"
     },
-    "renderedVideoUrl": "/renders/shopee_prod_1792035966271_1792036333517.mp4"
+    "renderedVideoUrl": "/renders/shopee_prod_1792206336769_1792320437617.mp4"
   },
   {
     "id": "prod_1791791844541",

@@ -1,0 +1,42 @@
+{
+  "name": "shopee-gpt-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node scripts/runtime.mjs dev",
+    "build": "node scripts/runtime.mjs build",
+    "start": "node scripts/runtime.mjs start",
+    "typecheck": "node scripts/runtime.mjs typecheck",
+    "test": "node scripts/runtime.mjs test",
+    "mcp": "node scripts/runtime.mjs mcp"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans-thai": "^5.3.0",
+    "@modelcontextprotocol/sdk": "latest",
+    "archiver": "latest",
+    "ffmpeg-static": "latest",
+    "ffprobe-static": "latest",
+    "file-type": "latest",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@types/archiver": "latest",
+    "@types/ffprobe-static": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "daisyui": "latest",
+    "tailwindcss": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}

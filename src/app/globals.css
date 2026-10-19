@@ -36,6 +36,39 @@
   --depth: 0;
   --noise: 0;
 }
+/* Dark counterpart of "paper": same brand primary, neutral graphite surfaces */
+@plugin "daisyui/theme" {
+  name: "paper-dark";
+  color-scheme: dark;
+  --color-primary: #F0572F;
+  --color-primary-content: #ffffff;
+  --color-secondary: #38BDF8;
+  --color-secondary-content: #0C1A24;
+  --color-accent: #FBBF24;
+  --color-accent-content: #1C1917;
+  --color-neutral: #27272A;
+  --color-neutral-content: #FAFAFA;
+  --color-base-100: #141416;
+  --color-base-200: #0C0C0E;
+  --color-base-300: #26262B;
+  --color-base-content: #ECECEE;
+  --color-info: #38BDF8;
+  --color-info-content: #0C1A24;
+  --color-success: #22C55E;
+  --color-success-content: #052E14;
+  --color-warning: #F59E0B;
+  --color-warning-content: #1C1917;
+  --color-error: #F87171;
+  --color-error-content: #2A0A0A;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
 
 
 

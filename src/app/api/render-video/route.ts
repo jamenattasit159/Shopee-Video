@@ -116,7 +116,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   // Direct FFmpeg has a different scene layout and cannot preserve this template.
   const preserveTemplate = props.presentationStyle !== "original";
   const isTurbo = renderMode === "turbo" && !preserveTemplate;
-  const concurrency = renderMode === "fast" ? 2 : 1;
+  // 0 = let the worker use half of the logical CPU cores (frames render in parallel).
+  const concurrency = 0;
 
   const id = productId || `prod_${Date.now()}`;
   const filename = `shopee_${id}_${Date.now()}.mp4`;

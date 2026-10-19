@@ -1,0 +1,36 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: dark --default, light;
+}
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: true;
+  color-scheme: dark;
+  --color-primary: oklch(62% 0.21 275);
+  --color-primary-content: oklch(98% 0.01 275);
+  --color-base-100: oklch(20% 0.012 265);
+  --color-base-200: oklch(17% 0.012 265);
+  --color-base-300: oklch(28% 0.014 265);
+  --color-base-content: oklch(92% 0.008 265);
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+}
+@plugin "daisyui/theme" {
+  name: "light";
+  color-scheme: light;
+  --color-primary: oklch(49% 0.23 275);
+  --color-primary-content: oklch(98% 0.01 275);
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+}
+@theme inline { --font-sans: "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif; }
+body { margin: 0; min-width: 320px; }
+::selection { background: var(--color-primary); color: var(--color-primary-content); }
+* { scrollbar-width: thin; scrollbar-color: var(--color-base-300) transparent; }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+input, textarea { caret-color: var(--color-primary); }
+input::placeholder, textarea::placeholder { opacity: 1; color: color-mix(in oklab, var(--color-base-content) 65%, transparent); }
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }

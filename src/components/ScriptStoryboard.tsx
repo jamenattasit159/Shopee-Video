@@ -36,13 +36,14 @@ import {
 import { isVideoMedia } from "../../remotion/utils";
 import { generatePostCaptions } from "../lib/captions";
 import { buildNaturalNarrationText } from "../lib/narrationHelper";
+import { adjustNarrationGender, NarrationGender } from "../lib/narrationGender";
 import {
   ALL_PACK_IDS,
   ALL_SCENE_LAYOUTS,
   PACK_INFO,
   rerollClientStyleDNA,
 } from "../lib/styleConstants";
-import { VoiceCloningModal, ReplicatedVoiceItem } from "./VoiceCloningModal";
+import type { ReplicatedVoiceItem } from "./VoiceCloningModal";
 import { VoiceStylePicker } from "./VoiceStylePicker";
 import { VoiceIntensity } from "@/lib/voicePresets";
 import { apiFetch } from "@/lib/apiFetch";
@@ -233,6 +234,7 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
   const [data, setData] = useState<StoryboardPlan>(storyboard);
   const [ttsEngine, setTtsEngine] = useState<"free" | "gemini">("free");
   const [voiceType, setVoiceType] = useState<"female" | "male">("female");
+  const [narrationGender, setNarrationGender] = useState<NarrationGender>("female");
   const [speechRate, setSpeechRate] = useState<string>("+0%");
   const [geminiVoice, setGeminiVoice] = useState<string>("Puck");
   const [voicePresetId, setVoicePresetId] = useState<string>(
@@ -244,7 +246,6 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
   const [polishVoice, setPolishVoice] = useState<boolean>(true);
   const [aiVoiceDisclaimer, setAiVoiceDisclaimer] = useState<boolean>(true);
   const [replicatedVoices, setReplicatedVoices] = useState<ReplicatedVoiceItem[]>([]);
-  const [isCloningModalOpen, setIsCloningModalOpen] = useState<boolean>(false);
   const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
   const [isUploadingMedia, setIsUploadingMedia] = useState(false);
@@ -287,6 +288,10 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
   useEffect(() => {
     fetchReplicatedVoices();
     fetchPronunciationMap();
+    // Voice cloning lives in /voice (opened in a new tab) — pick up new clones on return
+    const onFocus = () => fetchReplicatedVoices();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
 
   const [narrationText, setNarrationText] = useState<string>(
@@ -978,28 +983,29 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
                     <optgroup label="เสียงโคลนของฉัน (Replicated)">
                       {replicatedVoices.map((v) => (
                         <option key={v.id} value={v.id}>
-                          {v.displayName}
+                          {v.displayName} (ไม่ระบุเพศ)
                         </option>
                       ))}
                     </optgroup>
                   )}
                   <optgroup label="เสียงมาตรฐาน">
-                    <option value="Puck">Puck (สดใส มีเอเนอร์จี้ ชวนช้อป)</option>
-                    <option value="Kore">Kore (มั่นใจ สุภาพ พรีเมียม)</option>
-                    <option value="Aoede">Aoede (ฟังสบาย เป็นกันเอง)</option>
-                    <option value="Charon">Charon (สุขุม น่าเชื่อถือ)</option>
-                    <option value="Fenrir">Fenrir (ตื่นเต้น เร้าใจ)</option>
+                    <option value="Puck">Puck (ชาย · สดใส มีเอเนอร์จี้ ชวนช้อป)</option>
+                    <option value="Kore">Kore (หญิง · มั่นใจ สุภาพ พรีเมียม)</option>
+                    <option value="Aoede">Aoede (หญิง · ฟังสบาย เป็นกันเอง)</option>
+                    <option value="Charon">Charon (ชาย · สุขุม น่าเชื่อถือ)</option>
+                    <option value="Fenrir">Fenrir (ชาย · ตื่นเต้น เร้าใจ)</option>
                   </optgroup>
                 </select>
 
-                <button
-                  type="button"
-                  onClick={() => setIsCloningModalOpen(true)}
+                <a
+                  href="/voice?clone=1"
+                  target="_blank"
+                  rel="noopener"
                   className="btn btn-primary btn-xs rounded-lg gap-1.5 font-medium shadow-xs"
                 >
                   <Mic className="w-3.5 h-3.5" />
-                  โคลนเสียงของฉัน
-                </button>
+                  โคลนเสียงใน Voice Studio
+                </a>
               </div>
             </div>
           </div>
@@ -1046,10 +1052,10 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
         {/* Narration Textarea */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs flex-wrap gap-2">
-            <label className="text-base-content font-semibold flex items-center gap-1.5">
+            <label htmlFor="narration-script" className="text-base-content font-semibold flex items-center gap-1.5">
               <span>ข้อความบทพากย์รวม (แก้ไขคำพูดได้อิสระ):</span>
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
                 onClick={handleApplyPhoneticToScriptBox}
@@ -1070,7 +1076,37 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
             </div>
           </div>
 
+          <div className="flex flex-wrap items-center gap-2">
+            <label htmlFor="narration-gender" className="text-xs font-medium text-base-content">
+              รูปแบบคำพูด:
+            </label>
+            <select
+              id="narration-gender"
+              value={narrationGender}
+              onChange={(e) => setNarrationGender(e.target.value as NarrationGender)}
+              className="select select-sm rounded-xl bg-base-100 border-base-300"
+              disabled={isGeneratingVoice}
+            >
+              <option value="male">ชาย (ครับ)</option>
+              <option value="female">หญิง (ค่ะ / คะ)</option>
+            </select>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm rounded-xl gap-1.5"
+              disabled={isGeneratingVoice || !narrationText.trim()}
+              onClick={() => handleNarrationChange(adjustNarrationGender(narrationText, narrationGender))}
+              aria-describedby="narration-gender-help"
+            >
+              <Wand2 className="w-3.5 h-3.5" aria-hidden="true" />
+              ปรับคำพูดทั้งบท
+            </button>
+          </div>
+          <p id="narration-gender-help" className="text-xs text-base-content/70">
+            เปลี่ยนคำลงท้ายทั้งบทตามเพศที่เลือก โดยใช้ คะ กับคำถามและ นะคะ · เลือกเสียงพากย์แยกได้ด้านบน
+          </p>
+
           <textarea
+            id="narration-script"
             value={narrationText}
             onChange={(e) => handleNarrationChange(e.target.value)}
             rows={3}
@@ -1606,15 +1642,6 @@ export const ScriptStoryboard: React.FC<ScriptStoryboardProps> = ({
           ))}
         </div>
       </div>
-
-      <VoiceCloningModal
-        isOpen={isCloningModalOpen}
-        onClose={() => setIsCloningModalOpen(false)}
-        onVoiceSelected={(voiceId) => {
-          setGeminiVoice(voiceId);
-          fetchReplicatedVoices();
-        }}
-      />
     </div>
   );
 };

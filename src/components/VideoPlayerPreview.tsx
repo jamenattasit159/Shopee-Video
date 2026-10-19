@@ -12,12 +12,14 @@ import { toAppError } from "@/lib/errors";
 
 interface VideoPlayerPreviewProps {
   props: ShopeeProductVideoProps;
+  enabled?: boolean;
   showSafeZone?: boolean;
   onToggleSafeZone?: (show: boolean) => void;
 }
 
 export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
   props,
+  enabled = true,
   showSafeZone: controlledShowSafeZone,
   onToggleSafeZone,
 }) => {
@@ -43,6 +45,7 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
     const controller = new AbortController();
     setPrepared(null);
     setPreparationError(null);
+    if (!enabled) return () => controller.abort();
     const timer = setTimeout(async () => {
       try {
         const response = await fetch("/api/prepare-video", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ props: JSON.parse(sourceKey) }), signal: controller.signal });
@@ -54,7 +57,7 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
       }
     }, 500);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [sourceKey]);
+  }, [sourceKey, enabled]);
   const durationInFrames = prepared ? calculateTotalFrames(prepared, 30) : 30;
   const durationSec = (durationInFrames / 30).toFixed(1);
 
@@ -73,7 +76,7 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
         </div>
         <div className="text-xs bg-base-200 text-base-content/80 px-3 py-1.5 rounded-lg border border-base-300 flex items-center gap-1.5 font-mono shadow-xs">
           <Smartphone className="w-3.5 h-3.5 text-primary" />
-          <span>1080x1920 • 30fps • {durationSec}s</span>
+          <span>1080x1920 • 30fps{enabled ? ` • ${durationSec}s` : ""}</span>
         </div>
       </div>
 
@@ -126,7 +129,11 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
 
         {/* Video Player Display Container */}
         <div className="relative w-full rounded-[32px] overflow-hidden bg-black aspect-[9/16] shadow-inner">
-          {prepared && !preparationError ? <Player<any, ShopeeProductVideoProps>
+          {!enabled ? <div className="h-full flex flex-col items-center justify-center gap-3 p-6 text-center text-sm text-base-content bg-base-200" role="status">
+            <Smartphone className="w-8 h-8 text-base-content/60" aria-hidden="true" />
+            <p>พรีวิวพร้อมเมื่อสร้างสินค้าใหม่</p>
+            <p className="text-xs text-base-content/70">กรอกข้อมูลในขั้นตอนที่ 1 แล้วสร้างสตอรีบอร์ดเพื่อดูคลิป</p>
+          </div> : prepared && !preparationError ? <Player<any, ShopeeProductVideoProps>
             component={ShopeeProductVideo}
             inputProps={prepared}
             durationInFrames={durationInFrames}
@@ -192,7 +199,7 @@ export const VideoPlayerPreview: React.FC<VideoPlayerPreviewProps> = ({
         <div className="flex items-center gap-1.5 text-success font-medium">
           <Volume2 className="w-3.5 h-3.5 text-success" />
           <span>
-            {(props.voiceoverUrl || props.voiceLines?.some((line) => line.audioUrl)) ? "มีเสียงพากย์ AI + เพลง BGM + SFX" : "มีเพลง BGM + เสียง SFX (เพิ่มเสียงพากย์ได้)"}
+            {!enabled ? "รอสร้างคลิปใหม่" : (props.voiceoverUrl || props.voiceLines?.some((line) => line.audioUrl)) ? "มีเสียงพากย์ AI + เพลง BGM + SFX" : "มีเพลง BGM + เสียง SFX (เพิ่มเสียงพากย์ได้)"}
           </span>
         </div>
         <div className="text-base-content/40">

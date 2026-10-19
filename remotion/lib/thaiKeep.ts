@@ -173,119 +173,43 @@ export function splitSafeThaiLines(
   maxCharsPerLine = 14,
   minCharsPerLine = 4
 ): string[] {
-  if (!text) return [];
   const cleanText = text.trim();
+  if (!cleanText) return [];
+  if (cleanText.length <= maxCharsPerLine) return [cleanText];
 
-  // If already fits in 1 line
-  if (cleanText.length <= maxCharsPerLine) {
-    return [cleanText];
-  }
-
-  // Step 1: If text contains whitespace, split by whitespace first
-  if (/\s+/.test(cleanText)) {
-    const parts = cleanText.split(/\s+/).filter(Boolean);
-    if (parts.length === 2) {
-      const v1 = validateLine(parts[0], maxCharsPerLine + 4, minCharsPerLine);
-      const v2 = validateLine(parts[1], maxCharsPerLine + 4, minCharsPerLine);
-      if (v1.valid && v2.valid) {
-        return [parts[0], parts[1]];
-      }
-    } else if (parts.length > 2) {
-      // Find best split point among whitespace tokens
-      let bestSplit = 1;
-      let minDiff = Infinity;
-      for (let i = 1; i < parts.length; i++) {
-        const l1 = parts.slice(0, i).join(" ");
-        const l2 = parts.slice(i).join(" ");
-        const diff = Math.abs(l1.length - l2.length);
-        if (
-          l1.length <= maxCharsPerLine + 4 &&
-          l2.length <= maxCharsPerLine + 4 &&
-          diff < minDiff
-        ) {
-          minDiff = diff;
-          bestSplit = i;
-        }
-      }
-      const line1 = parts.slice(0, bestSplit).join(" ");
-      const line2 = parts.slice(bestSplit).join(" ");
-      return [line1, line2];
-    }
-  }
-
-  // Step 2: Continuous text without spaces.
-  // Find protected ranges for all keywords in KEEP.
   const protectedRanges: Array<{ start: number; end: number }> = [];
-  for (const kw of SORTED_KEEP) {
-    let startIdx = 0;
-    while ((startIdx = cleanText.indexOf(kw, startIdx)) !== -1) {
-      protectedRanges.push({ start: startIdx, end: startIdx + kw.length });
-      startIdx += 1;
+  for (const word of SORTED_KEEP) {
+    let start = 0;
+    while ((start = cleanText.indexOf(word, start)) !== -1) {
+      protectedRanges.push({ start, end: start + word.length });
+      start++;
     }
   }
 
-  const isCutInsideProtected = (pos: number) => {
-    return protectedRanges.some((r) => pos > r.start && pos < r.end);
-  };
+  // Only word boundaries may become separate lines/stickers. Avoiding combining
+  // marks alone still allows a midpoint to sever words such as กระชับ or เรื่อง.
+  const Segmenter = Intl.Segmenter;
+  const cuts = Segmenter
+    ? Array.from(new Segmenter("th", { granularity: "word" }).segment(cleanText))
+        .filter((part) => part.isWordLike && part.index > 0)
+        .map((part) => part.index)
+    : Array.from(cleanText.matchAll(/\s+/g), (match) => match.index! + match[0].length);
 
-  const isCutAtForbiddenThaiChar = (pos: number) => {
-    if (pos <= 0 || pos >= cleanText.length) return true;
-    const charBefore = cleanText[pos - 1];
-    const charAfter = cleanText[pos];
-    // Cannot cut after leading vowels
-    if (/[เแโใไ]/.test(charBefore)) return true;
-    // Cannot cut before tone marks or dependent vowels
-    if (THAI_DEPENDENT_MARKS_REGEX.test(charAfter)) return true;
-    return false;
-  };
+  const candidates = cuts.filter((cut) =>
+    !protectedRanges.some((range) => cut > range.start && cut < range.end)
+    && !THAI_LEADING_VOWELS_REGEX.test(cleanText.slice(0, cut).trimEnd())
+    && !THAI_DEPENDENT_MARKS_REGEX.test(cleanText.slice(cut))
+  ).map((cut) => {
+    const lines = [cleanText.slice(0, cut).trim(), cleanText.slice(cut).trim()];
+    const shortest = Math.min(...lines.map((line) => line.length));
+    const longest = Math.max(...lines.map((line) => line.length));
+    // Length limits are soft: preserving a whole word takes precedence.
+    const penalty = Math.max(0, longest - maxCharsPerLine) * 4
+      + Math.max(0, minCharsPerLine - shortest) * 4;
+    return { lines, score: penalty + Math.abs(lines[0].length - lines[1].length) };
+  }).filter(({ lines }) => lines.every(Boolean));
 
-  // Find candidate cut point closest to center
-  const center = cleanText.length / 2;
-  let bestCut = -1;
-  let minDistance = Infinity;
-
-  for (let cut = minCharsPerLine; cut <= cleanText.length - minCharsPerLine; cut++) {
-    if (isCutInsideProtected(cut)) continue;
-    if (isCutAtForbiddenThaiChar(cut)) continue;
-
-    const l1 = cleanText.slice(0, cut).trim();
-    const l2 = cleanText.slice(cut).trim();
-    const v1 = validateLine(l1, maxCharsPerLine + 6, minCharsPerLine);
-    const v2 = validateLine(l2, maxCharsPerLine + 6, minCharsPerLine);
-    if (!v1.valid || !v2.valid) continue;
-
-    const dist = Math.abs(cut - center);
-    if (dist < minDistance) {
-      minDistance = dist;
-      bestCut = cut;
-    }
-  }
-
-  if (bestCut !== -1) {
-    return [cleanText.slice(0, bestCut).trim(), cleanText.slice(bestCut).trim()];
-  }
-
-  // Fallback: If no protected cut passed validation, cut at center avoiding forbidden marks
-  let fallbackCut = Math.round(center);
-  for (let offset = 0; offset < cleanText.length / 2; offset++) {
-    for (const sign of [1, -1]) {
-      const testPos = fallbackCut + offset * sign;
-      if (
-        testPos >= minCharsPerLine &&
-        testPos <= cleanText.length - minCharsPerLine &&
-        !isCutAtForbiddenThaiChar(testPos)
-      ) {
-        const fl1 = cleanText.slice(0, testPos).trim();
-        const fl2 = cleanText.slice(testPos).trim();
-        if (
-          validateLine(fl1, maxCharsPerLine + 8, minCharsPerLine).valid &&
-          validateLine(fl2, maxCharsPerLine + 8, minCharsPerLine).valid
-        ) {
-          return [fl1, fl2];
-        }
-      }
-    }
-  }
-
-  return [cleanText];
+  candidates.sort((a, b) => a.score - b.score);
+  // Never fall back to slicing an unknown word or an English product name.
+  return candidates[0]?.lines || [cleanText];
 }

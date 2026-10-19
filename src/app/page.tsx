@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import {
+  AudioLines,
   Edit3,
   FolderOpen,
   Plus,
@@ -469,6 +471,11 @@ export default function DashboardPage() {
               </div>
             )}
 
+            <Link href="/voice" className="btn btn-ghost btn-sm rounded-xl gap-1.5" aria-label="Voice Studio ระบบพากย์เสียง">
+              <AudioLines className="w-4 h-4" />
+              <span className="hidden sm:inline">Voice Studio</span>
+            </Link>
+
             <button
               type="button"
               onClick={handleStartNewProduct}
@@ -628,6 +635,8 @@ export default function DashboardPage() {
           {/* Right Column: Live Video Player Preview (5 cols, sticky) */}
           <div className="lg:col-span-5 sticky top-24">
             <VideoPlayerPreview
+              key={activeProduct?.id || `new-${formKey}`}
+              enabled={Boolean(activeProduct)}
               props={currentVideoProps}
               showSafeZone={showSafeZone}
               onToggleSafeZone={setShowSafeZone}

@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.next-dev/
+.next-production/
+.env*
+!.env.example
+data/
+storage/
+.tmp/
+*.tsbuildinfo
+next-env.d.ts
+.venv/
+test-results/

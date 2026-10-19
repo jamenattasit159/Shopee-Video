@@ -632,7 +632,8 @@ export const RenderExportModal: React.FC<RenderExportModalProps> = ({
                 key={`${renderedUrl}_${renderTimestamp}`}
                 src={`${renderedUrl}?t=${renderTimestamp}`}
                 controls
-                autoPlay
+                autoPlay={false}
+                preload="metadata"
                 loop
                 className="w-full h-full object-cover"
               />
